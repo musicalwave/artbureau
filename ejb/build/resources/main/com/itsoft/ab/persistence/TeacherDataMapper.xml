@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsoft.ab.persistence.TeacherDataMapper">
+    <select id="getDataByTeacherId" parameterType="int" resultType="TeacherDataModel">
+        SELECT teachersData.*
+        FROM teachersData
+        WHERE teachersData.teacherId = #{id}
+    </select>
+
+    <insert id="insertData" parameterType="TeacherDataModel">
+        INSERT INTO teachersData (teacherId, fname, lname, pname, actnumber)
+        VALUES (
+        #{teacherId},
+        #{fname},
+        #{lname},
+        #{pname},
+        #{actnumber})
+    </insert>
+
+    <update id="updateData" parameterType="TeacherDataModel">
+        UPDATE teachersData SET
+        fname = #{fname},
+        lname = #{lname},
+        pname = #{pname},
+        actnumber = #{actnumber}
+        WHERE teacherId = #{teacherId}
+    </update>
+</mapper>

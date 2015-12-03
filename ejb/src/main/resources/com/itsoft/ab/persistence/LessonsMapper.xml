@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsoft.ab.persistence.LessonsMapper" >
+
+    <resultMap id="result" type="LessonModel">
+        <result property="id" column="id"/>
+        <result property="eventId" column="eventId"/>
+        <result property="statusId" column="statusId"/>
+        <result property="contractId" column="contractId"/>
+        <result property="shiftedByClient" column="shiftedByClient"/>
+        <result property="shiftedByTeacher" column="shiftedByTeacher"/>
+        <result property="date" column="date"/>
+
+        <result property="roomId" column="roomId"/>
+        <result property="roomName" column="roomName"/>
+        <result property="startTime" column="startTime"/>
+        <result property="finishTime" column="finishTime"/>
+        <result property="statusName" column="statusName"/>
+        <result property="contractType" column="contractType"/>
+    </resultMap>
+
+    <!--All queries here-->
+
+    <select id="getContractLessons" parameterType="int" resultMap="result">
+        SELECT
+        lessons.id,
+        lessons.eventId,
+        lessons.statusId,
+        lessons.shiftedByClient,
+        lessons.shiftedByTeacher,
+        lessons.date,
+        rooms.id AS roomId,
+        rooms.name AS roomName,
+        events.startTime AS startTime,
+        events.finishTime AS finishTime,
+        lessonsStatus.name AS statusName
+
+        FROM lessons, events, rooms, lessonsStatus
+        WHERE lessons.contractId = #{id}
+        AND events.id = lessons.eventId
+        AND rooms.id = events.roomId
+        AND lessonsStatus.id = lessons.statusId
+        ORDER BY lessons.date ASC
+    </select>
+
+    <select id="getLesson" parameterType="int" resultType="LessonModel">
+        SELECT
+        lessons.*,
+        contracts.contractType AS contractType
+        FROM lessons, contracts
+        WHERE lessons.id = #{id}
+        AND contracts.id = lessons.contractId
+    </select>
+
+    <update id="updateStatus" parameterType="LessonModel">
+        UPDATE lessons SET
+        lessons.statusId = #{statusId}
+        WHERE
+        lessons.id = #{id}
+    </update>
+
+    <insert id="insertLesson" parameterType="LessonModel">
+        INSERT INTO lessons (eventId, statusId, contractId, shiftedByClient, shiftedByTeacher, date, payment, task)
+        VALUES (
+        #{eventId},
+        #{statusId},
+        #{contractId},
+        #{shiftedByClient},
+        #{shiftedByTeacher},
+        #{date},
+        #{payment},
+        #{task})
+    </insert>
+
+    <delete id="deleteLesson" parameterType="LessonModel">
+        delete from lessons where id = #{id}
+    </delete>
+
+    <select id="getContractLessonsBetweenDates" parameterType="map" resultType="LessonModel">
+        SELECT
+        lessons.*
+        FROM lessons
+        WHERE lessons.contractId = #{id}
+        AND lessons.date &gt;= #{startdate}
+        AND lessons.date &lt;= #{finishdate}
+        AND lessons.statusId = 1
+    </select>
+
+    <select id="getLastLessons" parameterType="map" resultType="LessonWeb">
+        SELECT
+        lessons.contractId AS contractId,
+        lessons.eventId AS eventId,
+        lessons.payment AS hasPayment,
+        lessons.task AS hasTask,
+        lessons.date AS date,
+        events.startTime AS startTime,
+
+        teachers.name AS teacherName,
+        teachers.id AS teacherId,
+        types.name AS typeName,
+        CONCAT(clients.lname, ' ', clients.fname) AS clientName,
+        clients.id AS clientId
+
+        FROM lessons, types, contracts, teachers, clients, J_TEACHERS_TYPES, events
+        WHERE lessons.statusId = 1
+        AND lessons.date &gt;= #{fromDate}
+        AND lessons.date &lt; #{toDate}
+        AND lessons.contractId IN (
+              SELECT lessons.contractId
+              FROM lessons
+              WHERE lessons.statusId = 1
+              GROUP BY lessons.contractId
+              HAVING COUNT(lessons.contractId) = 1
+        )
+        AND contracts.id = lessons.contractId
+        AND clients.id = contracts.clientId
+        AND teachers.id = J_TEACHERS_TYPES.teacherId
+        AND types.id = J_TEACHERS_TYPES.typeId
+        AND J_TEACHERS_TYPES.id = contracts.teacherTypeId
+        AND events.id = lessons.eventId
+        ORDER BY events.startTime ASC
+    </select>
+
+</mapper>

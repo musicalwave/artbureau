@@ -1,0 +1,1 @@
+<% response.sendRedirect("j_spring_security_logout"); %>

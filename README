@@ -1,0 +1,16 @@
+BEFORE COMPILING
+
+1. Place bootstrap framework files
+    from resources.tar
+    into /web/.../webapp/resources
+
+BEFORE FIRST DEPLOYING
+1. Create JDBC DataSource
+2. Create JMS ConnectionFactory and Destination
+    a) Glassfish AdminPanel -> Resources -> JMS Resources -> Connection Factories -> New:
+        JNDI Name = jms/JMSPool
+        Resource Type = javax.jms.ConnectionFactory
+    b) Glassfish AdminPanel -> Resources -> JMS Resources -> Destination Resources -> New:
+        JNDI Name = jms/MailTopic
+        Physical Destination Name = MailTopic
+        Resource Type = javax.jms.Topic

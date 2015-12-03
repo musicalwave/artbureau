@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsoft.ab.persistence.ScheduleMapper">
+
+    <!--All queries here-->
+
+    <sql id="Lesson">
+        l.id, l.eventId, l.statusId, l.date, l.contractId, l.shiftedByClient, l.shiftedByTeacher
+    </sql>
+
+    <sql id="Event">
+        id, weekday, roomId, startTime, finishTime, teacherId, active, comment
+    </sql>
+
+    <sql id="EventLessonDate">
+        e.id as eventId, e.weekday, #{date} as date,
+        e.startTime,
+        e.finishTime as finishTime,
+        e.roomId,
+        r.name as roomName,
+        e.teacherId as teacherId,
+        t.name as teacherName,
+        (l.id IS NOT NULL) as hasLesson,
+        l.id as lessonId,
+        l.contractId,
+        con.clientId,
+        CONCAT(clients.lname, clients.fname) as clientName,
+        clients.phone1 as clientPhone,
+        types.id as typeId,
+        types.name as typeName,
+        con.contractType as clientStatus,
+        l.statusId as doneStatus,
+        (con.trial+1) as contractStatus,
+        (l.statusId IS NULL) as needSetStatus,
+        0 as hasTask,
+        0 as hasPayment
+
+        FROM events e
+	    LEFT JOIN (SELECT * FROM lessons where lessons.date=#{date}) l ON e.id=l.eventId
+	    JOIN teachers t ON t.id=e.teacherId
+	    JOIN rooms r ON e.roomId=r.id
+	    LEFT JOIN contracts con ON l.contractId=con.id
+	    LEFT JOIN clients on con.clientId=clients.id
+	    LEFT JOIN J_TEACHERS_TYPES on J_TEACHERS_TYPES.id=con.teacherTypeId
+	    LEFT JOIN types on J_TEACHERS_TYPES.typeId=types.id
+	    LEFT JOIN contractsType on con.contractType=contractsType.id
+    </sql>
+
+    <!--Event + Lesson -->
+    <select id="getLesson" parameterType="int" resultType="LessonWeb">
+        SELECT
+        e.id as eventId, e.weekday, l.date,
+        e.startTime, e.finishTime as finishTime, e.roomId,
+        r.name as roomName, e.teacherId as teacherId,
+        t.name as teacherName, (l.id IS NOT NULL) as hasLesson, l.id as lessonId,
+        l.contractId, con.clientId, clients.lname as clientName, clients.phone1 as clientPhone,
+        types.id as typeId, types.name as typeName,
+        con.contractType as clientStatus, l.statusId as doneStatus,
+        (con.trial+1) as contractStatus, (l.statusId IS NULL) as needSetStatus,
+        0 as hasTask, 0 as hasPayment
+
+        FROM events e
+	    JOIN lessons l ON e.id=l.eventId
+	    JOIN teachers t ON t.id=e.teacherId
+	    JOIN rooms r ON e.roomId=r.id
+	    LEFT JOIN contracts con ON l.contractId=con.id
+	    LEFT JOIN clients on con.clientId=clients.id
+	    LEFT JOIN J_TEACHERS_TYPES on J_TEACHERS_TYPES.id=con.teacherTypeId
+	    LEFT JOIN types on J_TEACHERS_TYPES.typeId=types.id
+	    LEFT JOIN contractsType on con.contractType=contractsType.id
+        WHERE l.id=#{id}
+    </select>
+    <select id="selectEventsByDate" parameterType="java.sql.Date" resultType="LessonWeb">
+        SELECT
+        <include refid="EventLessonDate" />
+        WHERE e.weekday=(weekday(#{date})+1) AND e.active=1
+    </select>
+    <select id="selectEventsByDateAndClass" resultType="LessonWeb">
+        SELECT
+        <include refid="EventLessonDate" />
+        WHERE e.weekday=(weekday(#{date})+1) AND e.roomId=#{roomId} AND e.active=1
+    </select>
+    <select id="selectEventsByDateAndTeacher" resultType="LessonWeb">
+        SELECT
+        <include refid="EventLessonDate" />
+        WHERE e.weekday=(weekday(#{date})+1) AND e.teacherId=#{teacherId} AND e.active=1
+    </select>
+
+    <!--Event -->
+    <select id="getEvent" parameterType="int" resultType="LessonWeb">
+        SELECT e.id as eventId, e.weekday, e.startTime, e.finishTime as finishTime, e.roomId, r.name as roomName, e.teacherId as teacherId, t.name as teacherName
+        FROM events e
+        JOIN teachers t ON t.id=e.teacherId
+	    JOIN rooms r ON e.roomId=r.id
+        WHERE e.id=#{id}
+    </select>
+    <select id="selectAllByClass" parameterType="int" resultType="LessonWeb">
+        SELECT e.id as eventId, e.weekday, e.startTime, e.finishTime as finishTime, e.roomId, r.name as roomName, e.teacherId as teacherId, t.name as teacherName
+        FROM events e
+        JOIN teachers t ON t.id=e.teacherId
+	    JOIN rooms r ON e.roomId=r.id
+        WHERE e.roomId=#{id} AND e.active=1
+    </select>
+    <select id="selectAllByTeacher" parameterType="int" resultType="LessonWeb">
+        SELECT e.id as eventId, e.weekday, e.startTime, e.finishTime as finishTime, e.roomId, r.name as roomName, e.teacherId as teacherId, t.name as teacherName
+        FROM events e
+        JOIN teachers t ON t.id=e.teacherId
+	    JOIN rooms r ON e.roomId=r.id
+        WHERE e.teacherId=#{id} AND e.active=1
+    </select>
+    <select id="selectAllActive" resultType="LessonWeb">
+        SELECT e.id as eventId, e.weekday, e.startTime, e.finishTime as finishTime, e.roomId, r.name as roomName, e.teacherId as teacherId, t.name as teacherName
+        FROM events e
+        JOIN teachers t ON t.id=e.teacherId
+	    JOIN rooms r ON e.roomId=r.id
+        WHERE e.active=1
+    </select>
+
+    <!--проверка возможности создания занятия (преподаватель, дата начала, время занятия) -->
+    <select id="countLessons" resultType="int">
+        SELECT COUNT(*)
+        FROM lessons
+        WHERE eventId=#{eventId} AND date=#{date, javaType=java.sql.Date, jdbcType=DATE}
+    </select>
+
+    <select id="countLessonsByTeacherAndTime" resultType="int">
+        SELECT COUNT(l.id)
+        FROM lessons l, events e
+        WHERE e.teacherTypeId=#{teacherTypeId} AND l.eventId=e.id
+        AND e.startTime=#{startTime} AND l.date=#{date, javaType=java.sql.Date, jdbcType=DATE}
+    </select>
+
+    <update id="shiftLesson">
+        UPDATE lessons l, contracts c
+        SET l.eventId=#{eventId}, l.date=#{newDate, javaType=java.sql.Date, jdbcType=DATE}, c.countShifts = c.countShifts + 1
+        WHERE l.id=#{lessonId} AND l.contractId=c.id
+    </update>
+
+    <select id="selectEmptyEventsByDateAndTeacher" parameterType="map" resultType="EventModel">
+        SELECT
+        <include refid="Event" />
+        FROM events e
+        WHERE e.teacherId=#{teacherId} AND e.active=1
+    </select>
+
+</mapper>

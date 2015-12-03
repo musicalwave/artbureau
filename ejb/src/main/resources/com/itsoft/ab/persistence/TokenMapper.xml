@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsoft.ab.persistence.TokenMapper">
+
+    <insert id="insertToken">
+      INSERT INTO persistent_logins (username, series, token, last_used)
+     values (#{username}, #{series}, #{tokenValue}, #{date})
+    </insert>
+
+    <update id="updateToken">
+        UPDATE persistent_logins set
+        token=#{tokenValue},
+        last_used=#{date}
+        WHERE series=#{series}
+    </update>
+
+    <select id="getTokenForSeries" parameterType="String" resultType="TokenModel">
+        select username, series, token, last_used
+        from persistent_logins
+        where series=#{series}
+    </select>
+
+    <delete id="deleteToken" parameterType="String">
+        delete from persistent_logins where username=#{username}
+    </delete>
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsoft.ab.persistence.JournalMapper" >
+
+    <!--All queries here-->
+
+    <select id="getDateTransfers" parameterType="java.sql.Date" resultType="JLessonTransfer">
+        SELECT J_LESSON_TRANSFER.*,
+        users.name AS userS,
+        teachers.name AS teacherName,
+        teachers.id AS teacherId,
+        clients.lname AS clientName,
+        clients.id AS clientId,
+        contracts.id AS contractId
+        FROM J_LESSON_TRANSFER, teachers, clients, contracts, lessons, users, J_TEACHERS_TYPES
+        WHERE J_LESSON_TRANSFER.fromDate = #{date}
+        AND users.id = J_LESSON_TRANSFER.userId
+        AND lessons.id = J_LESSON_TRANSFER.lessonId
+        AND contracts.id = lessons.contractId
+        AND clients.id = contracts.clientId
+        AND J_TEACHERS_TYPES.id = contracts.teacherTypeId
+        AND teachers.id = J_TEACHERS_TYPES.teacherId
+    </select>
+
+    <insert id="insertLessonTransfer" parameterType="JLessonTransfer">
+        INSERT INTO J_LESSON_TRANSFER (lessonId, fromDate, toDate, reason, userId, comment)
+        VALUES (
+        #{lessonId},
+        #{fromDate},
+        #{toDate},
+        #{reason},
+        #{userId},
+        #{comment})
+    </insert>
+
+</mapper>

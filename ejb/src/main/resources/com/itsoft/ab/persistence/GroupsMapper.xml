@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsoft.ab.persistence.GroupsMapper" >
+    <resultMap id="result" type="GroupModel">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <resultMap id="resultUsers" type="UserModel">
+        <result property="id" column="id"/>
+        <result property="mail" column="mail"/>
+    </resultMap>
+
+    <!--All queries here-->
+
+    <sql id="selectAllFields">
+        SELECT id, name, active
+    </sql>
+
+    <select id="selectAllActive" resultMap="result">
+        <include refid="selectAllFields"/>
+        FROM groups
+        WHERE active = 1
+    </select>
+
+    <select id="selectIdFromGroup" parameterType="int" resultMap="resultUsers">
+        SELECT id, mail FROM users WHERE
+        id IN (SELECT user_id
+        FROM users_groups
+        WHERE group_id = #{id})
+
+    </select>
+
+    <select id="selectById" parameterType="int" resultType="GroupModel">
+        <include refid="selectAllFields"/>
+        FROM groups
+        WHERE id=#{id}
+    </select>
+
+    <select id="selectUserGroups" parameterType="int" resultType="GroupModel">
+        SELECT groups.id AS id,
+        groups.name AS name
+        FROM groups, users_groups
+        WHERE users_groups.user_id = #{id}
+        AND groups.id = users_groups.group_id
+        ORDER BY groups.id ASC
+    </select>
+</mapper>

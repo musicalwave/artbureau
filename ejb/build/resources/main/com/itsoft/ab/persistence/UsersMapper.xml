@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsoft.ab.persistence.UsersMapper" >
+
+    <resultMap id="result" type="UserModel">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="mail" column="mail"/>
+        <result property="login" column="login"/>
+        <result property="roleId" column="roleId"/>
+        <result property="statusId" column="statusId"/>
+        <result property="passwordHash" column="passwordHash"/>
+        <result property="roleName" column="roleName"/>
+        <result property="rolePrefix" column="rolePrefix"/>
+    </resultMap>
+
+    <!--All queries here-->
+
+    <sql id="selectAllFields">
+        SELECT id, name, phone, mail, login, roleId, statusId, passwordHash
+    </sql>
+
+    <select id="selectAllById" parameterType="int" resultMap="result">
+        <include refid="selectAllFields"/>
+        FROM users
+        WHERE id = #{id, javaType=int, jdbcType=INTEGER}
+    </select>
+
+    <select id="selectById" parameterType="int" resultType="UserModel">
+        <include refid="selectAllFields"/>
+        FROM users
+        WHERE id = #{id, javaType=int, jdbcType=INTEGER}
+    </select>
+
+    <select id="selectByLogin" parameterType="String" resultType="UserModel">
+        <include refid="selectAllFields"/>
+        FROM users
+        WHERE login = #{login, javaType=String, jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectForAuth" parameterType="String" resultType="UserModel">
+        SELECT
+            users.id,
+            users.name,
+            role.prefix AS rolePrefix
+            FROM users, role
+            WHERE users.login = #{login}
+            AND users.roleId = role.id;
+    </select>
+
+    <select id="selectRoleById" parameterType="int" resultType="String">
+        SELECT name
+        FROM role
+        WHERE id = #{id, javaType=int, jdbcType=INTEGER}
+    </select>
+
+    <insert id="insert" parameterType="UserModel">
+        INSERT INTO users (id, name, phone, mail, login, roleId, statusId, passwordHash)
+        VALUES (#{id, javaType=int, jdbcType=INTEGER}, #{name, javaType=String, jdbcType=VARCHAR},
+        #{phone, javaType=String, jdbcType=VARCHAR}, #{mail, javaType=String, jdbcType=VARCHAR},
+        #{login, javaType=String, jdbcType=VARCHAR},
+        #{roleId, javaType=int, jdbcType=INTEGER}, #{statusId, javaType=int, jdbcType=INTEGER},
+        #{passwordHash, javaType=String, jdbcType=VARCHAR})
+    </insert>
+
+    <select id="selectAllActive" resultType="UserModel">
+        SELECT
+        u.id AS id,
+        u.name AS name,
+        u.phone AS phone,
+        u.mail AS mail,
+        u.login AS login,
+        u.bdate AS bdate,
+        r.name AS roleName
+        FROM users u LEFT JOIN role r
+        ON r.id = u.roleId
+
+    </select>
+
+    <select id="selectAllActiveOrdered" resultMap="result">
+        <include refid="selectAllFields"/>
+        FROM users
+        WHERE active = 1
+        ORDER BY roleId ASC
+    </select>
+</mapper>

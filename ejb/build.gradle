@@ -1,0 +1,44 @@
+apply plugin: 'java'
+
+jar {
+
+    baseName = 'abEJB'
+    extension = 'jar'
+
+    archiveName = baseName + '.' + extension
+
+    manifest {
+        attributes("Implementation-Title": "Gradle", "Implementation-Version": version)
+    }
+}
+
+dependencies {
+    compile fileTree(dir: '../lib', include: '*.jar')
+    compile 'org.springframework:spring-context:3.2.4.RELEASE'
+    compile 'org.springframework:spring-core:3.2.4.RELEASE'
+    compile 'org.springframework:spring-beans:3.2.4.RELEASE'
+    compile 'org.springframework:spring-jdbc:3.2.4.RELEASE'
+    compile 'org.springframework.security:spring-security-web:3.1.4.RELEASE'
+    compile 'org.mybatis:mybatis-spring:1.2.1'
+    compile 'org.mybatis:mybatis:3.2.6'
+    compile 'javax.mail:mail:1.4.7'
+    compile 'org.docx4j:docx4j:2.8.1'
+}
+
+repositories {
+    flatDir {
+        dirs '../lib'
+    }
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+    }
+}

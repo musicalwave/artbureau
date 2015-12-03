@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="contracts" >
+
+    <resultMap id="result" type="Contract">
+        <result property="id" column="id"/>
+        <result property="clientId" column="clientId"/>
+        <result property="teacherId" column="teacherId"/>
+        <result property="countLessons" column="countLessons"/>
+        <result property="price" column="price"/>
+        <result property="statusId" column="statusId"/>
+        <result property="startDate" column="startDate"/>
+        <result property="availableLessons" column="availableLessons"/>
+        <result property="countShifts" column="countShifts"/>
+        <result property="isSpecial" column="isSpecial"/>
+        <result property="isFreezed" column="isFreezed"/>
+        <result property="freezeDate" column="freezeDate"/>
+    </resultMap>
+
+    <!--All queries here-->
+
+</mapper>

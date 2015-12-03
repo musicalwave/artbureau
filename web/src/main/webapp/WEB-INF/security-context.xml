@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+    <http pattern="/login" security="none" />
+    <http pattern="/logout" security="none" />
+    <http pattern="/error" security="none" />
+    <http pattern="/index" security="none" />
+    <!--<http pattern="/resources/**" security="none" />-->
+    <http pattern="/do/**" security="none" />
+    <http pattern="/out" security="none" />
+
+    <http use-expressions="true" request-matcher="ant">
+        <intercept-url pattern="/**" access="hasAnyRole('admin','manager','topadmin','topmanager','smanager')"/>
+        <intercept-url pattern="/m/**" access="hasAnyRole('manager','topadmin','topmanager','smanager')"/>
+        <intercept-url pattern="/ta/**" access="hasAnyRole('topadmin','topmanager')"/>
+        <intercept-url pattern="/tm/**" access="hasRole('topmanager')"/>
+        <intercept-url pattern="/schedule/*" access="permitAll"/>
+
+        <form-login login-page="/login" default-target-url="/tasks"
+                        always-use-default-target="true" authentication-failure-url="/"
+                        authentication-failure-handler-ref="logAuthenticationFailureHandler"
+                        authentication-success-handler-ref="logAutenticationSuccessHandler"
+                        />
+        <logout logout-success-url="/login" />
+        <remember-me data-source-ref="dataSourceJNDI" token-validity-seconds="28800"/>
+    </http>
+
+    <authentication-manager>
+        <authentication-provider user-service-ref="userDetails">
+            <password-encoder hash="sha-256"/>
+        </authentication-provider>
+    </authentication-manager>
+
+    <beans:bean id="rememberMeServices"
+          class="org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices">
+        <beans:property name="tokenRepository" ref="customTokenRepository" />
+        <beans:property name="userDetailsService" ref="userDetails" />
+        <beans:property name="key" value="rememberKey" />
+    </beans:bean>
+
+    <beans:bean id="customTokenRepository" class="com.itsoft.ab.auth.CustomTokenRepository"/>
+    <beans:bean id="userDetails" class="com.itsoft.ab.auth.UserDetailsServiceImpl"/>
+    <beans:bean id="logAuthenticationFailureHandler" class="com.itsoft.ab.auth.LogAuthenticationFailureHandler"/>
+    <beans:bean id="logAutenticationSuccessHandler"  class="com.itsoft.ab.auth.LogAuthenticationSuccessHandler"/>
+
+</beans:beans>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsoft.ab.persistence.EventsMapper" >
+
+    <resultMap id="result" type="EventModel">
+        <result property="id" column="id"/>
+        <result property="teacherId" column="teacherId"/>
+        <result property="roomId" column="roomId"/>
+        <result property="roomS" column="roomS"/>
+        <result property="weekday" column="weekday"/>
+        <result property="startTime" column="startTime"/>
+        <result property="finishTime" column="finishTime"/>
+        <result property="comment" column="comment"/>
+        <result property="active" column="active"/>
+        <result property="teacherName" column="teacherName"/>
+
+    </resultMap>
+
+    <!--All queries here-->
+
+    <select id="getEventById" parameterType="int" resultType="EventModel">
+        SELECT events.*,
+        teachers.name AS teacherName
+        FROM events, teachers
+        WHERE events.id = #{id}
+        AND teachers.id = events.teacherId
+    </select>
+
+    <select id="getTeacherEvents" parameterType="int" resultMap="result">
+        SELECT events.*,
+        teachers.name AS teacherName,
+        rooms.name AS roomS
+        FROM events, teachers, rooms
+        WHERE events.teacherId = #{id}
+        AND events.active = 1
+        AND teachers.id = events.teacherId
+        AND rooms.id = events.roomId
+    </select>
+
+    <insert id="insertEvent" parameterType="EventModel">
+        INSERT INTO events (teacherId, roomId, weekday, startTime, finishTime)
+        VALUES (
+        #{teacherId},
+        #{roomId},
+        #{weekday},
+        #{startTime},
+        #{finishTime})
+    </insert>
+
+    <update id="updateEvent" parameterType="EventModel">
+        UPDATE events SET
+        startTime = #{startTime},
+        finishTime = #{finishTime},
+        weekday = #{weekday},
+        roomId = #{roomId}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteEvent" parameterType="int">
+        delete from events where id = #{id}
+    </delete>
+
+</mapper>

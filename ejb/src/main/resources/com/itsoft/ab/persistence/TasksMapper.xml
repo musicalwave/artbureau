@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsoft.ab.persistence.TasksMapper">
+
+    <resultMap id="result" type="TaskModel">
+        <result property="id" column="id"/>
+        <result property="date" column="date"/>
+        <result property="fromId" column="fromId"/>
+        <result property="toId" column="toId"/>
+        <result property="message" column="message"/>
+        <result property="clientId" column="clientId"/>
+        <result property="done" column="done"/>
+        <result property="clientName" column="clientName"/>
+        <result property="hash" column="hash"/>
+
+        <result property="active" column="active"/>
+        <result property="important" column="important"/>
+        <result property="info" column="info"/>
+        <result property="comment" column="comment"/>
+        <result property="time" column="time"/>
+        <result property="groupId" column="groupId"/>
+        <result property="teacherId" column="teacherId"/>
+        <result property="teacherName" column="teacherName"/>
+        <result property="startDate" column="startDate"/>
+
+
+    </resultMap>
+
+    <!--All queries here-->
+
+    <sql id="selectAllFields">
+        SELECT id, date, fromId, toId, message, clientId, done, clientName, hash, active, important, info, comment, time, groupId, teacherId, teacherName, startDate
+    </sql>
+
+    <sql id="selectForWeb">
+        SELECT id, date, fromId, toId, message, important, info, time, groupId, done
+    </sql>
+
+    <select id="getAllTasks" resultMap="result">
+        <include refid="selectAllFields"/>
+        FROM tasks
+        WHERE done=0 AND active=1
+    </select>
+
+    <select id="getTasks" parameterType="int" resultMap="result">
+        <include refid="selectAllFields"/>
+        FROM tasks
+        WHERE toId=#{id} AND done=0 AND active=1
+    </select>
+
+    <select id="getMyTasks" parameterType="int" resultMap="result">
+        <include refid="selectAllFields"/>
+        FROM tasks
+        WHERE fromId=#{id} AND active=1  AND done=0
+    </select>
+
+    <select id="getTasksWeb" parameterType="map" resultMap="result">
+        <include refid="selectForWeb"/>
+        FROM tasks
+        WHERE tasks.toId=#{id}
+        AND tasks.done=0
+        AND tasks.active=1
+        AND tasks.startDate &lt;= #{fromdate}
+    </select>
+
+    <select id="getMyTasksWeb" parameterType="int" resultMap="result">
+        <include refid="selectForWeb"/>
+        FROM tasks
+        WHERE fromId=#{id}
+        AND active=1
+        AND done=0
+    </select>
+
+    <select id="getDoneMyTasksWeb" parameterType="int" resultMap="result">
+        <include refid="selectForWeb"/>
+        FROM tasks
+        WHERE fromId=#{id} AND active=1  AND done=1 ORDER BY hash DESC LIMIT 10
+    </select>
+
+    <select id="getGTasksWeb" parameterType="map" resultMap="result">
+        <include refid="selectForWeb"/>
+        FROM tasks
+        WHERE groupId IN (SELECT group_id FROM users_groups WHERE user_id = #{id})
+        AND tasks.done=0
+        AND tasks.active=1
+        AND tasks.startDate &lt;= #{fromdate}
+    </select>
+
+    <select id="getMyGTasksWeb" parameterType="int" resultMap="result">
+        <include refid="selectForWeb"/>
+        FROM tasks
+        WHERE fromId=#{id} AND active=1  AND done=0
+    </select>
+
+    <select id="getNTasks" parameterType="int" resultType="int">
+        SELECT count(id)
+        FROM tasks
+        WHERE toId=#{id} AND done=0 AND active=1
+    </select>
+
+    <update id="doneTask" parameterType="map">
+        UPDATE tasks SET
+        done = 1, doneBy = #{by}, comment = #{comment}
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteTask" parameterType="int">
+        UPDATE tasks SET
+        active = 0
+        WHERE id = #{id}
+    </update>
+
+    <update id="transferTask" parameterType="map">
+        UPDATE tasks SET
+        date = #{date}, comment = #{comment}
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertTask" parameterType="TaskModel">
+        INSERT INTO tasks (fromId, toId, message, clientId, date, hash, active, important, info, time, teacherId, teacherName, startDate)
+        VALUES (
+        #{fromId, javaType=int, jdbcType=INTEGER},
+        #{toId, javaType=int, jdbcType=INTEGER},
+        #{message, javaType=String, jdbcType=VARCHAR},
+        #{clientId, javaType=int, jdbcType=INTEGER},
+        #{date, javaType=long, jdbcType=BIGINT},
+        #{hash, javaType=long, jdbcType=BIGINT},
+        #{active, javaType=int, jdbcType=INTEGER},
+        #{important, javaType=int, jdbcType=INTEGER},
+        #{info, javaType=int, jdbcType=INTEGER},
+        #{time, javaType=long, jdbcType=BIGINT},
+        #{groupId, javaType=int, jdbcType=INTEGER},
+        #{teacherId, javaType=int, jdbcType=INTEGER},
+        #{teacherName, javaType=String, jdbcType=VARCHAR},
+        #{startDate, javaType=long, jdbcType=BIGINT})
+    </insert>
+
+    <insert id="insertTaskTemp" parameterType="TaskModel">
+        INSERT INTO tasks (fromId, toId, message, clientName, date, hash, active, important, info, time, teacherId, teacherName, startDate)
+        VALUES (
+        #{fromId, javaType=int, jdbcType=INTEGER},
+        #{toId, javaType=int, jdbcType=INTEGER},
+        #{message, javaType=String, jdbcType=VARCHAR},
+        #{clientName, javaType=String, jdbcType=VARCHAR},
+        #{date, javaType=long, jdbcType=BIGINT},
+        #{hash, javaType=long, jdbcType=BIGINT},
+        #{active, javaType=int, jdbcType=INTEGER},
+        #{important, javaType=int, jdbcType=INTEGER},
+        #{info, javaType=int, jdbcType=INTEGER},
+        #{time, javaType=long, jdbcType=BIGINT},
+        #{teacherId, javaType=int, jdbcType=INTEGER},
+        #{teacherName, javaType=String, jdbcType=VARCHAR},
+        #{startDate, javaType=long, jdbcType=BIGINT})
+    </insert>
+
+    <insert id="insertTaskGroup" parameterType="TaskModel">
+        INSERT INTO tasks (fromId, groupId, message, clientId, date, hash, active, important, info, time, teacherId, teacherName, startDate)
+        VALUES (
+        #{fromId, javaType=int, jdbcType=INTEGER},
+        #{groupId, javaType=int, jdbcType=INTEGER},
+        #{message, javaType=String, jdbcType=VARCHAR},
+        #{clientId, javaType=int, jdbcType=INTEGER},
+        #{date, javaType=long, jdbcType=BIGINT},
+        #{hash, javaType=long, jdbcType=BIGINT},
+        #{active, javaType=int, jdbcType=INTEGER},
+        #{important, javaType=int, jdbcType=INTEGER},
+        #{info, javaType=int, jdbcType=INTEGER},
+        #{time, javaType=long, jdbcType=BIGINT}
+        #{teacherId, javaType=int, jdbcType=INTEGER},
+        #{teacherName, javaType=String, jdbcType=VARCHAR},
+        #{startDate, javaType=long, jdbcType=BIGINT})
+    </insert>
+
+    <insert id="insertTaskGroupTemp" parameterType="TaskModel">
+        INSERT INTO tasks (fromId, groupId, message, clientName, date, hash, active, important, info, time, teacherId, teacherName, startDate)
+        VALUES (
+        #{fromId, javaType=int, jdbcType=INTEGER},
+        #{groupId, javaType=int, jdbcType=INTEGER},
+        #{message, javaType=String, jdbcType=VARCHAR},
+        #{clientName, javaType=String, jdbcType=VARCHAR},
+        #{date, javaType=long, jdbcType=BIGINT},
+        #{hash, javaType=long, jdbcType=BIGINT},
+        #{active, javaType=int, jdbcType=INTEGER},
+        #{important, javaType=int, jdbcType=INTEGER},
+        #{info, javaType=int, jdbcType=INTEGER},
+        #{time},
+        #{teacherId, javaType=int, jdbcType=INTEGER},
+        #{teacherName, javaType=String, jdbcType=VARCHAR},
+        #{startDate, javaType=long, jdbcType=BIGINT})
+    </insert>
+
+    <select id="getTaskById" parameterType="int" resultType="TaskModel">
+        <include refid="selectAllFields"/>
+        FROM tasks
+        WHERE id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsoft.ab.persistence.TeacherMapper">
+    <resultMap id="result" type="TeacherModel">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="comment" column="comment"/>
+        <result property="scheduleId" column="scheduleId"/>
+        <result property="credentials" column="credentials"/>
+        <result property="hasCred" column="hasCred"/>
+        <result property="bdate" column="bdate"/>
+        <result property="active" column="active"/>
+    </resultMap>
+
+    <select id="getTeacherById" parameterType="int" resultType="TeacherModel">
+        SELECT teachers.id,
+        teachers.name,
+        teachers.phone,
+        teachers.comment,
+        teachers.scheduleId,
+        teachers.bdate,
+        teachers.hasCred,
+        teachers.active
+        FROM teachers
+        WHERE teachers.id = #{id}
+    </select>
+
+    <select id="findTeacher" parameterType="map" resultMap="result">
+        SELECT teachers.id,
+        teachers.name,
+        teachers.phone,
+        teachers.comment,
+        teachers.scheduleId,
+        teachers.bdate,
+        teachers.hasCred,
+        teachers.active
+        FROM teachers
+        <where>
+        <if test="name != null">
+            teachers.name LIKE #{name}
+            <if test="bdate != null">
+                AND teachers.bdate LIKE #{bdate}
+            </if>
+            <if test="phone != null">
+                AND teachers.phone = #{phone}
+            </if>
+            <if test="type > 0">
+                AND teachers.id IN
+                  (SELECT DISTINCT J_TEACHERS_TYPES.teacherId FROM J_TEACHERS_TYPES WHERE J_TEACHERS_TYPES.typeId = #{type})
+            </if>
+        </if>
+        <if test="name == null">
+            <if test="bdate != null">
+                teachers.bdate LIKE #{bdate}
+                <if test="phone != null">
+                    AND teachers.phone = #{phone}
+                </if>
+                <if test="type > 0">
+                    AND teachers.id IN
+                    (SELECT DISTINCT J_TEACHERS_TYPES.teacherId FROM J_TEACHERS_TYPES WHERE J_TEACHERS_TYPES.typeId = #{type})
+                </if>
+            </if>
+            <if test="bdate == null">
+                <if test="phone != null">
+                    teachers.phone = #{phone}
+                    <if test="type > 0">
+                        AND teachers.id IN
+                        (SELECT DISTINCT J_TEACHERS_TYPES.teacherId FROM J_TEACHERS_TYPES WHERE J_TEACHERS_TYPES.typeId = #{type})
+                    </if>
+                </if>
+                <if test="phone == null">
+                    <if test="type > 0">
+                        teachers.id IN
+                        (SELECT DISTINCT J_TEACHERS_TYPES.teacherId FROM J_TEACHERS_TYPES WHERE J_TEACHERS_TYPES.typeId = #{type})
+                    </if>
+                </if>
+            </if>
+        </if>
+        </where>
+    </select>
+
+    <insert id="saveTeacher" parameterType="TeacherModel">
+        INSERT INTO teachers (name, bdate, phone, credentials, hasCred, comment)
+        VALUES (#{name, javaType=String, jdbcType=VARCHAR},
+        #{bdate, javaType=String, jdbcType=VARCHAR},
+        #{phone, javaType=String, jdbcType=VARCHAR},
+        #{credentials, javaType=String, jdbcType=VARCHAR},
+        #{hasCred},
+        #{comment, javaType=String, jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertTeacher" parameterType="TeacherModel">
+        INSERT INTO teachers (name, bdate, phone, credentials, hasCred, comment)
+        VALUES (#{name, javaType=String, jdbcType=VARCHAR},
+        #{bdate, javaType=String, jdbcType=VARCHAR},
+        #{phone, javaType=String, jdbcType=VARCHAR},
+        #{credentials, javaType=String, jdbcType=VARCHAR},
+        #{hasCred},
+        #{comment, javaType=String, jdbcType=VARCHAR});
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+    <select id="getTeacherCredById" parameterType="int" resultType="TeacherModel">
+        SELECT teachers.id,
+        teachers.name,
+        teachers.hasCred,
+        teachers.credentials
+        FROM teachers
+        WHERE teachers.id = #{id}
+    </select>
+
+    <update id="updateCred" parameterType="TeacherModel">
+        UPDATE teachers SET
+        teachers.credentials = #{credentials},
+        teachers.hasCred = 1
+        WHERE
+        teachers.id = #{id}
+    </update>
+
+    <update id="updateTeacher" parameterType="TeacherModel">
+        UPDATE teachers SET
+        name = #{name},
+        phone = #{phone},
+        comment = #{comment},
+        bdate = #{bdate},
+        credentials = #{credentials},
+        hasCred = #{hasCred}
+        WHERE id = #{id}
+    </update>
+
+    <select id="getActiveTeachers" resultType="TeacherModel">
+        SELECT teachers.id,
+        teachers.name,
+        teachers.phone,
+        teachers.comment,
+        teachers.scheduleId,
+        teachers.bdate,
+        teachers.hasCred
+        FROM teachers
+        WHERE teachers.active = 1 ORDER BY teachers.name ASC
+    </select>
+</mapper>

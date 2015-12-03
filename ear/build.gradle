@@ -1,0 +1,26 @@
+apply plugin: 'ear'
+apply plugin: 'jetty'
+
+ear {
+    baseName = 'abEAR'
+
+    manifest {
+        attributes (
+                "Bundle-Name" : "abEAR", "Bundle-SymbolicName" : "abEAR", "Bundle-Version" : version,
+                "Implementation-Title" : "com.itsoft.ab.ejb", "Implementation-Version" : version, "Implementation-Vendor" : "IT Software")
+    }
+
+}
+
+
+dependencies {
+    deploy project(path: ':web', configuration: 'archives')
+    deploy project(':ejb')
+    earlib fileTree(dir: 'lib', include: '*.jar')
+}
+
+repositories {
+    flatDir {
+        dirs "lib"
+    }
+}
