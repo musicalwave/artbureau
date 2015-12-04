@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-Name: abEAR
-Bundle-SymbolicName: abEAR
-Bundle-Version: 1.0
-Implementation-Title: com.itsoft.ab.ejb
-Implementation-Version: 1.0
-Implementation-Vendor: IT Software
-
