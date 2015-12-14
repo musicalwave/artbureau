@@ -1,0 +1,109 @@
+body {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 14px;
+    font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+}
+
+#calendar {
+    /*width: 1200px;*/
+    width: 100%;
+    margin: 0 auto;
+}
+
+#roomSelect {
+   height: 27px;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+
+.icon {
+    width: 10px;
+    margin-left: 2px;
+}
+
+.value {
+    font-weight: bold;
+}
+
+.box-modal {
+    text-align: left;
+}
+
+.value .icon {
+    width: 15px;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 4px;
+    margin-bottom: -2px;
+}
+
+.warning {
+    background: url(resources/i/stripe.png);
+    background-repeat: repeat;
+    animation: warning 2s linear infinite;
+    /* Safari and Chrome: */
+    -webkit-animation: warning 2s linear infinite;
+}
+
+.timeline {
+    position: absolute;
+    left: 59px;
+    border: none;
+    border-top: 1px solid red;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    z-index: 999;
+}
+
+@keyframes warning
+{
+    from {background-position: 0;}
+    to {background-position: 35px;}
+}
+@-webkit-keyframes warning /* Safari and Chrome */
+{
+    from {background-position: 0;}
+    to {background-position: 35px;}
+}
+
+.fc-event {
+    cursor: pointer;
+    border: 1px solid;
+}
+
+.btn {
+    margin-top: 4px;
+}
+
+.room {
+    cursor: pointer;
+}
+
+.room.active {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.warning-icon {
+    animation: warning-icon-anim 1s linear infinite alternate;
+    /* Safari and Chrome: */
+    -webkit-animation: warning-icon-anim 1s linear infinite alternate;
+}
+
+.fc-event-container > .popover {
+    min-width: 300px;
+    z-index: 1050;
+}
+
+
+@keyframes warning-icon-anim
+{
+    from {opacity: 1;}
+    to {opacity: 0;}
+}
+@-webkit-keyframes warning-icon-anim /* Safari and Chrome */
+{
+    from {opacity: 1;}
+    to {opacity: 0;}
+}
