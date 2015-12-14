@@ -31,7 +31,7 @@ public class MailMessageListener implements MessageListener {
     //@Resource(name = "mailProps")
     //private Properties mailProps;
     private static final String username = "noreply.musicalwave";
-    private static final String password = "f572YB4wdq6C486";
+    private static final String password = "vzwflfnamlomoslg";
 
     public void onMessage(Message message) {
         if (message instanceof MapMessage) {
