@@ -18,7 +18,7 @@
                         <a href="${pageContext.request.contextPath}/">Dashboard</a>
                     </li>
                     <li class="current">
-                        <a href="${pageContext.request.contextPath}/contract/${contract.id}/lesson" title="">Новое занятия</a>
+                        <a href="${pageContext.request.contextPath}/contract/${contract.id}/lesson" title="">Новое занятие</a>
                     </li>
                 </ul>
             </div>
