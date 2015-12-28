@@ -1,6 +1,7 @@
 package com.itsoft.ab.persistence;
 
 import com.itsoft.ab.model.CallModel;
+import com.itsoft.ab.model.CallTypeModel;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -23,6 +24,9 @@ public interface CallsMapper {
     void updateCall(CallModel call);
     void insertCall(CallModel call);
     void deleteCall(int callId);
+
+    void insertCallTypes(@Param("CallTypeModels") List<CallTypeModel> callTypeModels);
+    void deleteCallTypes(@Param("id") int id);
 
     void updateClientId(@Param("id")int callId, @Param("clientId")int clientId);
 }

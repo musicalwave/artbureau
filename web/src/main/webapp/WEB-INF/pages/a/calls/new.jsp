@@ -132,9 +132,9 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label">Направление <span class="required">*</span></label>
+                                    <label class="col-md-2 control-label">Направления <span class="required">*</span></label>
                                     <div class="col-md-10">
-                                        <form:select id="input17" path="callTypeId" class="select2-select-00 col-md-10 full-width-fix required">
+                                        <form:select id="input17" path="callTypeIds" class="select2-select-00 col-md-10 full-width-fix required" multiple="true">
                                             <c:forEach var="type" items="${types}">
                                                 <form:option value="${type.id}">${type.name}</form:option>
                                             </c:forEach>

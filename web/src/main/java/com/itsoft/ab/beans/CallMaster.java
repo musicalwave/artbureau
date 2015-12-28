@@ -2,6 +2,7 @@ package com.itsoft.ab.beans;
 
 import com.itsoft.ab.exceptions.ApplicationException;
 import com.itsoft.ab.model.CallModel;
+import com.itsoft.ab.model.CallTypeModel;
 import com.itsoft.ab.model.CallWeb;
 import com.itsoft.ab.model.ClientModel;
 import com.itsoft.ab.persistence.*;
@@ -152,6 +153,11 @@ public class CallMaster {
         return call;
     }
 
+    public CallWeb prepareCallWeb(CallModel call) {
+        ClientModel client = clientsMapper.getClientById(call.getClientId());
+        return new CallWeb(client, call);
+    }
+
     public CallModel prepareCallNew(CallModel call){
         call.setDateS(new SimpleDateFormat("dd MMMM yyyy HH:mm").format(call.getDate()));
         return call;
@@ -222,31 +228,52 @@ public class CallMaster {
     public CallModel getCallFromWeb(CallWeb cw) {
         CallModel call = new CallModel();
 
-        String c;
 
         call.setId(cw.getCallId());
         call.setAdId(cw.getCallAdId());
-        call.setTypeId(cw.getCallTypeId());
+        call.setClientId(cw.getClientId());
+        call.setTypeIdsList(cw.getCallTypeIds());
         call.setStatusId(cw.getCallStatusId());
 
-        c = cw.getCallComment();
-        if(c != null && !c.equals("")){
-            call.setComment(c.trim());
-        }
+        String comment = prepareCallComment(cw.getCallComment(), cw.getCallCommentNew());
+        if(comment != null && !comment.isEmpty())
+            call.setComment(comment.trim());
 
-
-        c = cw.getCallTeacher();
-        if(c != null && !c.equals("")){
-            call.setTeacherName(c.trim());
-        }
+        String teacher = cw.getCallTeacher();
+        if(teacher != null && !teacher.isEmpty())
+            call.setTeacherName(teacher.trim());
 
         return call;
     }
 
     public CallModel insertCall(CallModel call) {
-        int clientId = call.getClientId();
-        clientsMaster.checkClientId(clientId);
+        clientsMaster.checkClientId(call.getClientId());
         callsMapper.insertCall(call);
+        callsMapper.insertCallTypes(getCallTypeModelList(call));
+
         return call;
+    }
+
+    public void updateCall(CallModel call) {
+        callsMapper.updateCall(call);
+        callsMapper.deleteCallTypes(call.getId());
+        callsMapper.insertCallTypes(getCallTypeModelList(call));
+    }
+
+    private String prepareCallComment(String comment, String newComment) {
+        if(comment == null || comment.isEmpty())
+            return newComment;
+        else if (newComment == null || newComment.isEmpty())
+            return comment;
+        else
+            return (comment + "\n" + newComment).trim();
+    }
+
+    private List<CallTypeModel> getCallTypeModelList(CallModel callModel) {
+        List<String> typeIdsList = callModel.getTypeIdsList();
+        List<CallTypeModel> callTypeModels = new ArrayList<>();
+        for(String typeId: typeIdsList)
+            callTypeModels.add(new CallTypeModel(callModel.getId(), Integer.parseInt(typeId)));
+        return callTypeModels;
     }
 }

@@ -96,20 +96,24 @@ public class CallsController{
         m.addAttribute("types", typesMapper.selectAll());
         m.addAttribute("callStatus", callsStatusMapper.selectAll());
 
-        if(client.equals("new")){
+        if(client.equals("new")) {
             CallWeb c = new CallWeb();
             m.addAttribute("call", c);
             return "/a/calls/new";
-        }else{
-            int clientId = Integer.parseInt(client);
-            if(clientId == (int)clientId){
+        }
+        else {
+            try {
+                int clientId = Integer.parseInt(client);
                 ClientModel clientObj = clientsMapper.getClientById(clientId);
                 CallWeb c = new CallWeb(clientObj);
                 m.addAttribute("call", c);
                 m.addAttribute("clientId", clientId);
                 return "/a/calls/new2";
             }
-            LOG.error("Передан неверный аттрибут client");
+            catch(NumberFormatException nfe) {
+                LOG.error("Передан неверный аттрибут client");
+            }
+
             throw new ApplicationException(ECode.ERROR500);
         }
     }
@@ -118,43 +122,40 @@ public class CallsController{
     //Обработка запроса Сохранить звонок
     @RequestMapping(value = "/call", method = RequestMethod.POST)
     public String saveCall(@ModelAttribute CallWeb cw, @RequestParam String action, Model m){
-        if(action.trim().equals("save")){
-            /*
-            1. Получаем объекты звонка и клиента
-            2. Проводим поиск подобных клиентов в базе
-            3. Если ничего не найдено - сохраняем нового клиента и звонок с его id
-            4. Если найдены соответствия - выдаем страницу выбора клиента и далее сохраняем звонок с id выбранного варианта
-            */
 
-            ClientModel client = callMaster.getClientFromWeb(cw);
-            CallModel call = callMaster.getCallFromWeb(cw);
+        ClientModel client = callMaster.getClientFromWeb(cw);
+        CallModel call = callMaster.getCallFromWeb(cw);
 
-            m.addAttribute("callObj", call);
-            m.addAttribute("clientObj", client);
+        m.addAttribute("clientObj", client);
+        m.addAttribute("callObj", call);
 
-            List<ClientModel> clients = clientsMapper.findClients(null, null, client.getPhone1(), null, null, null);
+        switch (action.trim()) {
+            case "save":
+                List<ClientModel> clients = clientsMapper.findClients(null, null, client.getPhone1(), null, null, null);
 
-            if(0 == clients.size()){
-                client = clientsMaster.insertClient(client);
-                call.setClientId(client.getId());
-                callMaster.insertCall(call);
+                if(clients.isEmpty()) {
+                    client = clientsMaster.insertClient(client);
+                    call.setClientId(client.getId());
+                    callMaster.insertCall(call);
 
+                    return "redirect:/client/" + client.getId();
+                }
+                else {
+                    call.setId(0);
+                    m = authMaster.setModel(m);
+                    m.addAttribute("clients", clients);
+                    m.addAttribute("callId", call.getId());
+                    m.addAttribute("postModel", new SimpleModel());
+                    return "/a/calls/clients";
+                }
+
+            case "update" :
+                callMaster.updateCall(call);
                 return "redirect:/client/" + client.getId();
-            }else{
-                call.setId(0);
-                //callMaster.insertCall(call);
 
-                m = authMaster.setModel(m);
-                m.addAttribute("clients", clients);
-                m.addAttribute("callId", call.getId());
-                m.addAttribute("postModel", new SimpleModel());
-                return "/a/calls/clients";
-            }
+            default :
+                throw new ApplicationException(ECode.ERROR404);
         }
-        if(action.trim().equals("update")){
-
-        }
-        throw new ApplicationException(ECode.ERROR404);
     }
 
     @RequestMapping(value = "/call/{clientId}", method = RequestMethod.POST)
@@ -208,8 +209,10 @@ public class CallsController{
     @RequestMapping(value="/call/{callId}", method = RequestMethod.GET)
     public String editCall(@PathVariable String callId, Model m){
         m = authMaster.setModel(m);
-        CallModel call = callsMapper.getCallById(Integer.parseInt(callId));
-        m.addAttribute("call", callMaster.prepareCall(call));
+        CallModel call = callMaster.prepareCall(callsMapper.getCallById(Integer.parseInt(callId)));
+        CallWeb callWeb = callMaster.prepareCallWeb(call);
+
+        m.addAttribute("call", callWeb);
         m.addAttribute("ads", adsMapper.selectAll());
         m.addAttribute("types", typesMapper.selectAll());
         m.addAttribute("callStatus", callsStatusMapper.selectAll());

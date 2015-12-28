@@ -9,7 +9,7 @@
         <result property="statusId" column="statusId"/>
         <result property="comment" column="comment"/>
         <result property="date" column="date"/>
-        <result property="typeId" column="typeId"/>
+        <result property="typeIds" column="typeIds"/>
         <result property="adId" column="adId"/>
         <result property="teacherId" column="teacherId"/>
         <result property="teacherName" column="teacherName"/>
@@ -23,12 +23,23 @@
     <!--All queries here-->
 
     <sql id="selectAllFields">
-        SELECT id, clientId, statusId, comment, date, typeId, adId, teacherId, teacherName
+        SELECT c.id,
+               c.clientId,
+               c.statusId,
+               c.comment,
+               c.date,
+               GROUP_CONCAT(ct.type_id) as typeIds,
+               c.adId,
+               c.teacherId,
+               c.teacherName
     </sql>
 
     <select id="getAllCalls" resultType="CallModel">
         <include refid="selectAllFields"/>
-        FROM calls
+        FROM calls c
+        LEFT JOIN calls_types ct
+        ON ct.call_id = c.id
+        GROUP BY c.id;
     </select>
 
     <select id="getAllClientCalls" parameterType="int" resultMap="result">
@@ -50,11 +61,10 @@
     </select>
 
     <insert id="insertCall" parameterType="CallModel">
-        INSERT INTO calls (clientId, statusId, comment, typeId, adId, teacherName)
+        INSERT INTO calls (clientId, statusId, comment, adId, teacherName)
         VALUES (#{clientId, javaType=int, jdbcType=INTEGER},
         #{statusId, javaType=int, jdbcType=INTEGER},
         #{comment, javaType=String, jdbcType=VARCHAR},
-        #{typeId, javaType=int, jdbcType=INTEGER},
         #{adId, javaType=int, jdbcType=INTEGER},
         #{teacherName, javaType=String, jdbcType=VARCHAR});
 
@@ -65,11 +75,8 @@
 
     <update id="updateCall" parameterType="CallModel">
         UPDATE calls SET
-        clientId = #{clientId},
         statusId = #{statusId},
         comment = #{comment},
-        date = #{date},
-        typeId = #{typeId},
         adId = #{adId},
         teacherName = #{teacherName}
         WHERE id = #{id}
@@ -79,28 +86,53 @@
         delete from calls where id = #{id}
     </delete>
 
+    <insert id="insertCallTypes" parameterType="CallTypeModel">
+        INSERT INTO calls_types(call_id, type_id)
+        VALUES
+        <foreach collection="CallTypeModels" item="model" separator=",">
+            (#{model.callId}, #{model.typeId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteCallTypes" parameterType="int">
+        DELETE FROM calls_types
+        WHERE call_id = #{id};
+    </delete>
+
     <select id="getCalls" parameterType="map" resultMap="result">
         <include refid="selectAllFields"/>
-        FROM calls
-        WHERE date &gt;= #{fromDate} AND date &lt;= #{toDate}
+        FROM calls c
+        LEFT JOIN calls_types ct
+        ON ct.call_id = c.id
+        WHERE c.date &gt;= #{fromDate} AND c.date &lt;= #{toDate}
+        GROUP BY c.id;
     </select>
 
     <select id="getCallsFrom" parameterType="java.util.Date" resultMap="result">
         <include refid="selectAllFields"/>
-        FROM calls
-        WHERE date &gt;= #{fromDate}
+        FROM calls c
+        LEFT JOIN calls_types ct
+        ON ct.call_id = c.id
+        WHERE c.date &gt;= #{fromDate}
+        GROUP BY c.id;
     </select>
 
     <select id="getCallsTo" parameterType="java.util.Date" resultMap="result">
         <include refid="selectAllFields"/>
-        FROM calls
-        WHERE date &lt;= #{toDate}
+        FROM calls c
+        LEFT JOIN calls_types ct
+        ON ct.call_id = c.id
+        WHERE c.date &lt;= #{toDate}
+        GROUP BY c.id;
     </select>
 
     <select id="getCallById" parameterType="int" resultType="CallModel">
         <include refid="selectAllFields"/>
-        FROM calls
-        WHERE id=#{id}
+        FROM calls c
+        LEFT JOIN calls_types ct
+        ON ct.call_id = c.id
+        WHERE c.id=#{id}
+        GROUP BY c.id;
     </select>
 
     <update id="updateClientId" parameterType="map">

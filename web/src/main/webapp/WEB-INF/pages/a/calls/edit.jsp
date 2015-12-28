@@ -27,7 +27,7 @@
             <!--=== Page Header ===-->
             <div class="page-header">
                 <div class="page-title">
-                    <h3>Звонок ${call.dateS}</h3>
+                    <h3>Звонок ${call.callDateS}</h3>
                 </div>
             </div>
             <!-- /Page Header -->
@@ -48,15 +48,15 @@
                                         <div class="col-md-4">
                                             <div class="hidden">
                                                 <form:input class="form-control" path="clientId" type="text" value="${call.clientId}"/>
-                                                <form:input class="form-control" path="id" type="text" value="${call.id}"/>
+                                                <form:input class="form-control" path="callId" type="text" value="${call.callId}"/>
                                             </div>
-                                            <form:input class="form-control input-width-large" path="clientFName" type="text" placeholder="Имя" value="${call.clientFName}" style="display: block; margin-top: 6px;" readonly="true"/>
-                                            <form:input class="form-control input-width-large" path="clientLName" type="text" placeholder="Фамилия" value="${call.clientLName}" style="display: block; margin-top: 6px;" readonly="true"/>
+                                            <form:input class="form-control input-width-large" path="clientFname" type="text" placeholder="Имя" value="${call.clientFname}" style="display: block; margin-top: 6px;" readonly="true"/>
+                                            <form:input class="form-control input-width-large" path="clientLname" type="text" placeholder="Фамилия" value="${call.clientLname}" style="display: block; margin-top: 6px;" readonly="true"/>
                                         </div>
                                         <label class="col-md-2 control-label">Телефоны:</label>
                                         <div class="col-md-4">
-                                            <form:input type="text" class="form-control" path="phone1" data-mask="+7 (999) 999-9999" placeholder="+7 (915) 123-4567" value="${call.phone1}" style="display: block; margin-top: 6px;" readonly="true"/>
-                                            <form:input type="text" class="form-control" path="phone2" data-mask="+7 (999) 999-9999" placeholder="+7 (495) 765-4321" value="${call.phone2}" style="display: block; margin-top: 6px;" readonly="true"/>
+                                            <form:input type="text" class="form-control" path="clientPhone1" data-mask="+7 (999) 999-9999" placeholder="+7 (915) 123-4567" value="${call.clientPhone1}" style="display: block; margin-top: 6px;" readonly="true"/>
+                                            <form:input type="text" class="form-control" path="clientPhone2" data-mask="+7 (999) 999-9999" placeholder="+7 (495) 765-4321" value="${call.clientPhone2}" style="display: block; margin-top: 6px;" readonly="true"/>
                                         </div>
                                 </div>
                                 <div class="form-group">
@@ -76,21 +76,21 @@
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Комментарий</label>
                                 <div class="col-md-10">
-                                    <form:textarea path="comment" rows="5" cols="5" class="form-control wysiwyg" readonly="true"/>
+                                    <form:textarea path="callComment" rows="5" cols="5" class="form-control wysiwyg" readonly="true"/>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Добавить комментарий</label>
                                 <div class="col-md-10">
-                                    <form:textarea path="commentNew" rows="3" cols="5" class="form-control wysiwyg" placeholder="Call comment"/>
+                                    <form:textarea path="callCommentNew" rows="3" cols="5" class="form-control wysiwyg" placeholder="Call comment"/>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Рекламный источник</label>
                                 <div class="col-md-10">
-                                    <form:select id="input17" path="adId" class="select2-select-00 col-md-10 full-width-fix">
+                                    <form:select id="input17" path="callAdId" class="select2-select-00 col-md-10 full-width-fix">
                                         <c:forEach var="ad" items="${ads}">
                                             <form:option value="${ad.id}">${ad.name}</form:option>
                                         </c:forEach>
@@ -99,9 +99,9 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="col-md-2 control-label">Направление</label>
+                                <label class="col-md-2 control-label">Направления</label>
                                 <div class="col-md-10">
-                                    <form:select id="input17" path="typeId" class="select2-select-00 col-md-10 full-width-fix">
+                                    <form:select id="input17" path="callTypeIds" class="select2-select-00 col-md-10 full-width-fix" multiple="true">
                                         <c:forEach var="type" items="${types}">
                                             <form:option value="${type.id}">${type.name}</form:option>
                                         </c:forEach>
@@ -112,14 +112,14 @@
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Преподаватель</label>
                                 <div class="col-md-10">
-                                    <form:input class="col-md-10 form-control" path="teacherName" type="text" value="${call.teacherName}"/>
+                                    <form:input class="col-md-10 form-control" path="callTeacher" type="text" value="${call.callTeacher}"/>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Статус</label>
                                 <div class="col-md-10">
-                                    <form:select id="input17" path="statusId" class="select2-select-00 col-md-10 full-width-fix">
+                                    <form:select id="input17" path="callStatusId" class="select2-select-00 col-md-10 full-width-fix">
                                         <c:forEach var="status" items="${callStatus}">
                                             <form:option value="${status.id}">${status.name}</form:option>
                                         </c:forEach>

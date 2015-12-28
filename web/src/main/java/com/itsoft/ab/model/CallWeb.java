@@ -2,7 +2,9 @@ package com.itsoft.ab.model;
 
 import com.itsoft.ab.BasicModel;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,11 +18,11 @@ public class CallWeb extends BasicModel{
     private Date callDate;
     private String callDateS;
     private String callComment;
+    private String callCommentNew;
     private int callAdId;
-    private int callTypeId;
+    private List<String> callTypeIds;
     private String callTeacher;
     private int callStatusId;
-
 
     //from ClientModel
     private int clientId;
@@ -38,6 +40,15 @@ public class CallWeb extends BasicModel{
     }
 
     public CallWeb(ClientModel client){
+       this.addDataFromClientModel(client);
+    }
+
+    public CallWeb(ClientModel client, CallModel call){
+       this.addDataFromClientModel(client);
+       this.addDataFromCallModel(call);
+    }
+
+    public void addDataFromClientModel(ClientModel client){
         this.setClientId(client.getId());
         this.setClientFname(client.getFname());
         this.setClientLname(client.getLname());
@@ -47,7 +58,17 @@ public class CallWeb extends BasicModel{
         this.setClientPhone2(client.getPhone2());
         this.setClientPhone2name(client.getPhone2name());
         this.setClientMail(client.getEmail());
+    }
 
+    public void addDataFromCallModel(CallModel call){
+        this.setCallId(call.getId());
+        this.setCallDate(call.getDate());
+        this.setCallDateS(call.getDateS());
+        this.setCallComment(call.getComment());
+        this.setCallAdId(call.getAdId());
+        this.setCallTypeIds(Arrays.asList(call.getTypeIds().split(",")));
+        this.setCallTeacher(call.getTeacherName());
+        this.setCallStatusId(call.getStatusId());
     }
 
     public int getCallId() {
@@ -90,12 +111,12 @@ public class CallWeb extends BasicModel{
         this.callAdId = callAdId;
     }
 
-    public int getCallTypeId() {
-        return callTypeId;
+    public List<String> getCallTypeIds() {
+        return callTypeIds;
     }
 
-    public void setCallTypeId(int callTypeId) {
-        this.callTypeId = callTypeId;
+    public void setCallTypeIds(List<String> callTypeIds) {
+        this.callTypeIds = callTypeIds;
     }
 
     public String getCallTeacher() {
@@ -194,6 +215,14 @@ public class CallWeb extends BasicModel{
         this.clientMail = clientMail;
     }
 
+    public String getCallCommentNew() {
+        return callCommentNew;
+    }
+
+    public void setCallCommentNew(String callCommentNew) {
+        this.callCommentNew = callCommentNew;
+    }
+
     @Override
     public String toString() {
         return "CallWeb{" +
@@ -202,7 +231,7 @@ public class CallWeb extends BasicModel{
                 ", callDateS='" + callDateS + '\'' +
                 ", callComment='" + callComment + '\'' +
                 ", callAdId=" + callAdId +
-                ", callTypeId=" + callTypeId +
+                ", callTypeIds=" + callTypeIds +
                 ", callTeacher='" + callTeacher + '\'' +
                 ", callStatusId=" + callStatusId +
                 ", clientId=" + clientId +

@@ -3,6 +3,7 @@ package com.itsoft.ab.model;
 import com.itsoft.ab.BasicModel;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,7 +17,8 @@ public class CallModel extends BasicModel {
     private int statusId;
     private String comment;
     private Date date;
-    private int typeId;
+    private String typeIds;
+    private List<String> typeIdsList;
     private int adId;
     private int teacherId;
     private String teacherName;
@@ -93,12 +95,20 @@ public class CallModel extends BasicModel {
         this.date = date;
     }
 
-    public int getTypeId() {
-        return typeId;
+    public String getTypeIds() {
+        return typeIds;
     }
 
-    public void setTypeId(int typeId) {
-        this.typeId = typeId;
+    public void setTypeIds(String typeIds) {
+        this.typeIds = typeIds;
+    }
+
+    public List<String> getTypeIdsList() {
+        return typeIdsList;
+    }
+
+    public void setTypeIdsList(List<String> typeIdsList) {
+        this.typeIdsList = typeIdsList;
     }
 
     public int getAdId() {
@@ -196,8 +206,8 @@ public class CallModel extends BasicModel {
                 ", statusId=" + statusId +
                 ", comment='" + comment + '\'' +
                 ", date=" + date +
-                ", typeId=" + typeId +
                 ", adId=" + adId +
+                ", typeIds=" + typeIds +
                 ", teacherId=" + teacherId +
                 ", teacherName='" + teacherName + '\'' +
                 ", clientFName='" + clientFName + '\'' +
