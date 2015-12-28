@@ -181,7 +181,7 @@ public class TaskMaster {
     }
 
     private String createMessage(UserModel userFrom, String to, String date, TaskModel t){
-        return userFrom.getName() + " отметил вас как исполнителя нового задания.\nДата: " + date + "\nИсполнитель:" + to +"\nЗадание: " + t.getMessage() + "\nПерейти в систему: 212.71.253.29/tasks";
+        return userFrom.getName() + " отметил вас как исполнителя нового задания.\nДата: " + date + "\nИсполнитель: " + to +"\nЗадание: " + t.getMessage() + "\nПерейти в систему: 212.71.253.29/tasks";
     }
 
     public TaskModel prepareTask(TaskModel task){
