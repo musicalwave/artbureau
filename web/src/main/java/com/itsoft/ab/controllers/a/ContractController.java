@@ -135,9 +135,9 @@ public class ContractController {
         if(step == 4){
             //TODO Check out the contract object
 
+            // this line inserts contact into DB
+            // need to check for correct schedule before that
             c = contractMaster.saveFromWeb(c);
-
-            Date date = new SimpleDateFormat("dd-MM-yyyy").parse(c.getDateS());
 
             try{
                 contractMaster.createSchedule(c);
