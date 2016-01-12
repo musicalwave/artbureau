@@ -50,4 +50,10 @@ public class TeacherMaster {
         }
         throw new ApplicationException(ECode.ERROR1108);
     }
+
+    public static TeacherModel getEmptyTeacher() {
+        TeacherModel teacher = new TeacherModel();
+        teacher.setName("---");
+        return teacher;
+    }
 }

@@ -8,6 +8,9 @@
     <jsp:attribute name="title">
         <title>New Call | ARTBUREAU</title>
     </jsp:attribute>
+    <jsp:attribute name="addimports">
+        <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/calls.js"></script>
+    </jsp:attribute>
     <jsp:body>
         <div class="container">
             <!-- Breadcrumbs line -->
@@ -134,7 +137,7 @@
                                 <div class="form-group">
                                     <label class="col-md-2 control-label">Направления <span class="required">*</span></label>
                                     <div class="col-md-10">
-                                        <form:select id="input17" path="callTypeIds" class="select2-select-00 col-md-10 full-width-fix required" multiple="true">
+                                        <form:select id="call-type-select" path="callTypeIds" class="select2-select-00 col-md-10 full-width-fix required" multiple="true">
                                             <c:forEach var="type" items="${types}">
                                                 <form:option value="${type.id}">${type.name}</form:option>
                                             </c:forEach>
@@ -145,7 +148,11 @@
                                 <div class="form-group">
                                     <label class="col-md-2 control-label">Преподаватель</label>
                                     <div class="col-md-10">
-                                        <form:input class="col-md-10 form-control" path="callTeacher" type="text"/>
+                                        <form:select id="call-teacher-select" path="callTeacherId" class="select2-select-00 col-md-10 full-width-fix">
+                                            <c:forEach var="teacher" items="${teachers}">
+                                                <form:option value="${teacher.id}">${teacher.name}</form:option>
+                                            </c:forEach>
+                                        </form:select>
                                     </div>
                                 </div>
 

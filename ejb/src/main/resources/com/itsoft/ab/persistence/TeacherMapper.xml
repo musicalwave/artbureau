@@ -143,4 +143,23 @@
         FROM teachers
         WHERE teachers.active = 1 ORDER BY teachers.name ASC
     </select>
+
+    <select id="getActiveTeachersByTypes" parameterType="int" resultMap="result">
+        SELECT DISTINCT
+          t.id,
+          t.name,
+          t.phone,
+          t.comment,
+          t.scheduleId,
+          t.bdate,
+          t.hasCred
+        FROM teachers t
+        INNER JOIN J_TEACHERS_TYPES jtt
+          ON jtt.teacherId = t.id
+        WHERE t.active = 1
+          AND jtt.typeId IN
+            (<foreach collection="typeIds" item="typeId" separator=",">CONVERT(#{typeId}, SIGNED INTEGER)</foreach>)
+        ORDER BY t.name
+    </select>
+
 </mapper>

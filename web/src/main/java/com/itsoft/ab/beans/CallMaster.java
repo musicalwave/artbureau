@@ -1,10 +1,7 @@
 package com.itsoft.ab.beans;
 
 import com.itsoft.ab.exceptions.ApplicationException;
-import com.itsoft.ab.model.CallModel;
-import com.itsoft.ab.model.CallTypeModel;
-import com.itsoft.ab.model.CallWeb;
-import com.itsoft.ab.model.ClientModel;
+import com.itsoft.ab.model.*;
 import com.itsoft.ab.persistence.*;
 import com.itsoft.ab.sys.ECode;
 import org.apache.log4j.Logger;
@@ -33,6 +30,9 @@ public class CallMaster {
 
     @Autowired
     private AuthMaster authMaster;
+
+    @Autowired
+    private TeacherMapper teacherMapper;
 
     @Autowired
     private CallsMapper callsMapper;
@@ -160,6 +160,9 @@ public class CallMaster {
 
     public CallModel prepareCallNew(CallModel call){
         call.setDateS(new SimpleDateFormat("dd MMMM yyyy HH:mm").format(call.getDate()));
+        TeacherModel teacher = teacherMapper.getTeacherById(call.getTeacherId());
+        if(teacher != null)
+            call.setTeacherName(teacher.getName());
         return call;
     }
 
@@ -239,9 +242,9 @@ public class CallMaster {
         if(comment != null && !comment.isEmpty())
             call.setComment(comment.trim());
 
-        String teacher = cw.getCallTeacher();
-        if(teacher != null && !teacher.isEmpty())
-            call.setTeacherName(teacher.trim());
+        int teacherId = cw.getCallTeacherId();
+        if(teacherId != 0)
+            call.setTeacherId(teacherId);
 
         return call;
     }
@@ -257,7 +260,9 @@ public class CallMaster {
     public void updateCall(CallModel call) {
         callsMapper.updateCall(call);
         callsMapper.deleteCallTypes(call.getId());
-        callsMapper.insertCallTypes(getCallTypeModelList(call));
+        List<CallTypeModel> callTypes = getCallTypeModelList(call);
+        if(!callTypes.isEmpty())
+            callsMapper.insertCallTypes(getCallTypeModelList(call));
     }
 
     private String prepareCallComment(String comment, String newComment) {
@@ -272,8 +277,9 @@ public class CallMaster {
     private List<CallTypeModel> getCallTypeModelList(CallModel callModel) {
         List<String> typeIdsList = callModel.getTypeIdsList();
         List<CallTypeModel> callTypeModels = new ArrayList<>();
-        for(String typeId: typeIdsList)
-            callTypeModels.add(new CallTypeModel(callModel.getId(), Integer.parseInt(typeId)));
+        if(typeIdsList != null)
+            for(String typeId: typeIdsList)
+                callTypeModels.add(new CallTypeModel(callModel.getId(), Integer.parseInt(typeId)));
         return callTypeModels;
     }
 }

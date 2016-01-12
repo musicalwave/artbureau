@@ -1,13 +1,8 @@
 package com.itsoft.ab.controllers.a;
 
-import com.itsoft.ab.beans.AuthMaster;
-import com.itsoft.ab.beans.CallMaster;
-import com.itsoft.ab.beans.ClientsMaster;
+import com.itsoft.ab.beans.*;
 import com.itsoft.ab.exceptions.ApplicationException;
-import com.itsoft.ab.model.CallModel;
-import com.itsoft.ab.model.CallWeb;
-import com.itsoft.ab.model.ClientModel;
-import com.itsoft.ab.model.SimpleModel;
+import com.itsoft.ab.model.*;
 import com.itsoft.ab.persistence.*;
 import com.itsoft.ab.sys.ECode;
 import org.apache.log4j.Logger;
@@ -49,43 +44,8 @@ public class CallsController{
     @Autowired
     private ClientsMapper clientsMapper;
 
-//    //Обработка запроса Создать новый звонок
-//    @RequestMapping(value = "/call", method = RequestMethod.GET)
-//    public String newClientCall(@RequestParam("client")String client, Model m){
-//        m = authMaster.setModel(m);
-//        CallModel call = new CallModel();
-//
-//        //Определяем параметр client в запросе
-//        if (client != null){
-//            if(client.trim().equals("new")){
-//                call.setClientId(0);
-//            }else{
-//                try{
-//                    int id = Integer.parseInt(client);
-//                    ClientModel c = clientsMaster.getClientById(id);
-//                    call.setClientId(id);
-//                    call.setClientFName(c.getFname());
-//                    call.setClientLName(c.getLname());
-//                    call.setClientComment(c.getComment());
-//                }catch(NumberFormatException e){
-//                    LOG.error("При создании звонка в параметр запроса client введены некорректные данные");
-//                    throw new ApplicationException(ECode.ERROR415);
-//                }
-//
-//            }
-//
-//            //Обозначаем что звонок новый(не изменение)
-//            call.setId(0);
-//            //call.setDateS("новый");
-//            m.addAttribute("call", call);
-//            m.addAttribute("ads", adsMapper.selectAll());
-//            m.addAttribute("types", typesMapper.selectAll());
-//            m.addAttribute("callStatus", callsStatusMapper.selectAll());
-//            return "/a/calls/edit";
-//        }
-//
-//        throw new ApplicationException(ECode.ERROR415);
-//    }
+    @Autowired
+    private TeacherMapper teacherMapper;
 
     //Обработка запроса Создать новый звонок
     @RequestMapping(value = "/call", method = RequestMethod.GET)
@@ -94,6 +54,12 @@ public class CallsController{
 
         m.addAttribute("ads", adsMapper.selectAll());
         m.addAttribute("types", typesMapper.selectAll());
+
+        List<TeacherModel> teachers = new ArrayList<>();
+        teachers.add(TeacherMaster.getEmptyTeacher());
+        teachers.addAll(teacherMapper.getActiveTeachers());
+        m.addAttribute("teachers", teachers);
+
         m.addAttribute("callStatus", callsStatusMapper.selectAll());
 
         if(client.equals("new")) {
@@ -215,6 +181,18 @@ public class CallsController{
         m.addAttribute("call", callWeb);
         m.addAttribute("ads", adsMapper.selectAll());
         m.addAttribute("types", typesMapper.selectAll());
+
+        List<TeacherModel> teachers = new ArrayList<>();
+        teachers.add(TeacherMaster.getEmptyTeacher());
+
+        List<String> callTypes = callWeb.getCallTypeIds();
+        if(callTypes == null || callTypes.isEmpty())
+            teachers.addAll(teacherMapper.getActiveTeachers());
+        else
+            teachers.addAll(teacherMapper.getActiveTeachersByTypes(
+                    callTypes.toArray(new String[callTypes.size()])));
+        m.addAttribute("teachers", teachers);
+
         m.addAttribute("callStatus", callsStatusMapper.selectAll());
         return "/a/calls/edit";
     }
@@ -236,16 +214,11 @@ public class CallsController{
     @RequestMapping(value="/calls", method = RequestMethod.GET)
     public String init(Model m)  {
         m = authMaster.setModel(m);
-//        Calendar c = Calendar.getInstance();
-//        c.set(2013, 11, 13, 0, 0, 0);
-//        Timestamp fromDate = new Timestamp(c.getTimeInMillis());
-//        c.set(2013, 11, 15, 0, 0, 0);
-//        Timestamp toDate = new Timestamp(c.getTimeInMillis());
         List<CallModel> calls = callMaster.getCalls(null,null);
         List<CallModel> cws = new ArrayList<CallModel>();
 
         if(!calls.isEmpty()){
-            for (CallModel call:calls){
+            for (CallModel call : calls){
                 cws.add(callMaster.prepareCall(call));
             }
         }

@@ -21,7 +21,8 @@ public class CallWeb extends BasicModel{
     private String callCommentNew;
     private int callAdId;
     private List<String> callTypeIds;
-    private String callTeacher;
+
+    private int callTeacherId;
     private int callStatusId;
 
     //from ClientModel
@@ -66,8 +67,10 @@ public class CallWeb extends BasicModel{
         this.setCallDateS(call.getDateS());
         this.setCallComment(call.getComment());
         this.setCallAdId(call.getAdId());
-        this.setCallTypeIds(Arrays.asList(call.getTypeIds().split(",")));
-        this.setCallTeacher(call.getTeacherName());
+        String typeIds = call.getTypeIds();
+        if(typeIds != null)
+            this.setCallTypeIds(Arrays.asList(typeIds.split(",")));
+        this.setCallTeacherId(call.getTeacherId());
         this.setCallStatusId(call.getStatusId());
     }
 
@@ -119,12 +122,12 @@ public class CallWeb extends BasicModel{
         this.callTypeIds = callTypeIds;
     }
 
-    public String getCallTeacher() {
-        return callTeacher;
+    public int getCallTeacherId() {
+        return callTeacherId;
     }
 
-    public void setCallTeacher(String callTeacher) {
-        this.callTeacher = callTeacher;
+    public void setCallTeacherId(int callTeacherId) {
+        this.callTeacherId = callTeacherId;
     }
 
     public int getCallStatusId() {
@@ -232,7 +235,7 @@ public class CallWeb extends BasicModel{
                 ", callComment='" + callComment + '\'' +
                 ", callAdId=" + callAdId +
                 ", callTypeIds=" + callTypeIds +
-                ", callTeacher='" + callTeacher + '\'' +
+                ", callTeacherId='" + callTeacherId + '\'' +
                 ", callStatusId=" + callStatusId +
                 ", clientId=" + clientId +
                 ", clientFname='" + clientFname + '\'' +

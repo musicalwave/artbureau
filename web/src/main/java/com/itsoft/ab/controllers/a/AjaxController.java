@@ -2,6 +2,7 @@ package com.itsoft.ab.controllers.a;
 
 import com.itsoft.ab.beans.LessonMaster;
 import com.itsoft.ab.beans.ScheduleMaster;
+import com.itsoft.ab.beans.TeacherMaster;
 import com.itsoft.ab.exceptions.ApplicationException;
 import com.itsoft.ab.model.*;
 import com.itsoft.ab.persistence.*;
@@ -191,6 +192,22 @@ public class AjaxController {
     @ResponseBody
     List<TeacherTypeModel> getTypeTeachers(@PathVariable int typeId){
         List<TeacherTypeModel> teachers = teacherTypeMapper.getAllActiveByType(typeId);
+        return teachers;
+    }
+
+    @RequestMapping(value = "/do/teachers", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<TeacherModel> getTeachersByTypes(@RequestParam(value = "types") String[] typeIds) {
+
+        List<TeacherModel> teachers = new ArrayList<>();
+        teachers.add(TeacherMaster.getEmptyTeacher());
+
+        if(typeIds.length == 0)
+            teachers.addAll(teacherMapper.getActiveTeachers());
+        else
+            teachers.addAll(teacherMapper.getActiveTeachersByTypes(typeIds));
+
         return teachers;
     }
 

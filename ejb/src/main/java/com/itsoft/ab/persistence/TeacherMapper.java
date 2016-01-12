@@ -28,4 +28,6 @@ public interface TeacherMapper {
     void updateTeacher(TeacherModel teacher);
 
     List<TeacherModel> getActiveTeachers();
+
+    List<TeacherModel> getActiveTeachersByTypes(@Param("typeIds") String[] typeIds);
 }

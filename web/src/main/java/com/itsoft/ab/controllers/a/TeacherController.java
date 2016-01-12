@@ -84,29 +84,29 @@ public class TeacherController {
 
         //Сохранение направлений
         //#######################
-        List<TeacherTypeModel> ts = teacherTypeMapper.getTeacherTypes(teacher.getId());
-        List<Integer> ids = new ArrayList<Integer>();
+        List<TeacherTypeModel> teacherTypes = teacherTypeMapper.getTeacherTypes(teacher.getId());
+        List<Integer> teacherTypeIds = new ArrayList<Integer>();
 
-        for(TeacherTypeModel tt : ts){
-            ids.add(tt.getTypeId());
+        for(TeacherTypeModel tt : teacherTypes){
+            teacherTypeIds.add(tt.getTypeId());
         }
 
         if(null != teacher.getTypes()){
-            String [] types = teacher.getTypes().split(",");
-            for (String type : types){
-                Integer typeId = Integer.parseInt(type);
-                if(ids.contains(typeId)){
-                    ids.remove(typeId);
+            String [] newTypes = teacher.getTypes().split(",");
+            for (String newType : newTypes){
+                Integer newTypeId = Integer.parseInt(newType);
+                if(teacherTypeIds.contains(newTypeId)){
+                    teacherTypeIds.remove(newTypeId);
                 }else{
-                    teacherTypeMaster.insertTypeTeacher(typeId.intValue(), teacher.getId());
+                    teacherTypeMaster.insertTypeTeacher(newTypeId, teacher.getId());
                 }
             }
         }
 
-        if(!ids.isEmpty()){
-            for(Integer i : ids){
-                for(TeacherTypeModel t : ts){
-                    if(t.getTypeId() == i.intValue()){
+        if(!teacherTypeIds.isEmpty()){
+            for(Integer teacherTypeId : teacherTypeIds){
+                for(TeacherTypeModel t : teacherTypes){
+                    if(t.getTypeId() == teacherTypeId.intValue()){
                         teacherTypeMapper.deleteTypeTeacher(t.getId());
                     }
                 }
