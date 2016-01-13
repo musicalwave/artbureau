@@ -37,7 +37,7 @@ $(document).ready(function() {
         
         // get teachers of selected types
         $.ajax({
-               url: "https://localhost/do/teachers/",
+               url: "/do/teachers/",
                data: "types=" + typeIds.join(),
                type: "GET",
                dataType : "json",
