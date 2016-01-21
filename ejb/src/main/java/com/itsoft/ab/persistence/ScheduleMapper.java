@@ -30,5 +30,5 @@ public interface ScheduleMapper {
     int countLessonsByTeacherAndTime(@Param("teacherTypeId") int teacherTypeId, @Param("startTime") int startTime, @Param("date") java.util.Date date);
     void shiftLesson(@Param("eventId") int eventId, @Param("lessonId") int lessonId, @Param("newDate") Date newDate);
 
-    List<EventModel> selectEmptyEventsByDateAndTeacher(@Param("date")Date date, @Param("teacherId")int teacherId);
+    List<EventModel> selectEmptyEventsByTeacher(@Param("teacherId")int teacherId);
 }

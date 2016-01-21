@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,7 +22,7 @@ import java.util.List;
  * Time: 0:08
  */
 @Controller
-@SessionAttributes({"contractObj"})
+@SessionAttributes({"contract"})
 public class ContractController {
     Logger LOG = Logger.getLogger(ContractController.class);
 
@@ -54,6 +52,9 @@ public class ContractController {
 
     @Autowired
     private TeacherTypeMapper teacherTypeMapper;
+
+    @Autowired
+    private TeacherTypeMaster teacherTypeMaster;
 
     @Autowired
     private EventMaster eventMaster;
@@ -90,112 +91,67 @@ public class ContractController {
         return "/a/contract/show";
     }
 
-    @RequestMapping(value="/contract", method = RequestMethod.GET)
-    public String newContract(@RequestParam("client") int clientId, @RequestParam(value = "prev", defaultValue = "0") Integer prev, Model m){
+    @RequestMapping(value="/contract/new", method = RequestMethod.GET)
+    public String newContract(@RequestParam("client") int clientId, @RequestParam(value = "prev", defaultValue = "0") Integer prev, Model m) {
         m = authMaster.setModel(m);
 
         //Список направлений
         List<TypeModel> types = typesMapper.selectAllActive();
         m.addAttribute("types", types);
 
-        ClientModel client = clientsMapper.getClientById(clientId);
+        // Список учителей по первому направлению
+        TypeModel firstType = types.get(0);
+        List<TeacherTypeModel> teacherTypes = teacherTypeMapper.getAllActiveByType(firstType.getId());
+        m.addAttribute("teacherTypes", teacherTypes);
+
+        // Расписание первого в списке учителя
+        TeacherTypeModel firstTeacherType = teacherTypes.get(0);
+        List<EventModel> emptyEvents = eventMaster.getEmptyEvents(firstTeacherType.getTeacherId());
+        m.addAttribute("emptyEvents", emptyEvents);
 
         //Список типов контракта
-        List<SimpleModel> ctypes = contractMapper.selectContractTypes();
-        m.addAttribute("ctypes", ctypes);
+        List<SimpleModel> contractTypes = contractMapper.selectContractTypes();
+        m.addAttribute("contractTypes", contractTypes);
+
+        int singleLessonPrice;
+        int contractType = contractTypes.get(0).getId();
+
+        //Выбор цены урока исходя из типа занятия и учителя
+        singleLessonPrice = teacherTypeMaster.getPrice(
+                firstTeacherType.getTeacherId(),
+                firstType.getId(),
+                contractType);
+
+        m.addAttribute("singleLessonPrice", singleLessonPrice);
 
         //Список скидок
         List<SimpleModel> discounts = discountsMapper.selectAllActive();
         m.addAttribute("discounts", discounts);
 
-        //Создание сессионного объекта
-        ContractModel contractObj = new ContractModel();
-        contractObj.setClientId(clientId);
-        contractObj.setClientFS(client.getFname());
-        contractObj.setClientLS(client.getLname());
-        contractObj.setPrev(prev);
+        ClientModel client = clientsMapper.getClientById(clientId);
 
-        m.addAttribute("contractObj", contractObj);
+        ContractModel contract = new ContractModel();
+        contract.setClientId(clientId);
+        contract.setClientFS(client.getFname());
+        contract.setClientLS(client.getLname());
+        contract.setCountLessons(12);
+        contract.setDiscount(discounts.get(0).getId());
+        contract.setPrice(contract.getCountLessons() * singleLessonPrice * (100 - contract.getDiscount()) / 100);
+        contract.setPrev(prev);
 
-        return "/a/contract/new1";
+        m.addAttribute("contract", contract);
+
+        return "/a/contract/new";
     }
 
-    @RequestMapping(value="/contract", method = RequestMethod.POST)
-    public String newContract2(@RequestParam("s") int step, @ModelAttribute("contractObj") ContractModel c, Model m, SessionStatus status) throws ParseException {
-        m = authMaster.setModel(m);
+    @RequestMapping(value = "/contract/save", method = RequestMethod.POST)
+    public String saveNewContract(@ModelAttribute("contract") ContractModel contract, Model m, SessionStatus session) {
+        authMaster.setModel(m);
 
-        if(step == 2){
-            return "redirect:/contract/step2";
-        }
-
-        if(step == 3){
-            return "redirect:/contract/step3";
-        }
-
-        if(step == 4){
-            //TODO Check out the contract object
-
-            // this line inserts contact into DB
-            // need to check for correct schedule before that
-            c = contractMaster.saveFromWeb(c);
-
-            try{
-                contractMaster.createSchedule(c);
-            }catch(Exception e){
-                e.printStackTrace();
-                throw new ApplicationException(ECode.ERROR1106);
-            }
-
-            //Сброс сессии
-            status.setComplete();
-
-            return "redirect:/client/" + c.getClientId() + "/payment?c=" + c.getId();
-        }
-
-        throw new ApplicationException(ECode.ERROR415);
-    }
-
-    @RequestMapping(value="/contract/step2", method = RequestMethod.GET)
-    public String step2Contract(@ModelAttribute("contractObj") ContractModel c, Model m) throws ParseException {
-        m = authMaster.setModel(m);
-
-        List<TeacherTypeModel> teachers = teacherTypeMapper.getAllActiveByType(Integer.parseInt(c.getTypeS()));
-
-        m.addAttribute("contractObj", c);
-        m.addAttribute("ts", teachers);
-
-        return "/a/contract/new2";
-    }
-
-    @RequestMapping(value="/contract/step3", method = RequestMethod.GET)
-    public String step3Contract(@ModelAttribute("contractObj") ContractModel c, Model m) throws ParseException {
-        m = authMaster.setModel(m);
-
-        TeacherTypeModel t = teacherTypeMapper.getById(c.getTeacherTypeId());
-
-        List<EventModel> events = eventMaster.getEmptyEventsByDate(t.getTeacherId(), c.getDateS());
-
-        int price1 = 0;
-
-        //Выбор цены урока исходя из типа занятия
-        if(c.getContractType() == 1){
-            price1 = t.getpPrice();
-        }if(c.getContractType() == 2){
-            price1 = t.getgPrice();
-        }if(c.getContractType() == 3){
-            price1 = t.getdPrice();
-        }if(c.getContractType() == 4){
-            price1 = t.getaPrice();
-        }
-
-        c.setPrice(c.getCountLessons() * price1 * (100 - c.getDiscount()) / 100);
-
-        m.addAttribute("price1", price1);
-        m.addAttribute("contractObj", c);
-        m.addAttribute("t", t);
-        m.addAttribute("events", events);
-
-        return "/a/contract/new3";
+        contract = contractMaster.saveFromWeb(contract);
+        contractMaster.createSchedule(contract);
+        session.setComplete();
+        return "redirect:/client/" + contract.getClientId() + "/payment?c=" + contract.getId();
     }
 
     @RequestMapping(value="/contract/freeze", method = RequestMethod.POST)

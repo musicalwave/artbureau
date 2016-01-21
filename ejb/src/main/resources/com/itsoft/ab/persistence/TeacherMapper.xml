@@ -162,4 +162,12 @@
         ORDER BY t.name
     </select>
 
+    <select id="getWorkingDays" parameterType="int" resultType="Integer">
+        SELECT DISTINCT (weekday % 7) -- matched to JS getDay(), so 7 must be 0
+        FROM teachers t
+        INNER JOIN events e
+        ON e.teacherId = t.id
+        WHERE t.id = #{id}
+    </select>
+
 </mapper>

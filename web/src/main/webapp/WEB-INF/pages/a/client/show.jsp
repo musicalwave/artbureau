@@ -130,8 +130,7 @@
 </div>
 <div class="widget box">
     <div class="widget-header">
-        <h4>Действующие контракты [<a href="${pageContext.request.contextPath}/contract?client=${client.id}&prev=0">+</a>] [<a href="${pageContext.request.contextPath}/client/${client.id}/contracts">Все</a>]</h4>
-
+        <h4>Действующие контракты [<a href="${pageContext.request.contextPath}/contract/new?client=${client.id}">+</a>] [<a href="${pageContext.request.contextPath}/client/${client.id}/contracts">Все</a>]</h4>
         <div class="toolbar no-padding">
             <div class="btn-group">
                 <span class="btn btn-xs widget-collapse"><i class="icon-angle-down"></i></span>

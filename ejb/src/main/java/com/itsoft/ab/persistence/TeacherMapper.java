@@ -30,4 +30,7 @@ public interface TeacherMapper {
     List<TeacherModel> getActiveTeachers();
 
     List<TeacherModel> getActiveTeachersByTypes(@Param("typeIds") String[] typeIds);
+
+    List<Integer> getWorkingDays(@Param("id") int teacherId);
+
 }

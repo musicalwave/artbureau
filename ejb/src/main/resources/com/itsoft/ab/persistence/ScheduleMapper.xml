@@ -137,11 +137,18 @@
         WHERE l.id=#{lessonId} AND l.contractId=c.id
     </update>
 
-    <select id="selectEmptyEventsByDateAndTeacher" parameterType="map" resultType="EventModel">
+    <select id="selectEmptyEventsByTeacher" parameterType="map" resultType="EventModel">
         SELECT
-        <include refid="Event" />
+          e.id,
+          e.weekday,
+          e.startTime,
+          e.finishTime,
+          w.name as weekdayS
         FROM events e
-        WHERE e.teacherId=#{teacherId} AND e.active=1
+        LEFT JOIN weekdays w
+          ON w.id = e.weekday
+        WHERE e.teacherId = #{teacherId} AND e.active = 1
+        ORDER BY e.weekday, e.startTime
     </select>
 
 </mapper>

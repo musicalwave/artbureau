@@ -105,14 +105,11 @@ public class ContractMaster {
             throw new ApplicationException(ECode.ERROR415);
         }
 
-        contract = setContractPrice(contract);
-
         //Сохранение объекта контракта
         contract = insertContract(contract);
 
-        if(contract.getPrev() > 0){
+        if(contract.getPrev() > 0)
             insertPrev(contract.getId(), contract.getPrev());
-        }
 
         //Обновление баланса клиента и контракта
         PaymentModel p = new PaymentModel();

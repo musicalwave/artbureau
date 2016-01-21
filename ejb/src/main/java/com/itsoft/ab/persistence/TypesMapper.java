@@ -16,7 +16,7 @@ public interface TypesMapper {
 
     List<TypeModel> getTeacherTypes(int teacherId);
 
-    List<TypeModel> getTypeById(int id);
+    TypeModel getTypeById(int id);
 
     void insertType(TypeModel type);
 

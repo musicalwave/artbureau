@@ -27,40 +27,33 @@ public class TypeMaster {
     @Autowired
     private TypesMapper typesMapper;
 
-    public TypeModel getTypeById(int id){
-        List<TypeModel> result = typesMapper.getTypeById(id);
-
-        if (result.size() > 1 || result.size() < 1) {
-            LOGGER.error("Полученный массив данных имеет неподходящий размер.");
-            throw new ApplicationException(ECode.ERROR500);
-        }
-
-        return result.get(0);
+    public TypeModel getTypeById(int id) {
+        return typesMapper.getTypeById(id);
     }
 
     public void insertType(TypeModel type) {
-        if (type != null && type instanceof TypeModel){
+        if (type != null) {
             typesMapper.insertType(type);
-        }else{
+        } else {
             throw new ApplicationException(ECode.ERROR500);
         }
     }
 
     public void insertPrice(TypeModel type) {
-        if (type != null && type instanceof TypeModel){
+        if (type != null) {
             typesMapper.insertPrice(type);
-        }else{
+        } else {
             throw new ApplicationException(ECode.ERROR500);
         }
     }
 
 
     public void updateType(TypeModel type) {
-        if (type != null && type instanceof TypeModel){
+        if (type != null) {
             typesMapper.updateType(type);
             typesMapper.updatePrice(type);
 
-        }else{
+        } else {
             throw new ApplicationException(ECode.ERROR500);
         }
     }
@@ -73,7 +66,7 @@ public class TypeMaster {
 
     public boolean checkExistance(TypeModel type) {
         TypeModel t = typesMapper.getTypeByName(type.getName());
-        if(t == null){
+        if (t == null) {
             return false;
         }
         return true;
@@ -82,5 +75,26 @@ public class TypeMaster {
     public List<TypeModel> getTeacherTypes(int teacherId) {
         List<TypeModel> types = typesMapper.getTeacherTypes(teacherId);
         return types;
+    }
+
+    public int getDefaultPrice(int typeId, int contractType) {
+        TypeModel type = typesMapper.getTypeById(typeId);
+
+        if(type != null) {
+            switch (contractType) {
+                case 1:
+                    return type.getpPrice();
+                case 2:
+                    return type.getgPrice();
+                case 3:
+                    return type.getdPrice();
+                case 4:
+                    return type.getaPrice();
+                default:
+                    return 0;
+            }
+        }
+
+        return 0;
     }
 }

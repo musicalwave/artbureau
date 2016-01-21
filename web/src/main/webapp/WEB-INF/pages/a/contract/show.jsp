@@ -290,7 +290,7 @@
                                                 </c:if>
                                                 <div class="tab-pane" id="tab_3_3">
                                                     <div class="form-actions">
-                                                        <a href="${pageContext.request.contextPath}/contract?client=${contract.clientId}&prev=${contract.id}"
+                                                        <a href="${pageContext.request.contextPath}/contract/new?client=${contract.clientId}&prev=${contract.id}"
                                                            class="btn btn-primary pull-right">Продление</a>
                                                     </div>
                                                 </div>

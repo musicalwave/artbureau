@@ -56,23 +56,8 @@ public class EventMaster {
         return event;
     }
 
-    public List<EventModel> getEmptyEventsByDate(int teacherId, String dateS) {
-        try {
-            List<EventModel> events = new ArrayList<EventModel>();
-            Date date = new SimpleDateFormat("dd-MM-yyyy").parse(dateS);
-            Calendar start = Calendar.getInstance();
-            start.setTime(date);
-            Calendar finish = Calendar.getInstance();
-            finish.setTime(date);
-            finish.add(Calendar.DATE, 7);
-            for (Date d = start.getTime(); start.before(finish); start.add(Calendar.DATE, 1), d = start.getTime()) {
-                //events.addAll(scheduleMapper.selectEmptyEventsByDateAndTeacher(new java.sql.Date(d.getTime()),teacherId));
-            }
-            events.addAll(scheduleMapper.selectEmptyEventsByDateAndTeacher(new java.sql.Date(start.getTimeInMillis()),teacherId));
-            return events;
-        } catch (ParseException e) {
-            throw new ApplicationException(ECode.ERROR415);
-        }
+    public List<EventModel> getEmptyEvents(int teacherId) {
+            return scheduleMapper.selectEmptyEventsByTeacher(teacherId);
     }
 
     public EventModel getEvent(int eventId) {

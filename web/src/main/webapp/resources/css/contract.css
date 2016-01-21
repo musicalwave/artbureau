@@ -1,0 +1,8 @@
+.currency-label {
+    text-align: left !important;
+    padding-left: 0;
+}
+
+.currency-label:before {
+    content: "руб."
+}

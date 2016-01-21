@@ -54,4 +54,21 @@ public class TeacherTypeMaster {
     public void updateType(TeacherTypeModel t) {
         teacherTypeMapper.updateType(t);
     }
+
+    public int getPrice(int teacherId, int typeId, int contractType) {
+        TeacherTypeModel teacher = getTypeByTeacherAndType(teacherId, typeId);
+
+        int price = 0;
+        switch(contractType) {
+            case 1: price = teacher.getpPrice(); break;
+            case 2: price = teacher.getgPrice(); break;
+            case 3: price = teacher.getdPrice(); break;
+            case 4: price = teacher.getaPrice(); break;
+        }
+
+        if(price == 0)
+            price = typeMaster.getDefaultPrice(typeId, contractType);
+
+        return price;
+    }
 }

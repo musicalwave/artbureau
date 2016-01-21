@@ -1,8 +1,6 @@
 package com.itsoft.ab.controllers.a;
 
-import com.itsoft.ab.beans.LessonMaster;
-import com.itsoft.ab.beans.ScheduleMaster;
-import com.itsoft.ab.beans.TeacherMaster;
+import com.itsoft.ab.beans.*;
 import com.itsoft.ab.exceptions.ApplicationException;
 import com.itsoft.ab.model.*;
 import com.itsoft.ab.persistence.*;
@@ -49,6 +47,12 @@ public class AjaxController {
 
     @Autowired
     private TeacherTypeMapper teacherTypeMapper;
+
+    @Autowired
+    private TeacherTypeMaster teacherTypeMaster;
+
+    @Autowired
+    private EventMaster eventMaster;
 
     @RequestMapping(value = "/do/teacher/find", method = RequestMethod.POST)
     public
@@ -198,10 +202,13 @@ public class AjaxController {
     @RequestMapping(value = "/do/teachers", method = RequestMethod.GET)
     public
     @ResponseBody
-    List<TeacherModel> getTeachersByTypes(@RequestParam(value = "types") String[] typeIds) {
+    List<TeacherModel> getTeachersByTypes(@RequestParam(value = "types") String[] typeIds,
+                                          @RequestParam(value = "needEmpty", required = false, defaultValue = "true") boolean needEmpty) {
 
         List<TeacherModel> teachers = new ArrayList<>();
-        teachers.add(TeacherMaster.getEmptyTeacher());
+
+        if(needEmpty)
+            teachers.add(TeacherMaster.getEmptyTeacher());
 
         if(typeIds.length == 0)
             teachers.addAll(teacherMapper.getActiveTeachers());
@@ -211,4 +218,30 @@ public class AjaxController {
         return teachers;
     }
 
+    @RequestMapping(value="/do/teachers/working-days", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<Integer> getTeacherWorkingDays(@RequestParam(value = "teacherTypeId") int teacherTypeId) {
+        TeacherTypeModel teacherTypeModel = teacherTypeMapper.getById(teacherTypeId);
+        return teacherMapper.getWorkingDays(teacherTypeModel.getTeacherId());
+    }
+
+    @RequestMapping(value="/do/teachers/schedule", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<EventModel> getTeacherSchedule(@RequestParam(value = "teacherTypeId") int teacherTypeId) {
+        TeacherTypeModel teacherTypeModel = teacherTypeMapper.getById(teacherTypeId);
+        return eventMaster.getEmptyEvents(teacherTypeModel.getTeacherId());
+    }
+
+    @RequestMapping(value="/do/teachers/price", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    int getPrice(@RequestParam(value = "teacherTypeId") int teacherTypeId,
+                 @RequestParam(value = "typeId") int typeId,
+                 @RequestParam(value = "contractType") int contractType) {
+
+        TeacherTypeModel teacherTypeModel = teacherTypeMapper.getById(teacherTypeId);
+        return teacherTypeMaster.getPrice(teacherTypeModel.getTeacherId(), typeId, contractType);
+    }
 }
