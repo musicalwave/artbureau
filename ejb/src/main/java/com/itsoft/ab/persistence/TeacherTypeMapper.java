@@ -20,6 +20,8 @@ public interface TeacherTypeMapper {
 
     List<TeacherTypeModel> getTeacherTypes(int teacherId);
 
+    List<String> getTeacherTypeIds(int teacherId);
+
     void insertTypeTeacher(@Param("type")int typeId, @Param("teacher")int teacherId);
 
     void deleteTypeTeacher(int id);

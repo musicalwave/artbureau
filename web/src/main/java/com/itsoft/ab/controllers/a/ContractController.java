@@ -92,7 +92,12 @@ public class ContractController {
     }
 
     @RequestMapping(value="/contract/new", method = RequestMethod.GET)
-    public String newContract(@RequestParam("client") int clientId, @RequestParam(value = "prev", defaultValue = "0") Integer prev, Model m) {
+    public String newContract(@RequestParam("client") int clientId,
+                              @RequestParam(value = "prev", defaultValue = "0") Integer prev,
+                              @RequestParam(value = "trial", defaultValue = "0") Integer trial,
+                              @RequestParam(value = "typeId", defaultValue = "0") Integer typeId,
+                              @RequestParam(value = "teacherId", defaultValue = "0") Integer teacherId,
+                              Model m) {
         m = authMaster.setModel(m);
 
         //Список направлений
@@ -100,13 +105,13 @@ public class ContractController {
         m.addAttribute("types", types);
 
         // Список учителей по первому направлению
-        TypeModel firstType = types.get(0);
-        List<TeacherTypeModel> teacherTypes = teacherTypeMapper.getAllActiveByType(firstType.getId());
+        int selectedTypeId = typeId == 0 ? types.get(0).getId() : typeId;
+        List<TeacherTypeModel> teacherTypes = teacherTypeMapper.getAllActiveByType(selectedTypeId);
         m.addAttribute("teacherTypes", teacherTypes);
 
         // Расписание первого в списке учителя
-        TeacherTypeModel firstTeacherType = teacherTypes.get(0);
-        List<EventModel> emptyEvents = eventMaster.getEmptyEvents(firstTeacherType.getTeacherId());
+        int selectedTeacherId = teacherId == 0 ? teacherTypes.get(0).getTeacherId() : teacherId;
+        List<EventModel> emptyEvents = eventMaster.getEmptyEvents(selectedTeacherId);
         m.addAttribute("emptyEvents", emptyEvents);
 
         //Список типов контракта
@@ -118,8 +123,8 @@ public class ContractController {
 
         //Выбор цены урока исходя из типа занятия и учителя
         singleLessonPrice = teacherTypeMaster.getPrice(
-                firstTeacherType.getTeacherId(),
-                firstType.getId(),
+                selectedTeacherId,
+                selectedTypeId,
                 contractType);
 
         m.addAttribute("singleLessonPrice", singleLessonPrice);
@@ -134,10 +139,18 @@ public class ContractController {
         contract.setClientId(clientId);
         contract.setClientFS(client.getFname());
         contract.setClientLS(client.getLname());
-        contract.setCountLessons(12);
         contract.setDiscount(discounts.get(0).getId());
+        contract.setCountLessons(trial == 1 ? 1 : 12);
         contract.setPrice(contract.getCountLessons() * singleLessonPrice * (100 - contract.getDiscount()) / 100);
         contract.setPrev(prev);
+
+        contract.setTrial(trial);
+        contract.setTypeId(selectedTypeId);
+
+        int selectedTeacherTypeId =  teacherTypeMapper.getTypeByTeacherAndType(
+                selectedTeacherId, selectedTypeId).get(0).getId();
+
+        contract.setTeacherTypeId(selectedTeacherTypeId);
 
         m.addAttribute("contract", contract);
 
@@ -157,7 +170,7 @@ public class ContractController {
     @RequestMapping(value="/contract/freeze", method = RequestMethod.POST)
     public String freezeContract(@ModelAttribute("contract") ContractModel c, Model m) throws ParseException {
 
-        if(c != null && c instanceof ContractModel){
+        if(c != null){
 
             if(c.getFreezeDateS() != null && c.getFreezeFinishDateS() != null){
                 lessonMaster.freezeContract(c);
@@ -172,7 +185,7 @@ public class ContractController {
     @RequestMapping(value="/contract/cash", method = RequestMethod.POST)
     public String statusContract(@ModelAttribute("contract") ContractModel c, Model m) throws ParseException {
 
-        if(c != null && c instanceof ContractModel){
+        if(c != null){
 
             if(c.getCash() != 0){
                 contractMaster.updateCash(c.getId(), c.getCash());

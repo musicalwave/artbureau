@@ -57,6 +57,12 @@
         WHERE J_TEACHERS_TYPES.teacherId = #{id}
     </select>
 
+    <select id="getTeacherTypeIds" parameterType="int" resultType="String">
+        SELECT jtt.typeId
+        FROM J_TEACHERS_TYPES jtt
+        WHERE jtt.teacherId = #{id}
+    </select>
+
     <insert id="insertTypeTeacher" parameterType="map">
         INSERT INTO J_TEACHERS_TYPES (teacherId, typeId)
         VALUES (#{teacher, javaType=int, jdbcType=INTEGER},

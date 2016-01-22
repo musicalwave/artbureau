@@ -47,6 +47,9 @@ public class CallsController{
     @Autowired
     private TeacherMapper teacherMapper;
 
+    @Autowired
+    private TeacherTypeMapper teacherTypeMapper;
+
     //Обработка запроса Создать новый звонок
     @RequestMapping(value = "/call", method = RequestMethod.GET)
     public String newCall(@RequestParam("client")String client, Model m){
@@ -104,7 +107,33 @@ public class CallsController{
                     call.setClientId(client.getId());
                     callMaster.insertCall(call);
 
-                    return "redirect:/client/" + client.getId();
+                    // well, that's imbecile
+
+                    String matchedTypeId = "0";
+                    List<String> typeIds = call.getTypeIdsList();
+
+                    if(typeIds != null && !typeIds.isEmpty()) {
+                        if (call.getTeacherId() != 0) {
+                            // get teacher's types' ids
+                            List<String> teacherTypeIds = teacherTypeMapper.getTeacherTypeIds(call.getTeacherId());
+
+                            // find one of the call's types that the selected teacher has
+                            for (String typeId : typeIds)
+                                if (teacherTypeIds.contains(typeId)) {
+                                    matchedTypeId = typeId;
+                                    break;
+                                }
+                        } else {
+                            matchedTypeId = typeIds.get(0);
+                        }
+                    }
+
+                    switch (call.getStatusId()) {
+                        case 3:  return "redirect:/contract/new?client=" + client.getId() + "&typeId=" + matchedTypeId + "&teacherId=" + call.getTeacherId() + "&trial=1";
+                        case 5:  return "redirect:/contract/new?client=" + client.getId() + "&typeId=" + matchedTypeId + "&teacherId=" + call.getTeacherId();
+                        default: return "redirect:/client/" + client.getId();
+                    }
+
                 }
                 else {
                     call.setId(0);
