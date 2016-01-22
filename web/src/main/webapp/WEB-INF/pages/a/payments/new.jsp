@@ -53,7 +53,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label class="control-label">Сумма</label>
-                                        <form:input class="form-control input-width-large" path="value" type="text" placeholder="100"/>
+                                        <form:input class="form-control input-width-large" path="value" type="text" placeholder="100" value="${total}"/>
 
                                         <label class="radio-inline">
                                             <form:radiobutton path="direction" value="1" checked="true"/>

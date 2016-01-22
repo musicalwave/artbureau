@@ -87,6 +87,7 @@ public class PaymentController {
         m.addAttribute("client", client);
         m.addAttribute("contracts", contracts);
         m.addAttribute("payment", new PaymentModel());
+        m.addAttribute("total", contracts.isEmpty() ? 0 : contracts.get(0).getPrice());
         return "/a/payments/new";
     }
 
