@@ -163,6 +163,26 @@
                     Расписание
                 </a>
             </li>
+            <li>
+                <a href="${pageContext.request.contextPath}/reports">
+                    <i class="icon-list-alt"></i>
+                    Отчёты
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a href="${pageContext.request.contextPath}/reports/last-lesson">
+                            <i class="icon-time"></i>
+                            Последний урок
+                        </a>
+                    </li>
+                    <li>
+                        <a href="${pageContext.request.contextPath}/reports/payment-soon">
+                            <i class="icon-credit-card"></i>
+                            Скоро платёж
+                        </a>
+                    </li>
+                </ul>
+            </li>
         </ul>
         <!-- /Navigation -->
     </div>

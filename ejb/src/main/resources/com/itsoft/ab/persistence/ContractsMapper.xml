@@ -266,4 +266,28 @@
         WHERE
         contracts.id = #{contractId}
     </update>
+
+
+    <select id="getContractsByLastLessonDate" parameterType="String" resultMap="result">
+       SELECT con.id,
+              con.clientId,
+              cl.fname as clientFS,
+              cl.lname as clientLS,
+              cl.phone1 as comment,
+              t.name as teacherS,
+              ty.name as typeS
+       FROM contracts con
+       INNER JOIN clients cl
+         ON cl.id = con.clientId
+       INNER JOIN J_TEACHERS_TYPES jtt
+         ON jtt.id = con.teacherTypeId
+       INNER JOIN teachers t
+         ON t.id = jtt.teacherId
+       INNER JOIN types ty
+         ON ty.id = jtt.typeId
+       INNER JOIN lessons l
+         ON l.contractId = con.id AND l.statusId = 1
+       GROUP BY con.id
+       HAVING (COUNT(l.id) = 1 AND MAX(l.date) = #{lastLessonDate})
+    </select>
 </mapper>

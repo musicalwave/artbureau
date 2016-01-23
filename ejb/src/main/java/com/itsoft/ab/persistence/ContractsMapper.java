@@ -48,4 +48,6 @@ public interface ContractsMapper {
     void updateActive(@Param("contractId")int contractId, @Param("active")int active);
 
     void updateCash(@Param("contractId")int contractId, @Param("cash")int cash);
+
+    List<ContractModel> getContractsByLastLessonDate(String lastLessonDate);
 }

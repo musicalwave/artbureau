@@ -21,6 +21,8 @@
         <result property="teacherS" column="teacherS"/>
         <result property="dateS" column="dateS"/>
         <result property="contractSpecial" column="contractSpecial"/>
+        <result property="clientId" column="clientId"/>
+        <result property="clientS" column="clientS"/>
 
     </resultMap>
 
@@ -186,5 +188,28 @@
         AND J_TEACHERS_TYPES.teacherId = teachers.id
         AND J_TEACHERS_TYPES.typeId = types.id
         ORDER BY payments.date ASC
+    </select>
+
+    <select id="getPlannedPaymentsByDate" parameterType="String" resultMap="paymentsMap">
+        SELECT
+          c.id as clientId,
+          concat(c.fname, " ", c.lname) as clientS,
+          c.phone1 as comment,
+          p.value,
+          t.name as teacherS,
+          ty.name as typeS,
+          con.id as contractId
+        FROM clients c
+          INNER JOIN contracts con
+            ON con.clientId = c.id
+          INNER JOIN J_TEACHERS_TYPES jtt
+            ON jtt.id = con.teacherTypeId
+          INNER JOIN teachers t
+            ON t.id = jtt.teacherId
+          INNER JOIN types ty
+            ON ty.id = jtt.typeId
+          INNER JOIN payments p
+            ON p.contractId = con.id
+         WHERE p.planned = 1 AND (FROM_UNIXTIME(p.date / 1000)) = #{date}
     </select>
 </mapper>

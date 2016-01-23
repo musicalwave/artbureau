@@ -30,4 +30,6 @@ public interface PaymentMapper {
     List<PaymentModel> getPlannedPayments(@Param("fromDate")long fromDate, @Param("toDate")long toDate);
 
     List<PaymentModel> getDonePayments(@Param("fromDate")long fromDate, @Param("toDate")long toDate);
+
+    List<PaymentModel> getPlannedPaymentsByDate(@Param("date") String date);
 }
