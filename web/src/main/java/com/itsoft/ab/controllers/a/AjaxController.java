@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,6 +39,9 @@ public class AjaxController {
 
     @Autowired
     private LessonMaster lessonMaster;
+
+    @Autowired
+    private LessonsMapper lessonsMapper;
 
     @Autowired
     private RoomMapper roomMapper;
@@ -103,19 +107,6 @@ public class AjaxController {
 
         return lessonMaster.sortLessonsByClass(lessons);
     }
-
-//    @RequestMapping(value = "/do/lessons/all/test", method = RequestMethod.GET)
-//    public @ResponseBody Map<String, List<LessonWeb>> getAllLessonsTest(@RequestParam("sd") String sdate, @RequestParam("fd") String fdate){
-//        List<LessonWeb> lessons = new ArrayList<LessonWeb>();
-//        lessons.add(new LessonWeb(1,"2014-03-27","14:00","15:00", 1, 1, "Тойминцева Алена", 0,0,0,"",0, "", 0,0,0,0,0,0,0));
-//        lessons.add(new LessonWeb(2,"2014-03-27","15:00","16:30", 1, 1, "Тойминцева Алена", 0,0,0,"",0, "", 0,0,0,0,0,0,0));
-//        lessons.add(new LessonWeb(3,"2014-03-27","17:00","18:00", 1, 1, "Тойминцева Алена", 1,1,1,"Петров Иван",1, "Вокал", 1,3,1,0,0,0,4));
-//        lessons.add(new LessonWeb(4,"2014-03-27","20:00","21:00", 1, 1, "Тойминцева Алена", 1,2,2,"Сидоров Сергей",2, "Фортепиано", 2,2,2,1,1,0,4));
-//        lessons.add(new LessonWeb(5,"2014-03-27","21:00","22:00", 1, 1, "Тойминцева Алена", 1,3,3,"Морозов Игорь",3, "Ударные", 3,1,1,0,1,1,4));
-//
-//
-//        return lessonMaster.sortLessonsByClass(lessons);
-//    }
 
     @RequestMapping(value = "/do/lessons/{classId}", method = RequestMethod.GET)
     public @ResponseBody List<LessonWeb> getClassLessons(@PathVariable int classId, @RequestParam("sd") String sdate, @RequestParam("fd") String fdate){
@@ -243,5 +234,76 @@ public class AjaxController {
 
         TeacherTypeModel teacherTypeModel = teacherTypeMapper.getById(teacherTypeId);
         return teacherTypeMaster.getPrice(teacherTypeModel.getTeacherId(), typeId, contractType);
+    }
+
+    @RequestMapping(value="/do/lessons/room", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<LessonWeb> getLessonsByRoom(@RequestParam(value = "roomId") int roomId,
+                                     @RequestParam(value = "leftDate") String leftDate,
+                                     @RequestParam(value = "rightDate") String rightDate) {
+        return  scheduleMapper.getLessonsByRoom(roomId, leftDate, rightDate);
+    }
+
+    @RequestMapping(value="/do/lessons/update", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    boolean updateLessonDate(@RequestParam(value = "id") int id,
+                             @RequestParam(value = "teacherId") int teacherId,
+                             @RequestParam(value = "roomId") int roomId,
+                             @RequestParam(value = "date") String date,
+                             @RequestParam(value = "weekday") int weekday,
+                             @RequestParam(value = "startTime") String startTime,
+                             @RequestParam(value = "finishTime") String finishTime) {
+
+        EventModel emptyEvent =
+                scheduleMapper.getEmptyEvent(
+                    teacherId,
+                    roomId,
+                    weekday,
+                    startTime,
+                    finishTime,
+                    date);
+
+        if(emptyEvent != null) {
+            scheduleMapper.shiftLesson(emptyEvent.getId(), id, date);
+            return true;
+        }
+
+        return false;
+    }
+
+    @RequestMapping(value = "/do/events", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<EventModel> getEmptyEventsByTeacherAndRoom(@RequestParam(value = "teacherId") int teacherId,
+                                               @RequestParam(value = "roomId") int roomId) {
+        return scheduleMapper.getEmptyEventsByTeacherAndRoom(teacherId, roomId);
+    }
+
+    @RequestMapping(value = "/do/lessons/conduct", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    int conductLesson(@RequestParam(value = "id") int id) {
+        LessonModel lesson = lessonsMapper.getLesson(id);
+        if(lesson != null) {
+            lessonMaster.doLesson(lesson);
+            return  lesson.getStatusId();
+        }
+
+        return 0;
+    }
+
+    @RequestMapping(value = "/do/lessons/burn", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    int burnLesson(@RequestParam(value = "id") int id) {
+        LessonModel lesson = lessonsMapper.getLesson(id);
+        if(lesson != null) {
+            lessonMaster.burnLesson(lesson);
+            return lesson.getStatusId();
+        }
+
+        return 0;
     }
 }

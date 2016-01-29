@@ -1,0 +1,71 @@
+.event-icons-list {
+    width: 100%;
+    height: 12px;
+    position: absolute;
+    top: 0;
+    margin: 0;
+    padding: 0;
+    background: #FFFCBB;
+    padding-left: 5px;
+    padding-bottom: 3px;
+
+}
+
+.event-icons-list img {
+    width: 10px;
+} 
+
+.event-icons-list li {
+    list-style-type: none;
+    box-sizing: border-box;
+    float: left;
+    width: 15px;
+} 
+
+.fc-event.ui-selecting {
+    border: 3px solid;
+}
+
+
+.fc-event.ui-selected {
+    border: 5px solid;
+}
+
+.rooms {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+}
+
+.rooms-list li {
+    display: inline;
+}
+
+.rooms-list li:after {
+    content: "|";
+}
+
+
+.rooms li:last-child:after {
+    content: none;
+}
+
+.rooms-list a {
+    text-decoration: none;
+}
+
+.rooms-list a:hover {
+    text-decoration: underline;
+}
+
+.rooms-list a:visited {
+    color: blue;
+}
+
+a.selected-room {
+    font-weight: bold;    
+}
+
+a.selected-room:hover {
+    text-decoration: none;
+}

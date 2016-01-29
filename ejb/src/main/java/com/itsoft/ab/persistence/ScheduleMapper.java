@@ -28,7 +28,20 @@ public interface ScheduleMapper {
 
     int countLessons(@Param("eventId") int eventId, @Param("date") Date date);
     int countLessonsByTeacherAndTime(@Param("teacherTypeId") int teacherTypeId, @Param("startTime") int startTime, @Param("date") java.util.Date date);
-    void shiftLesson(@Param("eventId") int eventId, @Param("lessonId") int lessonId, @Param("newDate") Date newDate);
+    void shiftLesson(@Param("eventId") int eventId, @Param("lessonId") int lessonId, @Param("newDate") String newDate);
 
     List<EventModel> selectEmptyEventsByTeacher(@Param("teacherId")int teacherId);
+
+    List<LessonWeb> getLessonsByRoom(@Param("roomId") int roomId,
+                                     @Param("leftDate") String leftDate,
+                                     @Param("rightDate") String rightDate);
+
+    EventModel getEmptyEvent(@Param("teacherId") int teacherId,
+                             @Param("roomId") int roomId,
+                             @Param("weekday") int weekday,
+                             @Param("startTime") String startTime,
+                             @Param("finishTime") String finishTime,
+                             @Param("date") String date);
+
+    List<EventModel> getEmptyEventsByTeacherAndRoom(@Param("teacherId") int teacherId, @Param("roomId") int roomId);
 }

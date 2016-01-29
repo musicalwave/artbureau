@@ -31,7 +31,7 @@ public class SchedController {
     public String showSchedule(Model m){
         m = authMaster.setModel(m);
         m = roomMaster.setRooms(m);
-        return "/a/sched/schedule";
+        return "/a/sched/new_schedule";
     }
 
     @RequestMapping(value="/sched/{classId}", method = RequestMethod.GET)
@@ -54,6 +54,4 @@ public class SchedController {
         m = roomMaster.setRooms(m);
         return "/a/sched/schedule";
     }
-
-
 }
