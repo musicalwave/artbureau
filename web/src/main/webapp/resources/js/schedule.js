@@ -1,3 +1,5 @@
+var draggedEvent = function() { return null; }
+
 function getSelectedRoomId() {
     return $('.rooms-list')
             .find('a.selected-room')
@@ -15,8 +17,6 @@ function eventRenderer ( event, element, view ) {
 
 function eventDropper(event, delta, revertFunc) {
 
-    console.log("event dropped!");
-
     // update event on the server
 
     // well, this is true when we drop an event which is not in the calendar's
@@ -24,11 +24,14 @@ function eventDropper(event, delta, revertFunc) {
     // The dropped event hasn't been mutated (see the reportEventDrop func in FC source code) 
     // so we need to alter it here manually.
     if(event.lostOrigin) {
-        event.start.add(delta._days, 'd')
+
+        var real_delta = delta._days - event.weeksPassed * 7;
+
+        event.start.add(real_delta, 'd')
                    .add(delta._milliseconds, 'ms');
-        event.end.add(delta._days, 'd')
+        event.end.add(real_delta, 'd')
                  .add(delta._milliseconds, 'ms');
-    }
+    } 
 
     var lessonId = event._id;
     var teacherId = event.teacherId;
@@ -38,8 +41,6 @@ function eventDropper(event, delta, revertFunc) {
         weekday = 7;
     var startTime = event.start.format("HH:mm:ss");
     var finishTime = event.end.format("HH:mm:ss");
-
-
     var date = event.start.format("YYYY-MM-DD");
 
     $.ajax({
@@ -57,8 +58,9 @@ function eventDropper(event, delta, revertFunc) {
         success : function(response) {
             if(!response)
                 revertFunc();
-            if(event.lostOrigin)
-                $('#calendar').fullCalendar('refetchEvents');
+            else
+                if(event.lostOrigin)
+                    $('#calendar').fullCalendar('refetchEvents');
         },
         error: function() {
             revertFunc();
@@ -66,10 +68,6 @@ function eventDropper(event, delta, revertFunc) {
     })
 }
 
-
-function hideEventById(eventId) {
-    $('a[event_id=\"' + eventId + '\"]').hide();
-}
 
 function openPositionToCalendarEvent(postition, firstDayOfWeek) {
 
@@ -86,12 +84,12 @@ function openPositionToCalendarEvent(postition, firstDayOfWeek) {
 }
 
 var openPositionSource;
-function fetchOpenPositions(eventId, teacherId, firstDayOfWeek) {
+function fetchOpenPositions(event, view) {
 
     $.ajax({
         url: "/do/events",
         data: {
-            teacherId : teacherId,
+            teacherId : event.teacherId,
             roomId : getSelectedRoomId()
         },
         success: function(response) {
@@ -100,12 +98,12 @@ function fetchOpenPositions(eventId, teacherId, firstDayOfWeek) {
 
             $(response).each(function() {
                 openPositionSource.push(
-                    openPositionToCalendarEvent(this, firstDayOfWeek));
+                    openPositionToCalendarEvent(this, view.start));
             })
-    
+
             $("#calendar").fullCalendar('addEventSource', openPositionSource);
             
-            hideEventById(eventId);
+            view.hideEvent(event);
         }
     })
 }
@@ -115,9 +113,9 @@ function removeOpenPositions() {
     $('#calendar').fullCalendar('removeEventSource', openPositionSource);
 }
 
-function refetchOpenPositions(eventId, teacherId, firstDayOfWeek) {
+function refetchOpenPositions(event, view) {
     removeOpenPositions();
-    fetchOpenPositions(eventId, teacherId, firstDayOfWeek);    
+    fetchOpenPositions(event, view);    
 }
 
 function getRoomLinkByCoords(x, y) {
@@ -134,25 +132,28 @@ function getRoomLinkByCoords(x, y) {
 
 function eventDragStarter (event, jsEvent, ui, view ) {
 
+    draggedEvent = function() { return event; };
+
     // get open postitions 
     // for the dragged event in the current room
     // and render them as background events
-    fetchOpenPositions(event._id, event.teacherId, view.start);
+
+    fetchOpenPositions(event, view)
 
     $(document).mousemove(function(e){
         var $room_link = getRoomLinkByCoords(e.pageX, e.pageY);
         
         if($room_link !== undefined && $room_link.attr("room_id") !== getSelectedRoomId()) {
             $room_link.click();
-            refetchOpenPositions(event._id, event.teacherId, view.start);
+            refetchOpenPositions(event, view);
             // room switched -> events refetched -> origin lost
-            event.lostOrigin = true; 
+            event.lostOrigin = true;
         }
     })
 }
 
 function eventDragStopper (event, jsEvent, ui, view ) {
-    console.log("event drag stopped!");
+    draggedEvent = function() { return null; };
     removeOpenPositions();
     $(document).unbind('mousemove');
 }
@@ -185,6 +186,7 @@ function lessonToCalendarEvent(lesson) {
              teacherId : lesson.teacherId,
              roomId : lesson.roomId,
              lostOrigin : false,
+             weeksPassed: 0,
              title: "Ученик: " + lesson.clientName + "\n"
                     + "Препод: " + lesson.teacherName,
              start: start,
@@ -299,12 +301,37 @@ $(document).ready(function() {
         eventDrop:      eventDropper        
     });
 
-//     $(function() {
-//         $('.fc-time-grid').selectable({
-//             filter: ".fc-event"
-//         });
-//         }
-//     ),
+
+    $('#calendar').mouseleave(function(e) {
+
+        var event = draggedEvent();
+    
+        if(event) {
+            var $cal = $('#calendar');
+            var leftEdgeX = $cal.offset().left;
+            var rightEdgeX = $cal.offset().left + $cal.width();
+
+            if (e.pageX <= leftEdgeX) {
+                event.lostOrigin = true;
+                event.start.add(-7,'d');
+                event.end.add(-7,'d');
+                event.weeksPassed -= 1;
+                $cal.fullCalendar('prev');
+                $cal.fullCalendar('getView').prepareHits();
+                refetchOpenPositions(event, $cal.fullCalendar('getView'));
+            } else 
+            if (e.pageX >= rightEdgeX) {
+                event.lostOrigin = true;
+                event.start.add(7,'d');
+                event.end.add(7,'d');
+                event.weeksPassed += 1;
+                $cal.fullCalendar('next');
+                $cal.fullCalendar('getView').prepareHits();
+                refetchOpenPositions(event, $cal.fullCalendar('getView'));
+            }            
+        }
+
+    });
 
 
    $(function() {
@@ -316,13 +343,6 @@ $(document).ready(function() {
     $.contextMenu({
         selector: '.fc-event', 
         items: {
-
-//             transfer: {
-//                 name: "Перенести",
-//                 icon: function() {
-//                     return 'context-menu-icon context-menu-icon-transfer';
-//                 }
-//             },
 
             check: {
                 name: "Провести", 

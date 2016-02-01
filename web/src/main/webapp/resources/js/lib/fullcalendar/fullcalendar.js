@@ -2833,6 +2833,9 @@ var MouseFollower = Class.extend({
 	// the initial position of el, relative to the offset parent. made to match the initial offset of sourceEl
 	top0: null,
 	left0: null,
+	sourceOffset: null,
+	sourceWidth: null,
+	sourceHeight: null,
 
 	// the initial position of the mouse
 	mouseY0: null,
@@ -2852,6 +2855,11 @@ var MouseFollower = Class.extend({
 		this.options = options = options || {};
 		this.sourceEl = sourceEl;
 		this.parentEl = options.parentEl ? $(options.parentEl) : sourceEl.parent(); // default to sourceEl's parent
+
+		this.sourceEl.width(); // hack to force IE8 to compute correct bounding box
+		this.sourceOffset = this.sourceEl.offset();
+		this.sourceWidth = this.sourceEl.width();
+		this.sourceHeight = this.sourceEl.height();
 	},
 
 
@@ -2927,8 +2935,8 @@ var MouseFollower = Class.extend({
 					margin: 0,
 					right: 'auto', // erase and set width instead
 					bottom: 'auto', // erase and set height instead
-					width: this.sourceEl.width(), // explicit height in case there was a 'right' value
-					height: this.sourceEl.height(), // explicit width in case there was a 'bottom' value
+					width: this.sourceWidth, // explicit height in case there was a 'right' value
+					height: this.sourceHeight, // explicit width in case there was a 'bottom' value
 					opacity: this.options.opacity || '',
 					zIndex: this.options.zIndex
 				})
@@ -2958,7 +2966,7 @@ var MouseFollower = Class.extend({
 		// make sure origin info was computed
 		if (this.top0 === null) {
 			this.sourceEl.width(); // hack to force IE8 to compute correct bounding box
-			sourceOffset = this.sourceEl.offset();
+			sourceOffset = this.sourceOffset;
 			origin = this.el.offsetParent().offset();
 			this.top0 = sourceOffset.top - origin.top;
 			this.left0 = sourceOffset.left - origin.left;
@@ -2998,7 +3006,8 @@ var MouseFollower = Class.extend({
 		if (this.isHidden) {
 			this.isHidden = false;
 			this.updatePosition();
-			this.getEl().show();
+			// temporarily disabled feature
+  			// this.getEl().show();
 		}
 	}
 
@@ -3945,7 +3954,6 @@ Grid.mixin({
 			};
 		}
 
-		console.log(dropLocation);
 		return dropLocation;
 	},
 
