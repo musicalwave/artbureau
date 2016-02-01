@@ -1,5 +1,7 @@
 apply plugin: 'war'
 
+compileJava.options.encoding = 'UTF-8'
+
 war {
 
     baseName = 'abWEB'
