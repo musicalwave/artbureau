@@ -13,4 +13,5 @@ import java.util.List;
 public interface CallsStatusMapper {
     List<SimpleModel> selectAll();
     SimpleModel selectById(int id);
+    boolean redirectToNewContract(int id);
 }

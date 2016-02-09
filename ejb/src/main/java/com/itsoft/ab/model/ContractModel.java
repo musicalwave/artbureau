@@ -2,7 +2,9 @@ package com.itsoft.ab.model;
 
 import com.itsoft.ab.BasicModel;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -52,6 +54,8 @@ public class ContractModel extends BasicModel{
 
     private int moneyNeed;//Сколько еще денег нужно положить на контракт
 
+    private List<PaymentModel> payments = new ArrayList<>();
+    private int contractOptionId;
 
     public ContractModel() {
     }
@@ -320,6 +324,22 @@ public class ContractModel extends BasicModel{
         this.prev = prev;
     }
 
+    public int getContractOptionId() {
+        return contractOptionId;
+    }
+
+    public void setContractOptionId(int contractOptionId) {
+        this.contractOptionId = contractOptionId;
+    }
+
+    public List<PaymentModel> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<PaymentModel> payments) {
+        this.payments = payments;
+    }
+
     @Override
     public String toString() {
         return "ContractModel{" +
@@ -346,4 +366,7 @@ public class ContractModel extends BasicModel{
                 ", dateS='" + dateS + '\'' +
                 '}';
     }
+
+
+
 }

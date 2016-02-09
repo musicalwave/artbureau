@@ -2,6 +2,7 @@ package com.itsoft.ab.beans;
 
 import com.itsoft.ab.exceptions.ApplicationException;
 import com.itsoft.ab.model.TypeModel;
+import com.itsoft.ab.persistence.TeacherTypeMapper;
 import com.itsoft.ab.persistence.TypesMapper;
 import com.itsoft.ab.sys.DataMaster;
 import com.itsoft.ab.sys.ECode;
@@ -26,6 +27,9 @@ public class TypeMaster {
 
     @Autowired
     private TypesMapper typesMapper;
+
+    @Autowired
+    private TeacherTypeMapper teacherTypeMapper;
 
     public TypeModel getTypeById(int id) {
         return typesMapper.getTypeById(id);
@@ -96,5 +100,27 @@ public class TypeMaster {
         }
 
         return 0;
+    }
+
+    public String getMatchedTypeByTeacher(List<String> typeIds, int teacherId) {
+
+        String matchedTypeId = "0";
+
+        if(typeIds != null && !typeIds.isEmpty()) {
+            if (teacherId != 0) {
+                // get teacher's types' ids
+                List<String> teacherTypeIds = teacherTypeMapper.getTeacherTypeIds(teacherId);
+
+                // find one of the call's types that the selected teacher has
+                for (String typeId : typeIds)
+                    if (teacherTypeIds.contains(typeId)) {
+                        matchedTypeId = typeId;
+                        break;
+                    }
+            } else {
+                matchedTypeId = typeIds.get(0);
+            }
+        }
+        return matchedTypeId;
     }
 }

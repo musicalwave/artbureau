@@ -126,9 +126,20 @@
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Статус</label>
                                 <div class="col-md-10">
-                                    <form:select id="input17" path="callStatusId" class="select2-select-00 col-md-10 full-width-fix">
+                                    <form:select id="call-status-select" path="callStatusId" class="select2-select-00 col-md-10 full-width-fix">
                                         <c:forEach var="status" items="${callStatus}">
                                             <form:option value="${status.id}">${status.name}</form:option>
+                                        </c:forEach>
+                                    </form:select>
+                                </div>
+                            </div>
+
+                            <div id="contract-option-group" class="form-group" style="display: none">
+                                <label class="col-md-2 control-label">Вариант договора</label>
+                                <div class="col-md-10">
+                                    <form:select id="contract-option-select" path="contractOptionId" class="select2-select-00 col-md-10 full-width-fix required">
+                                        <c:forEach var="option" items="${contractOptions}">
+                                            <form:option value="${option.id}">${option.name}</form:option>
                                         </c:forEach>
                                     </form:select>
                                 </div>

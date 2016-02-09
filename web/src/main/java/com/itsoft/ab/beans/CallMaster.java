@@ -237,6 +237,7 @@ public class CallMaster {
         call.setClientId(cw.getClientId());
         call.setTypeIdsList(cw.getCallTypeIds());
         call.setStatusId(cw.getCallStatusId());
+        call.setContractOptionId(cw.getContractOptionId());
 
         String comment = prepareCallComment(cw.getCallComment(), cw.getCallCommentNew());
         if(comment != null && !comment.isEmpty())

@@ -1,32 +1,48 @@
+function getSelectedStatusId() {
+    return parseInt($('#call-status-select').
+                        children(':selected').first().val());
+}
+
 function getTeachersSuccess(response) {
 
-    var $select = $('select#call-teacher-select');
+    var $select = $('#call-teacher-select');
 
     // delete select's options
-    $select.html('');
+    $select.empty();
 
     // build new options
     var $teachers = $(response);
     for (var i = 0; i < $teachers.size(); i++) {
-        $select.append("<option value=\"" + $teachers[i].id + "\">"
+        $select.append('<option value="' + $teachers[i].id + '">'
                        + $teachers[i].name
-                       + "</option>");
+                       + '</option>');
     }
 
     // recreate select
     $select.select2();
 }
 
-function getTeachersError(xhr, status, errorThrown) {
-    alert( "Sorry, there was a problem!" );
-    console.log( "Error: " + errorThrown );
-    console.log( "Status: " + status );
-    console.dir( xhr );
+function callStatusChanged() {
+    $.ajax({
+        url: '/do/new-contract-status',
+        data: {
+            id: getSelectedStatusId()
+        },
+        success: callStatusChangedSuccess
+    })
 }
+
+function callStatusChangedSuccess(newContractStatus) {
+    if(newContractStatus)
+        $('#contract-option-group').show();
+    else
+        $('#contract-option-group').hide();
+}
+
 
 $(document).ready(function() {
 
-    $('select#call-type-select').change(function() {
+    $('#call-type-select').change(function() {
         
         // construct array of selected types
         var types =  $(this).children(':selected');
@@ -37,12 +53,13 @@ $(document).ready(function() {
         
         // get teachers of selected types
         $.ajax({
-               url: "/do/teachers/",
-               data: "types=" + typeIds.join(),
-               type: "GET",
-               dataType : "json",
-               success: getTeachersSuccess,
-               error: getTeachersError
+               url: '/do/teachers/',
+               data: {
+                   types: typeIds.join()
+               },
+               success: getTeachersSuccess
            });
     })
+
+    $('#call-status-select').change(callStatusChanged);
 });

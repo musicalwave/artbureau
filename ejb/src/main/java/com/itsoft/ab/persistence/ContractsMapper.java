@@ -1,9 +1,6 @@
 package com.itsoft.ab.persistence;
 
-import com.itsoft.ab.model.ContractModel;
-import com.itsoft.ab.model.LessonModel;
-import com.itsoft.ab.model.PaymentModel;
-import com.itsoft.ab.model.SimpleModel;
+import com.itsoft.ab.model.*;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -36,6 +33,10 @@ public interface ContractsMapper {
     void insertContract(ContractModel c);
 
     List<SimpleModel> selectContractTypes();
+
+    List<ContractOptionModel> selectContractOptions();
+
+    ContractOptionModel getContractOptionById(@Param("id") int id);
 
     ContractModel findContract(@Param("client")int clientId, @Param("type")int teacherTypeId, @Param("date")Date date, @Param("count")int countLessons);
 

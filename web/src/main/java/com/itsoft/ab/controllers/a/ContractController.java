@@ -94,7 +94,7 @@ public class ContractController {
     @RequestMapping(value="/contract/new", method = RequestMethod.GET)
     public String newContract(@RequestParam("client") int clientId,
                               @RequestParam(value = "prev", defaultValue = "0") Integer prev,
-                              @RequestParam(value = "trial", defaultValue = "0") Integer trial,
+                              @RequestParam(value = "contractOptionId", defaultValue = "0") Integer contractOptionId,
                               @RequestParam(value = "typeId", defaultValue = "0") Integer typeId,
                               @RequestParam(value = "teacherId", defaultValue = "0") Integer teacherId,
                               Model m) {
@@ -133,23 +133,33 @@ public class ContractController {
         List<SimpleModel> discounts = discountsMapper.selectAllActive();
         m.addAttribute("discounts", discounts);
 
-        ClientModel client = clientsMapper.getClientById(clientId);
 
         ContractModel contract = new ContractModel();
+
+        ClientModel client = clientsMapper.getClientById(clientId);
         contract.setClientId(clientId);
         contract.setClientFS(client.getFname());
         contract.setClientLS(client.getLname());
-        contract.setDiscount(discounts.get(0).getId());
-        contract.setCountLessons(trial == 1 ? 1 : 12);
-        contract.setPrice(contract.getCountLessons() * singleLessonPrice * (100 - contract.getDiscount()) / 100);
-        contract.setPrev(prev);
 
-        contract.setTrial(trial);
+        contract.setDiscount(discounts.get(0).getId());
+
+        List<ContractOptionModel> contractOptions = contractMapper.selectContractOptions();
+        m.addAttribute("contractOptions", contractOptions);
+
+        ContractOptionModel contractOption =
+            contractOptionId == 0
+                    ? contractOptions.get(0)
+                    : contractMapper.getContractOptionById(contractOptionId);
+
+        contract.setContractOptionId(contractOption.getId());
+        contract.setCountLessons(contractOption.getLessonCount());
+        contract.setPrice(contract.getCountLessons() * singleLessonPrice * (100 - contract.getDiscount()) / 100);
+
+        contract.setPrev(prev);
         contract.setTypeId(selectedTypeId);
 
         int selectedTeacherTypeId =  teacherTypeMapper.getTypeByTeacherAndType(
                 selectedTeacherId, selectedTypeId).get(0).getId();
-
         contract.setTeacherTypeId(selectedTeacherTypeId);
 
         m.addAttribute("contract", contract);
@@ -158,13 +168,20 @@ public class ContractController {
     }
 
     @RequestMapping(value = "/contract/save", method = RequestMethod.POST)
-    public String saveNewContract(@ModelAttribute("contract") ContractModel contract, Model m, SessionStatus session) {
+    public String saveNewContract(@ModelAttribute("contract") ContractModel contract,
+                                  Model m,
+                                  SessionStatus session) {
         authMaster.setModel(m);
 
         contract = contractMaster.saveFromWeb(contract);
+        for(PaymentModel payment : contract.getPayments())
+            if(!(payment.getDateS() == null || payment.getDateS().isEmpty())) { // means that the payment WAS added on the form
+                payment.setContractId(contract.getId());
+                paymentMaster.savePaymentFromWeb(payment);
+            }
         contractMaster.createSchedule(contract);
         session.setComplete();
-        return "redirect:/client/" + contract.getClientId() + "/payment?c=" + contract.getId();
+        return "redirect:/client/" + contract.getClientId();
     }
 
     @RequestMapping(value="/contract/freeze", method = RequestMethod.POST)

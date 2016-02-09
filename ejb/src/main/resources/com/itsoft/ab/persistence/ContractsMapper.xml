@@ -21,6 +21,7 @@
         <result property="moneyV" column="moneyV"/>
         <result property="active" column="active"/>
         <result property="trial" column="trial"/>
+        <result property="contractOptionId" column="contractOptionId"/>
 
         <result property="statusS" column="statusS"/>
         <result property="typeId" column="typeId"/>
@@ -197,22 +198,38 @@
     </update>
 
     <insert id="insertContract" parameterType="ContractModel">
-        INSERT INTO contracts (clientId,teacherTypeId,countLessons,statusId,date,countShifts,freezed,price,moneyR,moneyV,active,contractType,trial,days)
+        INSERT INTO contracts (
+            clientId,
+            teacherTypeId,
+            countLessons,
+            statusId,
+            date,
+            countShifts,
+            freezed,
+            price,
+            moneyR,
+            moneyV,
+            active,
+            contractType,
+            trial,
+            contractOptionId,
+            days)
         VALUES (
-        #{clientId},
-        #{teacherTypeId},
-        #{countLessons},
-        1,
-        #{date},
-        #{countShifts},
-        0,
-        #{price},
-        0,
-        0,
-        1,
-        #{contractType},
-        #{trial},
-        #{days});
+            #{clientId},
+            #{teacherTypeId},
+            #{countLessons},
+            1,
+            #{date},
+            #{countShifts},
+            0,
+            #{price},
+            0,
+            0,
+            1,
+            #{contractType},
+            #{trial},
+            #{contractOptionId},
+            #{days});
         <selectKey resultType="int" keyProperty="id" order="AFTER">
             SELECT LAST_INSERT_ID();
         </selectKey>
@@ -221,6 +238,17 @@
     <select id="selectContractTypes" resultType="SimpleModel">
         SELECT *
         FROM contractsType
+    </select>
+
+    <select id="selectContractOptions" resultType="ContractOptionModel">
+        SELECT *
+        FROM contractOption
+    </select>
+
+    <select id="getContractOptionById" parameterType="int" resultType="ContractOptionModel">
+        SELECT *
+        FROM contractOption
+        WHERE id = #{id}
     </select>
 
     <select id="findContract" parameterType="map" resultType="ContractModel">

@@ -24,6 +24,7 @@ public class CallModel extends BasicModel {
     private String teacherName;
     private String clientFName;
     private String clientLName;
+    private int contractOptionId;
 
     //Поля, необходимые для отображения на странице
 
@@ -196,6 +197,14 @@ public class CallModel extends BasicModel {
 
     public void setClientComment(String clientcomment) {
         this.clientComment = clientcomment;
+    }
+
+    public int getContractOptionId() {
+        return contractOptionId;
+    }
+
+    public void setContractOptionId(int contractOptionId) {
+        this.contractOptionId = contractOptionId;
     }
 
     @Override

@@ -24,4 +24,10 @@
         FROM callsStatus
         WHERE id=#{id}
     </select>
+
+    <select id="redirectToNewContract" parameterType="int" resultType="boolean">
+        SELECT newContractRedirect
+        FROM callsStatus
+        WHERE id = #{id}
+    </select>
 </mapper>

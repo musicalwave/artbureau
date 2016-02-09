@@ -6,3 +6,18 @@
 .currency-label:before {
     content: "руб."
 }
+
+.payment-count {
+    width: 50px;
+    margin-bottom: 30px;
+}
+
+.payment-planned {
+    margin: 0;
+}
+
+.bad-amount {
+    border: 1px solid red !important;
+}
+
+

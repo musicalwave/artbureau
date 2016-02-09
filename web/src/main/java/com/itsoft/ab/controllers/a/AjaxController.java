@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -57,6 +56,12 @@ public class AjaxController {
 
     @Autowired
     private EventMaster eventMaster;
+
+    @Autowired
+    private ContractsMapper contractsMapper;
+
+    @Autowired
+    private CallsStatusMapper callsStatusMapper;
 
     @RequestMapping(value = "/do/teacher/find", method = RequestMethod.POST)
     public
@@ -305,5 +310,19 @@ public class AjaxController {
         }
 
         return 0;
+    }
+
+    @RequestMapping(value = "/do/contract/option", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    ContractOptionModel getContractOption(@RequestParam(value = "id") int id) {
+        return contractsMapper.getContractOptionById(id);
+    }
+
+    @RequestMapping(value = "/do/new-contract-status", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    boolean isNewContractStatus(@RequestParam(value = "id") int id) {
+        return callsStatusMapper.redirectToNewContract(id);
     }
 }

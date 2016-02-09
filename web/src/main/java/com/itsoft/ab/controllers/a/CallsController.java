@@ -50,6 +50,12 @@ public class CallsController{
     @Autowired
     private TeacherTypeMapper teacherTypeMapper;
 
+    @Autowired
+    private TypeMaster typeMaster;
+
+    @Autowired
+    private ContractsMapper contractsMapper;
+
     //Обработка запроса Создать новый звонок
     @RequestMapping(value = "/call", method = RequestMethod.GET)
     public String newCall(@RequestParam("client")String client, Model m){
@@ -64,6 +70,7 @@ public class CallsController{
         m.addAttribute("teachers", teachers);
 
         m.addAttribute("callStatus", callsStatusMapper.selectAll());
+        m.addAttribute("contractOptions", contractsMapper.selectContractOptions());
 
         if(client.equals("new")) {
             CallWeb c = new CallWeb();
@@ -87,6 +94,20 @@ public class CallsController{
         }
     }
 
+    private String redirectCall(CallModel call) {
+        if(callsStatusMapper.redirectToNewContract(call.getStatusId())) {
+            String matchedTypeId = typeMaster.getMatchedTypeByTeacher(
+                    call.getTypeIdsList(),
+                    call.getTeacherId());
+            return "redirect:/contract/new?client=" + call.getClientId() +
+                    "&typeId=" + matchedTypeId +
+                    "&teacherId=" + call.getTeacherId() +
+                    "&contractOptionId=" + call.getContractOptionId();
+        } else {
+            return "redirect:/client/" + call.getClientId();
+        }
+    }
+
 
     //Обработка запроса Сохранить звонок
     @RequestMapping(value = "/call", method = RequestMethod.POST)
@@ -106,34 +127,7 @@ public class CallsController{
                     client = clientsMaster.insertClient(client);
                     call.setClientId(client.getId());
                     callMaster.insertCall(call);
-
-                    // well, that's imbecile
-
-                    String matchedTypeId = "0";
-                    List<String> typeIds = call.getTypeIdsList();
-
-                    if(typeIds != null && !typeIds.isEmpty()) {
-                        if (call.getTeacherId() != 0) {
-                            // get teacher's types' ids
-                            List<String> teacherTypeIds = teacherTypeMapper.getTeacherTypeIds(call.getTeacherId());
-
-                            // find one of the call's types that the selected teacher has
-                            for (String typeId : typeIds)
-                                if (teacherTypeIds.contains(typeId)) {
-                                    matchedTypeId = typeId;
-                                    break;
-                                }
-                        } else {
-                            matchedTypeId = typeIds.get(0);
-                        }
-                    }
-
-                    switch (call.getStatusId()) {
-                        case 3:  return "redirect:/contract/new?client=" + client.getId() + "&typeId=" + matchedTypeId + "&teacherId=" + call.getTeacherId() + "&trial=1";
-                        case 5:  return "redirect:/contract/new?client=" + client.getId() + "&typeId=" + matchedTypeId + "&teacherId=" + call.getTeacherId();
-                        default: return "redirect:/client/" + client.getId();
-                    }
-
+                    return redirectCall(call);
                 }
                 else {
                     call.setId(0);
@@ -146,8 +140,8 @@ public class CallsController{
 
             case "update" :
                 callMaster.updateCall(call);
-                return "redirect:/client/" + client.getId();
-
+                call.setClientId(client.getId());
+                return redirectCall(call);
             default :
                 throw new ApplicationException(ECode.ERROR404);
         }
@@ -163,7 +157,7 @@ public class CallsController{
             call.setClientId(id);
             callMaster.insertCall(call);
 
-            return "redirect:/client/" + id;
+            return redirectCall(call);
         }
         LOG.error("Введен неверный идентификатор клиента id=" + clientId);
         throw new ApplicationException(ECode.ERROR500);
@@ -210,6 +204,7 @@ public class CallsController{
         m.addAttribute("call", callWeb);
         m.addAttribute("ads", adsMapper.selectAll());
         m.addAttribute("types", typesMapper.selectAll());
+        m.addAttribute("contractOptions", contractsMapper.selectContractOptions());
 
         List<TeacherModel> teachers = new ArrayList<>();
         teachers.add(TeacherMaster.getEmptyTeacher());

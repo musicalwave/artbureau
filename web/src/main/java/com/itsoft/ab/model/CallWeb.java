@@ -24,6 +24,7 @@ public class CallWeb extends BasicModel{
 
     private int callTeacherId;
     private int callStatusId;
+    private int contractOptionId;
 
     //from ClientModel
     private int clientId;
@@ -224,6 +225,14 @@ public class CallWeb extends BasicModel{
 
     public void setCallCommentNew(String callCommentNew) {
         this.callCommentNew = callCommentNew;
+    }
+
+    public int getContractOptionId() {
+        return contractOptionId;
+    }
+
+    public void setContractOptionId(int contractOptionId) {
+        this.contractOptionId = contractOptionId;
     }
 
     @Override
