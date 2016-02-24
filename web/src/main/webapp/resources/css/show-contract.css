@@ -1,0 +1,140 @@
+/* CLIENT */
+
+div.client {
+    padding-left: 30px;
+}
+
+.client-info-table {
+    clear: both;
+    width: 50%;
+}
+
+.info-table th {
+    width: 200px;
+}
+
+.info-table td, 
+.info-table th {
+    padding: 5px;
+    font-size: 1em;
+    border: 1px solid #eeeeee;
+}
+
+.client-info-table input {
+    border: 1px solid #E6E6E6;
+    padding: 0 !important;
+    margin: -1px;
+    width: 100%;
+}
+
+/* CLIENT TOOLBAR */
+
+.client-toolbar-box {
+    width: 50%;
+}
+
+.client-toolbar-box h2 {
+    float: left;
+}
+
+.client-toolbar {    
+    float: right;
+    margin-top: 25px;
+}
+
+.client-toolbar i {
+    margin-left: 5px;
+}
+
+.icon-btn:hover {
+    background: #eeeeee;
+}
+
+.icon-btn:active {
+    background: #E6E6E6;
+}
+
+/* CONTRACT */
+
+div.contract {
+    margin-bottom: -1px;
+}
+
+div.contract-list {
+    width: 50%;
+    margin-top: 30px;
+}
+
+i.contract-menu-btn {
+    color: #E6E6E6;
+}
+
+i.contract-menu-btn:hover {
+    color: black;
+}
+
+.contract-info-table {
+    width: 100%;
+    clear: right;
+}
+
+/* CONTRACT MENU */
+
+.contract-menu {
+    position: absolute;
+    width: 180px;
+}
+
+.contract-menu tr {
+    border: 1px solid #E6E6E6;
+}
+
+.contract-menu tr:hover {
+    background: #E6E6E6;
+}
+
+.contract-menu label {
+    font-size: 1.1em !important;
+    margin-bottom: 0;
+}
+
+/* CONTRACT ITEMS */
+
+div.contract-item-list {
+    width: 90%;
+    padding-top: 10px;
+}
+
+.contract-item-table {
+    width: 100%;
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+td.action-cell {
+    border: 0;
+    padding-left: 10px;
+    padding-top: 5px;
+    text-align: right;
+}
+
+.icon-remove {
+    color: tomato;
+}
+
+.icon-check {
+    color: green;
+}
+
+.icon-fire {
+    color: orange;
+}
+
+.icon-plus{
+    color: blue;
+}
+
+.add-btn {
+    margin-left: 20px;
+}
+

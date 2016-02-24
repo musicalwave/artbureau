@@ -43,6 +43,9 @@ public class ContractModel extends BasicModel{
     private int teacherId;
     private int typeId;
     private String typeS;
+    private String contractTypeS;
+    private String contractOptionS;
+    private int balance;
     private String statusS;
     private String clientFS;
     private String clientLS;
@@ -282,6 +285,30 @@ public class ContractModel extends BasicModel{
 
     public void setTypeS(String typeS) {
         this.typeS = typeS;
+    }
+
+    public String getContractTypeS() {
+        return contractTypeS;
+    }
+
+    public void setContractTypeS(String contractTypeS) {
+        this.contractTypeS = contractTypeS;
+    }
+
+    public String getContractOptionS() {
+        return contractOptionS;
+    }
+
+    public void setContractOptionS(String contractOptionS) {
+        this.contractOptionS = contractOptionS;
+    }
+
+    public int getBalance() {
+        return balance;
+    }
+
+    public void setBalance(int balance) {
+        this.balance = balance;
     }
 
     public String getStatusS() {

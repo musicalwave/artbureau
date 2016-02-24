@@ -26,6 +26,9 @@
         <result property="statusS" column="statusS"/>
         <result property="typeId" column="typeId"/>
         <result property="typeS" column="typeS"/>
+        <result property="contractTypeS" column="contractTypeS"/>
+        <result property="contractOptionS" column="contractOptionS"/>
+        <result property="balance" column="balance"/>
         <result property="teacherId" column="teacherId"/>
         <result property="teacherS" column="teacherS"/>
         <result property="clientFS" column="clientFS"/>
@@ -103,6 +106,41 @@
         AND J_TEACHERS_TYPES.teacherId = teachers.id
         AND J_TEACHERS_TYPES.typeId = types.id
         ORDER BY contracts.date DESC
+    </select>
+
+    <select id="getClientContractsWithBalance" parameterType="int" resultMap="result">
+        SELECT
+          c.id,
+          t.name as teacherS,
+          tp.name as typeS,
+          co.name as contractOptionS,
+          ct.name as contractTypeS,
+          cs.name as statusS,
+          c.date,
+          c.price,
+          c.countLessons,
+          COALESCE(SUM(CASE
+                         WHEN p.done
+                         THEN p.value
+                         ELSE 0
+                       END)) - c.price AS balance
+        FROM contracts c
+          INNER JOIN J_TEACHERS_TYPES jtt
+            ON jtt.id = c.teacherTypeId
+          INNER JOIN teachers t
+            ON t.id = jtt.teacherId
+          INNER JOIN types tp
+            ON tp.id = jtt.typeId
+          INNER JOIN contractOption co
+            ON co.id = c.contractOptionId
+          INNER JOIN contractsType ct
+            ON ct.id = c.contractType
+          INNER JOIN contractsStatus cs
+            ON cs.id = c.statusId
+          LEFT JOIN payments p
+            ON p.contractId = c.id
+        WHERE c.clientId = #{clientId}
+        GROUP BY c.id;
     </select>
 
     <select id="selectContract" parameterType="int" resultType="ContractModel">

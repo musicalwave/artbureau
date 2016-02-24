@@ -15,6 +15,7 @@ import java.util.List;
 public interface ContractsMapper {
     List<ContractModel> getActiveClientContracts(int id);
     List<ContractModel> getClientContracts(int id);
+    List<ContractModel> getClientContractsWithBalance(int clientId);
 
     ContractModel selectContract(int id);
     void updateContractMoney(PaymentModel payment);

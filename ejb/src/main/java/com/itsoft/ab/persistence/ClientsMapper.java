@@ -17,6 +17,7 @@ public interface ClientsMapper {
     int getIdByObject(ClientModel clientModel);
     int getIdByPhone1(String phone1);
     ClientModel getClientById(int id);
+    ClientModel getClientWithContractDataById(int id);
     void insertClient(ClientModel client);
     void updateClientPart(ClientModel client);
     void updateClient(ClientModel client);
@@ -25,6 +26,10 @@ public interface ClientsMapper {
                                   @Param("phone")String phone, @Param("bdate")String bdate, @Param("email")String email, @Param("comment")String comment);
 
     ClientModel getClientByContract(int contractId);
+
+    int getDonePaymentsTotal(@Param("id") int id);
+
+    int getPlannedPaymentsTotal(@Param("id") int id);
 
     //Для платежей "на месте"
     void updateBalance(PaymentModel payment);

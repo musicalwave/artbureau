@@ -61,6 +61,26 @@
         AND concerts.clientId = clients.id
     </select>
 
+    <select id="getClientWithContractDataById" parameterType="int" resultType="ClientModel">
+        SELECT
+          c.id,
+          c.fname,
+          c.lname,
+          c.pname,
+          c.phone1,
+          c.bdate,
+          c.email,
+          min(co.date) AS firstContractDate,
+          count(co.id) AS countContracts,
+          COALESCE(SUM(CASE WHEN co.active THEN 1 ELSE 0 END), 0) AS countActiveContracts,
+          COALESCE(SUM(co.price), 0) AS total
+        FROM clients c
+          LEFT JOIN contracts co
+          ON co.clientId = c.id
+        WHERE c.id = #{id}
+        GROUP BY c.id;
+    </select>
+
     <select id="getClientByContract" parameterType="int" resultType="ClientModel">
         <include refid="selectAllFields"/>,
         COUNT(concerts.id) AS concerts
@@ -68,6 +88,22 @@
         WHERE contracts.id = #{id}
         AND clients.id = contracts.clientId
         AND concerts.clientId = clients.id
+    </select>
+
+    <select id="getDonePaymentsTotal" parameterType="int" resultType="int">
+        SELECT COALESCE(SUM(p.value), 0)
+        FROM contracts con
+        LEFT JOIN payments p
+          ON p.contractId = con.id
+        WHERE p.done AND con.clientId = #{id};
+    </select>
+
+    <select id="getPlannedPaymentsTotal" parameterType="int" resultType="int">
+        SELECT COALESCE(SUM(p.value), 0)
+        FROM contracts con
+        LEFT JOIN payments p
+          ON p.contractId = con.id
+        WHERE p.planned AND NOT p.done AND con.clientId = #{id};
     </select>
 
     <select id="getIdByObject" parameterType="ClientModel" resultType="int">

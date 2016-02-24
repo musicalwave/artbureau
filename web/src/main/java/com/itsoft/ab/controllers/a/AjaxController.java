@@ -63,6 +63,9 @@ public class AjaxController {
     @Autowired
     private CallsStatusMapper callsStatusMapper;
 
+    @Autowired
+    private PaymentMapper paymentMapper;
+
     @RequestMapping(value = "/do/teacher/find", method = RequestMethod.POST)
     public
     @ResponseBody
@@ -324,5 +327,59 @@ public class AjaxController {
     @ResponseBody
     boolean isNewContractStatus(@RequestParam(value = "id") int id) {
         return callsStatusMapper.redirectToNewContract(id);
+    }
+
+    @RequestMapping(value = "/do/client", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    ClientModel getClient(@RequestParam(value = "id") int id) {
+        ClientModel client = clientsMapper.getClientWithContractDataById(id);
+        client.setBalance(clientsMapper.getDonePaymentsTotal(client.getId()) - client.getTotal());
+        return client;
+    }
+
+    @RequestMapping(value = "/do/client", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    ClientModel updateClient(@RequestParam(value = "id") int id,
+                             @RequestParam(value = "fname") String fname,
+                             @RequestParam(value = "lname") String lname,
+                             @RequestParam(value = "pname") String pname,
+                             @RequestParam(value = "phone1") String phone1,
+                             @RequestParam(value = "email") String email,
+                             @RequestParam(value = "bdate") String bdate) {
+        ClientModel client = clientsMapper.getClientById(id);
+        client.setFname(fname);
+        client.setLname(lname);
+        client.setPname(pname);
+        client.setPhone1(phone1);
+        client.setEmail(email);
+        client.setBdate(bdate);
+        clientsMapper.updateClient(client);
+        return getClient(id);
+    }
+
+    @RequestMapping(value = "/do/client/contracts", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<ContractModel> getClientContracts(@RequestParam(value = "clientId") int clientId) {
+        List<ContractModel> contracts = contractsMapper.getClientContractsWithBalance(clientId);
+        for(ContractModel contract : contracts)
+            contract.setAvailableLessons(contractsMapper.getCountPlannedLessons(contract.getId()));
+        return contracts;
+    }
+
+    @RequestMapping(value = "/do/contract/lessons", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<LessonModel> getContractLessons(@RequestParam(value = "contractId") int contractId) {
+        return lessonsMapper.getContractLessons(contractId);
+    }
+
+    @RequestMapping(value = "/do/contract/payments", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<PaymentModel> getContractPayments(@RequestParam(value = "contractId") int contractId) {
+        return paymentMapper.getContractPayments(contractId);
     }
 }

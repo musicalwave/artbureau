@@ -16,9 +16,12 @@ public class ClientModel extends BasicModel {
     private String lname;
     private String pname;
     private int countContracts;
+    private int countActiveContracts;
     private int countPayments;
     private int moneyR;
     private int moneyV;
+    private int balance;
+    private int total;
     private String phone1;
     private String phone1name;
     private String phone2;
@@ -28,6 +31,7 @@ public class ClientModel extends BasicModel {
     private int ratingId;
     private int fromSite;
     private Date date;
+    private Date firstContractDate;
     private String email;
     private String bdate;
     private String jdata;
@@ -113,6 +117,14 @@ public class ClientModel extends BasicModel {
         this.date = date;
     }
 
+    public Date getFirstContractDate() {
+        return firstContractDate;
+    }
+
+    public void setFirstContractDate(Date firstContractDate) {
+        this.firstContractDate = firstContractDate;
+    }
+
     public int getId() {
         return id;
     }
@@ -145,6 +157,14 @@ public class ClientModel extends BasicModel {
         this.countContracts = countContracts;
     }
 
+    public int getCountActiveContracts() {
+        return countActiveContracts;
+    }
+
+    public void setCountActiveContracts(int countActiveContracts) {
+        this.countActiveContracts = countActiveContracts;
+    }
+
     public int getCountPayments() {
         return countPayments;
     }
@@ -167,6 +187,22 @@ public class ClientModel extends BasicModel {
 
     public void setMoneyV(int moneyV) {
         this.moneyV = moneyV;
+    }
+
+    public int getBalance() {
+        return balance;
+    }
+
+    public void setBalance(int balance) {
+        this.balance = balance;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
     }
 
     public String getPhone1() {

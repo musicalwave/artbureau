@@ -416,31 +416,33 @@ var App = function() {
 		}
 	}
 
-	var handleWidgets = function() {
-		$('.widget .toolbar .widget-collapse').click(function() {
-			var widget         = $(this).parents(".widget");
-			var widget_content = widget.children(".widget-content");
-			var widget_chart   = widget.children(".widget-chart");
-			var divider        = widget.children(".divider");
+	function collapser() {
+		var widget         = $(this).parents(".widget");
+		var widget_content = widget.children(".widget-content");
+		var widget_chart   = widget.children(".widget-chart");
+		var divider        = widget.children(".divider");
 
-			if (widget.hasClass('widget-closed')) {
-				// Open Widget
-				$(this).children('i').removeClass('icon-angle-up').addClass('icon-angle-down');
-				widget_content.slideDown(200, function() {
-					widget.removeClass('widget-closed');
-				});
-				widget_chart.slideDown(200);
-				divider.slideDown(200);
-			} else {
-				// Close Widget
-				$(this).children('i').removeClass('icon-angle-down').addClass('icon-angle-up');
-				widget_content.slideUp(200, function() {
-					widget.addClass('widget-closed');
-				});
-				widget_chart.slideUp(200);
-				divider.slideUp(200);
-			}
-		});
+		if (widget.hasClass('widget-closed')) {
+			// Open Widget
+			$(this).children('i').removeClass('icon-angle-up').addClass('icon-angle-down');
+			widget_content.slideDown(200, function() {
+				widget.removeClass('widget-closed');
+			});
+			widget_chart.slideDown(200);
+			divider.slideDown(200);
+		} else {
+			// Close Widget
+			$(this).children('i').removeClass('icon-angle-down').addClass('icon-angle-up');
+			widget_content.slideUp(200, function() {
+				widget.addClass('widget-closed');
+			});
+			widget_chart.slideUp(200);
+			divider.slideUp(200);
+		}
+	}
+
+	var handleWidgets = function() {
+		$('.widget .toolbar .widget-collapse').click(collapser);
 	}
 
 	var handleCheckableTables = function() {
@@ -637,6 +639,8 @@ var App = function() {
 			handleScrollers(); // Initializes slimscroll for scrollable widgets
 			handleProjectSwitcher(); // Adds functionality for project switcher at the header
 		},
+
+		collapser: collapser,
 
 		getLayoutColorCode: function(name) {
 			if (layoutColorCodes[name]) {
