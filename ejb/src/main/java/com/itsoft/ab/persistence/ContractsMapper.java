@@ -51,5 +51,9 @@ public interface ContractsMapper {
 
     void updateCash(@Param("contractId")int contractId, @Param("cash")int cash);
 
+    void freezeContract(ContractModel c);
+
     List<ContractModel> getContractsByLastLessonDate(String lastLessonDate);
+
+    void deleteContract(@Param("contractId") int contractId);
 }

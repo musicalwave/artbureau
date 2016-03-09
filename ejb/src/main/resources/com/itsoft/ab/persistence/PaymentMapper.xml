@@ -109,6 +109,12 @@
         #{done, javaType=int, jdbcType=TINYINT})
     </insert>
 
+    <update id="updatePlanned" parameterType="PaymentModel">
+        UPDATE payments SET
+        planned = #{done, javaType=int, jdbcType=TINYINT}
+        WHERE id = #{id}
+    </update>
+
     <update id="updateDone" parameterType="PaymentModel">
         UPDATE payments SET
         done = #{done, javaType=int, jdbcType=TINYINT}
@@ -138,6 +144,18 @@
     <update id="updateActive" parameterType="PaymentModel">
         UPDATE payments SET
         active = #{active}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deletePayment" parameterType="int">
+        DELETE FROM payments
+        WHERE id = #{paymentId}
+    </delete>
+
+    <update id="updatePayment" parameterType="PaymentModel">
+        UPDATE payments
+        SET date = #{date},
+            value = #{value}
         WHERE id = #{id}
     </update>
 
@@ -212,4 +230,5 @@
             ON p.contractId = con.id
          WHERE p.planned = 1 AND (FROM_UNIXTIME(p.date / 1000)) = #{date}
     </select>
+
 </mapper>

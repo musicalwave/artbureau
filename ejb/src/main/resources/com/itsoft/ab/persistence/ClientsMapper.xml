@@ -72,11 +72,11 @@
           c.email,
           min(co.date) AS firstContractDate,
           count(co.id) AS countContracts,
-          COALESCE(SUM(CASE WHEN co.active THEN 1 ELSE 0 END), 0) AS countActiveContracts,
+          COALESCE(SUM(CASE WHEN co.statusId = 1 THEN 1 ELSE 0 END), 0) AS countActiveContracts,
           COALESCE(SUM(co.price), 0) AS total
         FROM clients c
           LEFT JOIN contracts co
-          ON co.clientId = c.id
+          ON co.clientId = c.id AND co.statusId != 3
         WHERE c.id = #{id}
         GROUP BY c.id;
     </select>
@@ -95,7 +95,9 @@
         FROM contracts con
         LEFT JOIN payments p
           ON p.contractId = con.id
-        WHERE p.done AND con.clientId = #{id};
+        LEFT JOIN contractsStatus cs
+          ON cs.id = con.statusId
+        WHERE p.done AND con.clientId = #{id} AND NOT cs.deleted;
     </select>
 
     <select id="getPlannedPaymentsTotal" parameterType="int" resultType="int">
@@ -103,7 +105,9 @@
         FROM contracts con
         LEFT JOIN payments p
           ON p.contractId = con.id
-        WHERE p.planned AND NOT p.done AND con.clientId = #{id};
+        LEFT JOIN contractsStatus cs
+          ON cs.id = con.statusId
+        WHERE p.planned AND NOT p.done AND con.clientId = #{id} AND NOT cs.deleted;
     </select>
 
     <select id="getIdByObject" parameterType="ClientModel" resultType="int">

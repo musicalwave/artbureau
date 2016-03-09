@@ -14,11 +14,16 @@ import java.util.List;
 public interface PaymentMapper {
     void insertPayment(PaymentModel payment);
 
+    void updatePlanned(PaymentModel payment);
     void updateDone(PaymentModel payment);
     void updateComment(PaymentModel payment);
     void updateDate(PaymentModel payment);
     void updateApproved(PaymentModel payment);
     void updateActive(PaymentModel payment);
+
+    void deletePayment(int paymentId);
+
+    void updatePayment(PaymentModel payment);
 
     List<PaymentModel> getPlannedClientPayments(int clientId);
 

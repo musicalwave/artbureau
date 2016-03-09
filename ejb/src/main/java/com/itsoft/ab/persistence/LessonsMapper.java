@@ -26,4 +26,8 @@ public interface LessonsMapper {
     List<LessonModel> getContractLessonsBetweenDates(@Param("id")int id, @Param("startdate")Date startdate, @Param("finishdate")Date finishdate);
 
     List<LessonWeb> getLastLessons(@Param("fromDate")Date fromDate, @Param("toDate")Date toDate);
+
+    void updateLesson(@Param("lessonId") int lessonId,
+                     @Param("date") String date,
+                     @Param("eventId") int eventId);
 }

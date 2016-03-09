@@ -112,6 +112,7 @@
         SELECT
           c.id,
           t.name as teacherS,
+          t.id as teacherId,
           tp.name as typeS,
           co.name as contractOptionS,
           ct.name as contractTypeS,
@@ -119,11 +120,22 @@
           c.date,
           c.price,
           c.countLessons,
+          c.freezed,
+          c.freezeDate,
+          c.freezeFinishDate,
+          c.contractOptionId,
+          c.statusId,
+          cs.deleted,
           COALESCE(SUM(CASE
                          WHEN p.done
                          THEN p.value
                          ELSE 0
-                       END)) - c.price AS balance
+                       END), 0) as moneyR,
+           COALESCE(SUM(CASE
+                         WHEN p.planned
+                         THEN p.value
+                         ELSE 0
+                       END), 0) as moneyV
         FROM contracts c
           INNER JOIN J_TEACHERS_TYPES jtt
             ON jtt.id = c.teacherTypeId
@@ -333,6 +345,13 @@
         contracts.id = #{contractId}
     </update>
 
+    <update id="freezeContract" parameterType="ContractModel">
+        UPDATE contracts
+        SET freezed = #{freezed},
+         freezeDate = #{freezeDate},
+         freezeFinishDate = #{freezeFinishDate}
+        WHERE id = #{id}
+    </update>
 
     <select id="getContractsByLastLessonDate" parameterType="String" resultMap="result">
        SELECT con.id,
@@ -356,4 +375,21 @@
        GROUP BY con.id
        HAVING (COUNT(l.id) = 1 AND MAX(l.date) = #{lastLessonDate})
     </select>
+
+    <delete id="deleteContract" parameterType="int">
+        DELETE FROM lessons
+        WHERE contractId = #{contractId};
+
+        DELETE FROM J_CONTRACTS
+        WHERE fromId = #{contractId} OR toId = #{contractId};
+
+        DELETE FROM J_DISCOUNTS
+        WHERE contractId = #{contractId};
+
+        DELETE FROM payments
+        WHERE contractId = #{contractId};
+
+        DELETE FROM contracts
+        WHERE id = #{contractId};
+    </delete>
 </mapper>

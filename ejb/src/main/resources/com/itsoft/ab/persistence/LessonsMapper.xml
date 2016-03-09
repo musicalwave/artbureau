@@ -41,7 +41,7 @@
         AND events.id = lessons.eventId
         AND rooms.id = events.roomId
         AND lessonsStatus.id = lessons.statusId
-        ORDER BY lessons.date ASC
+        ORDER BY lessons.date, events.startTime
     </select>
 
     <select id="getLesson" parameterType="int" resultType="LessonModel">
@@ -122,4 +122,10 @@
         ORDER BY events.startTime ASC
     </select>
 
+    <update id="updateLesson">
+       UPDATE lessons
+        SET date = STR_TO_DATE(#{date}, '%d-%m-%Y'),
+            eventId = #{eventId}
+       WHERE id = #{lessonId}
+    </update>
 </mapper>

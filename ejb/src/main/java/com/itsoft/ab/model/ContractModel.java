@@ -22,6 +22,7 @@ public class ContractModel extends BasicModel{
     private int availableLessons;
     private int countShifts;
     private int special;
+    private int deleted;
     private int freezed;
     private long freezeDate;
     private long freezeFinishDate;
@@ -54,11 +55,13 @@ public class ContractModel extends BasicModel{
     private String freezeFinishDateS;
     private String comment;
 
-
     private int moneyNeed;//Сколько еще денег нужно положить на контракт
 
     private List<PaymentModel> payments = new ArrayList<>();
+    private List<LessonModel> lessons = new ArrayList<>();
+    private List<EventModel> events = new ArrayList<>();
     private int contractOptionId;
+    private ContractOptionModel contractOptionModel;
 
     public ContractModel() {
     }
@@ -223,6 +226,14 @@ public class ContractModel extends BasicModel{
         this.special = special;
     }
 
+    public int getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(int deleted) {
+        this.deleted = deleted;
+    }
+
     public int getFreezed() {
         return freezed;
     }
@@ -359,12 +370,36 @@ public class ContractModel extends BasicModel{
         this.contractOptionId = contractOptionId;
     }
 
+    public ContractOptionModel getContractOptionModel() {
+        return contractOptionModel;
+    }
+
+    public void setContractOptionModel(ContractOptionModel contractOptionModel) {
+        this.contractOptionModel = contractOptionModel;
+    }
+
     public List<PaymentModel> getPayments() {
         return payments;
     }
 
     public void setPayments(List<PaymentModel> payments) {
         this.payments = payments;
+    }
+
+    public List<LessonModel> getLessons() {
+        return lessons;
+    }
+
+    public void setLessons(List<LessonModel> lessons) {
+        this.lessons = lessons;
+    }
+
+    public List<EventModel> getEvents() {
+        return events;
+    }
+
+    public void setEvents(List<EventModel> events) {
+        this.events = events;
     }
 
     @Override

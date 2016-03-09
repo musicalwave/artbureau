@@ -217,7 +217,7 @@ public class ContractMaster {
         //Если 0 - меням статус контракта на 2(finished)
         int count = getCountPlannedLessons(lesson.getContractId());
         if(0 == count){
-            updateActive(lesson.getContractId(), 0);
+            updateStatus(lesson.getContractId(), 2);
         }
     }
 

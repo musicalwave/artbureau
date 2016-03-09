@@ -66,6 +66,9 @@ public class AjaxController {
     @Autowired
     private PaymentMapper paymentMapper;
 
+    @Autowired
+    private PaymentMaster paymentMaster;
+
     @RequestMapping(value = "/do/teacher/find", method = RequestMethod.POST)
     public
     @ResponseBody
@@ -315,6 +318,27 @@ public class AjaxController {
         return 0;
     }
 
+    @RequestMapping(value = "/do/lessons/restore", method = RequestMethod.POST)
+    public @ResponseBody
+    int restoreLesson(@RequestParam(value = "id") int id) {
+        LessonModel lesson = lessonsMapper.getLesson(id);
+        if(lesson != null) {
+            lessonMaster.restoreLesson(lesson);
+            return lesson.getStatusId();
+        }
+
+        return 0;
+    }
+
+    @RequestMapping(value = "/do/lesson/update", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void updateLesson(@RequestParam(value = "lessonId") int lessonId,
+                      @RequestParam(value = "date") String date,
+                      @RequestParam(value = "eventId") int eventId) {
+        lessonsMapper.updateLesson(lessonId, date, eventId);
+    }
+
     @RequestMapping(value = "/do/contract/option", method = RequestMethod.GET)
     public
     @ResponseBody
@@ -364,8 +388,14 @@ public class AjaxController {
     @ResponseBody
     List<ContractModel> getClientContracts(@RequestParam(value = "clientId") int clientId) {
         List<ContractModel> contracts = contractsMapper.getClientContractsWithBalance(clientId);
-        for(ContractModel contract : contracts)
+        for(ContractModel contract : contracts) {
             contract.setAvailableLessons(contractsMapper.getCountPlannedLessons(contract.getId()));
+            contract.setLessons(lessonsMapper.getContractLessons(contract.getId()));
+            contract.setPayments(paymentMapper.getContractPayments(contract.getId()));
+            contract.setContractOptionModel(
+                    contractsMapper.getContractOptionById(contract.getContractOptionId()));
+            contract.setEvents(eventMaster.getEmptyEvents(contract.getTeacherId()));
+        }
         return contracts;
     }
 
@@ -382,4 +412,104 @@ public class AjaxController {
     List<PaymentModel> getContractPayments(@RequestParam(value = "contractId") int contractId) {
         return paymentMapper.getContractPayments(contractId);
     }
+
+    @RequestMapping(value = "/do/contract/freeze", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void freezeContract(@RequestParam(value = "contractId") int contractId,
+                        @RequestParam(value = "lockFrom") String lockFromDate,
+                        @RequestParam(value = "lockTo") String lockToDate) {
+        ContractModel contract = contractsMapper.getContractById(contractId);
+        contract.setFreezeDateS(lockFromDate);
+        contract.setFreezeFinishDateS(lockToDate);
+        contract.setFreezed(1);
+        try {
+            lessonMaster.freezeContract(contract);
+            contractsMapper.freezeContract(contract);
+        }
+        catch (ParseException pe) {
+            throw new ApplicationException(ECode.ERROR1102);
+        }
+    }
+
+    @RequestMapping(value = "/do/contract/unfreeze", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void unfreezeContract(@RequestParam(value = "contractId") int contractId) {
+        ContractModel contract = contractsMapper.getContractById(contractId);
+        contract.setFreezed(0);
+        contractsMapper.freezeContract(contract);
+    }
+
+    @RequestMapping(value = "/do/contract/delete", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void deleteContract(@RequestParam(value = "contractId") int contractId) {
+        //contractsMapper.deleteContract(contractId);
+        contractsMapper.updateStatus(contractId, 3);
+    }
+
+    @RequestMapping(value = "/do/contract/restore", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void restoreContract(@RequestParam(value = "contractId") int contractId) {
+        //contractsMapper.deleteContract(contractId);
+        if(contractsMapper.getCountPlannedLessons(contractId) == 0)
+            contractsMapper.updateStatus(contractId, 2); // finished
+        else
+            contractsMapper.updateStatus(contractId, 1); // active
+    }
+
+    @RequestMapping(value = "/do/payment/commit", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void commitPayment(@RequestParam(value = "paymentId") int paymentId) {
+        paymentMaster.commitPayment(paymentId);
+    }
+
+    @RequestMapping(value = "/do/payment/restore", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void restorePayment(@RequestParam(value = "paymentId") int paymentId) {
+        paymentMaster.restorePayment(paymentId);
+    }
+
+    @RequestMapping(value = "/do/payment/delete", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void deletePayment(@RequestParam(value = "paymentId") int paymentId) {
+        paymentMapper.deletePayment(paymentId);
+    }
+
+    @RequestMapping(value = "/do/payment/insert", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void insertPayment(@RequestParam(value = "contractId") int contractId,
+                       @RequestParam(value = "date") long date,
+                       @RequestParam(value = "value") int value,
+                       @RequestParam(value = "planned") int planned,
+                       @RequestParam(value = "done") int done) {
+        PaymentModel payment = new PaymentModel();
+        payment.setContractId(contractId);
+        payment.setDate(date);
+        payment.setValue(value);
+        payment.setPlanned(planned);
+        payment.setDone(done);
+        paymentMapper.insertPayment(payment);
+    }
+
+    @RequestMapping(value = "/do/payment/update", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void updatePayment(@RequestParam(value = "paymentId") int paymentId,
+                       @RequestParam(value = "date") long date,
+                       @RequestParam(value = "value") int value) {
+        PaymentModel payment = paymentMapper.selectPayment(paymentId);
+        payment.setDate(date);
+        payment.setValue(value);
+        paymentMapper.updatePayment(payment);
+    }
+
+
+
 }

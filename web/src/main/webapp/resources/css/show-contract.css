@@ -2,6 +2,7 @@
 
 div.client {
     padding-left: 30px;
+    margin-bottom: 50px;
 }
 
 .client-info-table {
@@ -69,6 +70,8 @@ i.contract-menu-btn {
     color: #E6E6E6;
 }
 
+.freezed i.contract-menu-btn:hover,
+.deleted i.contract-menu-btn:hover,
 i.contract-menu-btn:hover {
     color: black;
 }
@@ -76,6 +79,34 @@ i.contract-menu-btn:hover {
 .contract-info-table {
     width: 100%;
     clear: right;
+}
+
+.freezed {
+    background-color: #E0ECF8 !important;
+}
+
+.freezed .info-table td,
+.freezed th,
+.freezed i.icon-border {
+    border: 1px solid #BDBDBD;
+}
+
+.freezed i.contract-menu-btn {
+    color: #BDBDBD;
+}
+
+.deleted {
+    background-color: #F79F81 !important;
+}
+
+.deleted .info-table td,
+.deleted th,
+.deleted i.icon-border {
+    border: 1px solid #6E6E6E;
+}
+
+.deleted i.contract-menu-btn {
+    color: #6E6E6E;
 }
 
 /* CONTRACT MENU */
@@ -98,6 +129,49 @@ i.contract-menu-btn:hover {
     margin-bottom: 0;
 }
 
+/* LOCK FORM */
+
+.lock-container {
+    position: fixed;
+    top: 30%;
+    left: 40%;
+    width: 400px;
+    height: 170px;
+    border: 3px solid #eeeeee;
+    border-radius: 1em;
+    background: white;
+    padding: 10px;
+    z-index: 2;
+}
+
+.lock-container div+div{
+    margin-top: 1.2em;
+}
+
+.lock-container form {
+    position: relative;
+    top: 10%;
+}
+
+.lock-container i {
+    position: relative;
+    left: 96%;
+}
+
+.lock-container label {
+    width: 170px;
+}
+
+.lock-container input {
+    height: 30px;
+    border: 1px solid #BDBDBD;
+}
+
+.lock-container button {
+    position: relative;
+    left: 70%;
+}
+
 /* CONTRACT ITEMS */
 
 div.contract-item-list {
@@ -111,14 +185,26 @@ div.contract-item-list {
     margin-bottom: 10px;
 }
 
+.contract-item-table input {
+    border: 1px solid #E6E6E6;
+    padding: 0 !important;
+    margin: -1px;
+    width: 100px;
+}
+
+.contract-item-table div.select2-container {
+    width: 200px !important;
+}
+
 td.action-cell {
-    border: 0;
+    border: 0 !important;
     padding-left: 10px;
     padding-top: 5px;
     text-align: right;
 }
 
-.icon-remove {
+.icon-remove,
+.icon-trash {
     color: tomato;
 }
 

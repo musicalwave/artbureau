@@ -120,6 +120,22 @@ public class PaymentMaster {
         return 200;
     }
 
+    public void commitPayment(int paymentId) {
+        PaymentModel payment = paymentMapper.selectPayment(paymentId);
+        payment.setPlanned(0);
+        paymentMapper.updatePlanned(payment);
+        payment.setDone(1);
+        paymentMapper.updateDone(payment);
+    }
+
+    public void restorePayment(int paymentId) {
+        PaymentModel payment = paymentMapper.selectPayment(paymentId);
+        payment.setPlanned(1);
+        paymentMapper.updatePlanned(payment);
+        payment.setDone(0);
+        paymentMapper.updateDone(payment);
+    }
+
     //Обновление счета клиента
     //clients.moneyR + value
     //clients.moneyV + value

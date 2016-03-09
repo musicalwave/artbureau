@@ -146,10 +146,13 @@
           e.weekday,
           e.startTime,
           e.finishTime,
-          w.name as weekdayS
+          w.name as weekdayS,
+          r.name as roomS
         FROM events e
         LEFT JOIN weekdays w
           ON w.id = e.weekday
+        LEFT JOIN rooms r
+          ON r.id = e.roomId
         WHERE e.teacherId = #{teacherId} AND e.active = 1
         ORDER BY e.weekday, e.startTime
     </select>

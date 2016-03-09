@@ -66,6 +66,15 @@ public class LessonMaster {
         return 200;
     }
 
+    public int restoreLesson(LessonModel lesson){
+        //Присвоение статуса "Запланирован"
+        lesson.setStatusId(1);
+        lessonsMapper.updateStatus(lesson);
+        // Контракт становится активным
+        contractMaster.updateStatus(lesson.getContractId(), 1);
+        return 200;
+    }
+
     public Map<String, List<LessonWeb>> sortLessonsByClass(List<LessonWeb> lessons) {
         Map<String, List<LessonWeb>> result = new HashMap<String, List<LessonWeb>>();
 
