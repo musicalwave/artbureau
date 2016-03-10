@@ -21,6 +21,7 @@ public class EventModel extends BasicModel{
     private Time finishTime;
     private int weekday;
     private int active;
+    private int contractScheduleId;
 
     private String startTimeS;
     private String finishTimeS;
@@ -125,6 +126,14 @@ public class EventModel extends BasicModel{
 
     public void setStatusId(int statusId) {
         this.statusId = statusId;
+    }
+
+    public int getContractScheduleId() {
+        return contractScheduleId;
+    }
+
+    public void setContractScheduleId(int contractScheduleId) {
+        this.contractScheduleId = contractScheduleId;
     }
 
     public int getCountClients() {

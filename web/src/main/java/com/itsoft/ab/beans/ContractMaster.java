@@ -42,6 +42,12 @@ public class ContractMaster {
     @Autowired
     private JContractsMapper jContractsMapper;
 
+    @Autowired
+    private ScheduleMapper scheduleMapper;
+
+    @Autowired
+    private ScheduleMaster scheduleMaster;
+
     public ContractMaster() {
     }
 
@@ -125,7 +131,7 @@ public class ContractMaster {
         jContractsMapper.insertPrev(id, prev);
     }
 
-    public void createSchedule(ContractModel contract) {
+    public void planLessons(ContractModel contract) {
 //        PROCESS
 //        понять день недели начальной даты
 //        понять дни недели эвентов
@@ -147,7 +153,7 @@ public class ContractMaster {
 
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(contract.getDate());
-        Integer startWeekDay = Integer.valueOf(calendar.get(Calendar.DAY_OF_WEEK));
+        Integer startWeekDay = calendar.get(Calendar.DAY_OF_WEEK);
 
         //Переход к системе понедельние - 1, воскресенье - 7
         if(startWeekDay.equals(1)){
@@ -201,6 +207,69 @@ public class ContractMaster {
         }
     }
 
+    private Date getLastCompletedLessonDate(ContractModel contract) {
+        List<LessonModel> lessons = lessonsMapper.getContractLessons(contract.getId());
+        for(int i = lessons.size() - 1; i >= 0; i--)
+            if(lessons.get(i).getStatusId() != 1)
+                return lessons.get(i).getDate();
+
+        return null;
+    }
+
+    private Calendar getDateToPlanFrom(ContractModel contract) {
+        Calendar dateToPlanFrom = new GregorianCalendar();
+        if(contract.getFreezed() == 1)
+            dateToPlanFrom.setTimeInMillis(contract.getFreezeFinishDate());
+        else {
+            Date lastCompletedLessonDate = getLastCompletedLessonDate(contract);
+            if(lastCompletedLessonDate == null)
+                dateToPlanFrom.setTime(contract.getDate());
+            else
+                dateToPlanFrom.setTime(lastCompletedLessonDate);
+        }
+
+        dateToPlanFrom.add(Calendar.DATE, 1);
+        return dateToPlanFrom;
+    }
+
+    private int countLessonsToPlan(ContractModel contract) {
+        int lessonCount = contractsMapper.getContractOptionById(
+                contract.getContractOptionId()).getLessonCount();
+        int completedLessonCount = contractsMapper.getCompletedLessonCount(contract.getId());
+        return lessonCount - completedLessonCount;
+    }
+
+    // Calendar's week starts from sunday
+    // (means that DAY_OF_WEEK for sunday is 1)
+    // Need to adjust it.
+    private int getWeekday(Calendar date) {
+        // monday's number is 2
+        return (date.get(Calendar.DAY_OF_WEEK) - 2 + 7) % 7 + 1;
+    }
+
+    public void replanLessons(ContractModel contract) {
+        contractsMapper.deletePlannedLessons(contract.getId());
+        List<EventModel> schedule = scheduleMapper.getContractSchedule(contract.getId());
+        if(!schedule.isEmpty()) {
+            Calendar dateToPlanFrom = getDateToPlanFrom(contract);
+            int lessonsToPlan = countLessonsToPlan(contract);
+            while (lessonsToPlan > 0) {
+                EventModel appropriateEvent =
+                        scheduleMaster.getAppropriateEvent(schedule, getWeekday(dateToPlanFrom));
+                if (appropriateEvent != null) {
+                    LessonModel lesson = new LessonModel();
+                    lesson.setContractId(contract.getId());
+                    lesson.setEventId(appropriateEvent.getId());
+                    lesson.setDate(dateToPlanFrom.getTime());
+                    lesson.setStatusId(1);
+                    lessonsMapper.insertLesson(lesson);
+                    lessonsToPlan--;
+                }
+                dateToPlanFrom.add(Calendar.DATE, 1);
+            }
+        }
+    }
+
     public ContractModel insertContract(ContractModel c) {
         contractsMapper.insertContract(c);
         return c;
@@ -235,5 +304,9 @@ public class ContractMaster {
 
     public void updateCash(int contractId, int cash) {
         contractsMapper.updateCash(contractId, cash);
+    }
+
+    public void updateSchedule(int contractId, String[] eventIds) {
+        scheduleMapper.updateContractSchedule(contractId, eventIds);
     }
 }

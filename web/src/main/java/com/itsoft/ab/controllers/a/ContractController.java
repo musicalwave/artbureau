@@ -179,7 +179,9 @@ public class ContractController {
                 payment.setContractId(contract.getId());
                 paymentMaster.savePaymentFromWeb(payment);
             }
-        contractMaster.createSchedule(contract);
+
+        contractMaster.updateSchedule(contract.getId(), contract.getDays().split(","));
+        contractMaster.planLessons(contract);
         session.setComplete();
         return "redirect:/client/" + contract.getClientId();
     }

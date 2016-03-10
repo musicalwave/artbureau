@@ -324,6 +324,13 @@
         AND l.statusId=1;
     </select>
 
+    <select id="getCompletedLessonCount" resultType="int">
+        SELECT COUNT(l.id)
+        FROM lessons l
+        WHERE l.contractId = #{contractId}
+          AND l.statusId != 1;
+    </select>
+
     <update id="updateStatus" parameterType="map">
         UPDATE contracts SET
         contracts.statusId = #{contractStatus}
@@ -391,5 +398,11 @@
 
         DELETE FROM contracts
         WHERE id = #{contractId};
+    </delete>
+
+    <delete id="deletePlannedLessons">
+        DELETE FROM lessons
+        WHERE contractId = #{contractId}
+          AND statusId = 1
     </delete>
 </mapper>

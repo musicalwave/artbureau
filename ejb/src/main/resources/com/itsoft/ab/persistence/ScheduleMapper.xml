@@ -205,4 +205,51 @@
           AND l.id IS NULL
     </select>
 
+    <update id="updateContractSchedule">
+        DELETE FROM contractSchedule
+        WHERE contractId = #{contractId};
+
+        INSERT INTO contractSchedule(contractId, eventId)
+        VALUES
+        <foreach collection="eventIds" item="eventId" separator=",">
+            (#{contractId}, #{eventId})
+        </foreach>
+
+    </update>
+
+    <select id="getContractSchedule" resultType="EventModel">
+        SELECT
+          e.id,
+          e.weekday,
+          e.startTime,
+          e.finishTime,
+          w.name as weekdayS,
+          r.name as roomS,
+          cs.id as contractScheduleId
+        FROM contractSchedule cs
+          INNER JOIN events e
+            ON e.id = cs.eventId
+          INNER JOIN weekdays w
+            ON w.id = e.weekday
+          INNER JOIN rooms r
+            ON r.id = e.roomId
+        WHERE cs.contractId = #{contractId};
+    </select>
+
+    <insert id="insertContractScheduleEvent">
+        INSERT INTO contractSchedule(contractId, eventId)
+        VALUES(#{contractId}, #{eventId})
+    </insert>
+
+    <update id="updateContractScheduleEvent">
+        UPDATE contractSchedule
+        SET eventId = #{eventId}
+        WHERE id = #{contractScheduleId}
+    </update>
+
+    <delete id="deleteContractScheduleEvent">
+        DELETE FROM contractSchedule
+        WHERE id = #{contractScheduleId}
+    </delete>
+
 </mapper>

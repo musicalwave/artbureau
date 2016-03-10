@@ -44,4 +44,16 @@ public interface ScheduleMapper {
                              @Param("date") String date);
 
     List<EventModel> getEmptyEventsByTeacherAndRoom(@Param("teacherId") int teacherId, @Param("roomId") int roomId);
+
+    void updateContractSchedule(@Param("contractId") int contractId, @Param("eventIds") String[] eventIds);
+
+    List<EventModel> getContractSchedule(@Param("contractId") int contractId);
+
+    void insertContractScheduleEvent(@Param("contractId") int contractId,
+                                     @Param("eventId") int eventId);
+
+    void updateContractScheduleEvent(@Param("contractScheduleId") int contractScheduleId,
+                                     @Param("eventId") int eventId);
+
+    void deleteContractScheduleEvent(@Param("contractScheduleId") int contractScheduleId);
 }

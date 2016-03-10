@@ -8,6 +8,17 @@ function logAjaxError(url, xhr, status, err) {
     console.error(url, status, err.toString());
 }
 
+function dropSeconds(time) {
+        return moment(time, "HH:mm:ss").format("HH:mm")
+}
+
+function eventToString(event) {
+    return moment().day(event.weekday).format('dd') + " " +
+           dropSeconds(event.startTime) + " : " + 
+           dropSeconds(event.finishTime) + 
+           " (" + event.roomS + ")";
+}
+
 var Property = React.createClass({
     getDefaultProps: function() {
         return {
@@ -664,7 +675,7 @@ var Contract = React.createClass({
     createLessonElement: function(lesson) {
         return (
             <Lesson reloadClientAndContracts={this.reloadClientAndContracts}
-                    schedule={this.props.contract.events}
+                    teacherEvents={this.props.contract.teacherEvents}
                     lesson={lesson} 
                     key={lesson.id}/>
         );
@@ -762,6 +773,41 @@ var Contract = React.createClass({
 
     // << PAYMENTS
 
+    // >> SCHEDULE
+
+    createEventElement: function(event) {
+        return (
+            <Event event={event}
+                   key={event.contractScheduleId}
+                   contractId={this.props.contract.id}
+                   teacherEvents={this.props.contract.teacherEvents}
+                   reloadClientAndContracts={this.reloadClientAndContracts} />
+        );
+    },
+
+    showNewEventCreator: function() {
+        this.setState({
+            eventCreatorVisible: true
+        });
+    },
+
+    hideNewEventCreator: function() {
+        this.setState({
+            eventCreatorVisible: false
+        });
+    },
+
+    createEventCreator: function() {
+        return (
+            <EventCreator contractId={this.props.contract.id}
+                          teacherEvents={this.props.contract.teacherEvents}
+                          reloadClientAndContracts={this.reloadClientAndContracts}
+                          hideCreator={this.hideNewEventCreator} />
+        );  
+    },
+
+    // << SCHEDULE
+
     getClassNameModifier: function() {        
         if(this.props.contract.deleted)
             return "deleted";
@@ -843,6 +889,14 @@ var Contract = React.createClass({
                             </tr>
                         </tbody>
                     </table>
+
+                    <ContractItemList contractId={this.props.contract.id} 
+                                 items={this.props.contract.schedule}
+                                 title="Расписание"
+                                 creatorVisible={this.state.eventCreatorVisible}
+                                 showCreator={this.showNewEventCreator}
+                                 createItemElement={this.createEventElement}
+                                 createItemCreator={this.createEventCreator}/>
 
                     <ContractItemList contractId={this.props.contract.id} 
                                 items={this.props.contract.lessons}
@@ -973,6 +1027,121 @@ var ContractItemList = React.createClass({
     },
 })
 
+var Event = React.createClass({
+    getInitialState: function() {
+        return {
+            editMode: false,
+            eventId: this.props.event.id
+        };
+    },
+    edit: function() {
+        this.setState({
+            editMode: true
+        });
+    },
+    cancel: function() {
+        this.setState(this.getInitialState());
+    },
+    update: function() {
+        console.log('schedule event ' + this.props.event.contractScheduleId + ' updated!');
+        console.log('new event id: ' + this.state.eventId);
+        $.ajax({
+            url:     "/do/contract/schedule/update",
+            method:  "POST",
+            data:    {
+                       contractId: this.props.contractId,
+                       contractScheduleId: this.props.event.contractScheduleId,
+                       eventId: this.state.eventId
+                     },
+            success: this.props.reloadClientAndContracts,
+            error:   logAjaxError.bind(this, "/do/contract/schedule/update")
+        });
+
+        this.cancel();
+    },
+    delete: function() {
+        console.log('schedule event' + this.props.event.contractScheduleId + ' deleted!');
+        $.ajax({
+            url:     "/do/contract/schedule/delete",
+            method:  "POST",
+            data:    {
+                       contractId: this.props.contractId,
+                       contractScheduleId: this.props.event.contractScheduleId 
+                     },
+            success: this.props.reloadClientAndContracts,
+            error:   logAjaxError.bind(this, "/do/contract/schedule/delete")
+        });
+    },
+    getActions: function() {
+        var editAction   = <ContractItemAction
+                                key="editAction"
+                                iconName="icon-pencil"
+                                clickHandler={this.edit}/>;
+        var deleteAction = <ContractItemAction 
+                                key="deleteAction"
+                                iconName="icon-trash"
+                                clickHandler={this.delete}/>;
+        var updateAction   = <ContractItemAction
+                                key="saveAction"
+                                iconName="icon-save"
+                                clickHandler={this.update}/>;
+        var cancelAction = <ContractItemAction 
+                                key="cancelAction"
+                                iconName="icon-remove"
+                                clickHandler={this.cancel}/>;
+        if(this.state.editMode)
+            return [updateAction, cancelAction];
+        else                                
+            return [editAction, deleteAction];
+    },
+    render: function() {
+        
+        var fields = [];
+        if (this.state.editMode) {
+            fields.push(<td key="eventId" colSpan="4">
+                            <input type="text" 
+                                   ref="eventInput" 
+                                   value={this.state.eventId}
+                                   onChange={$.noop}/>
+                        </td>);
+        } else {
+            fields.push(<td key="weekday">{this.props.event.weekdayS}</td>);
+            fields.push(<td key="start">{this.props.event.startTime}</td>);
+            fields.push(<td key="finish">{this.props.event.finishTime}</td>);
+            fields.push(<td key="room">{this.props.event.roomS}</td>);
+        }
+
+        return(
+            <tr>
+                {fields}
+                <td className="action-cell">
+                  {this.getActions()}
+                </td>
+                
+            </tr>
+        );
+    },
+    componentDidUpdate: function() {
+        $(this.refs.eventInput).select2({
+            data: this.props.teacherEvents.map(
+                    function(event) {
+                        return {
+                          id: event.id,
+                          text: eventToString(event)
+                        };
+                    }),
+            minimumResultsForSearch: Infinity
+        });
+
+        $(this.refs.eventInput).on("change", this.eventIdChanged);
+    },
+    eventIdChanged: function(e) {
+        this.setState({
+          eventId: parseInt(e.target.value)
+        });
+    }
+});
+
 var Lesson = React.createClass({
 
     getInitialState: function() {
@@ -985,7 +1154,7 @@ var Lesson = React.createClass({
     },
 
     getAvailableEvents: function(moment) {
-        return this.props.schedule.filter(
+        return this.props.teacherEvents.filter(
             function(event) {
                 return event.weekday === moment.weekday();
             }
@@ -1069,7 +1238,7 @@ var Lesson = React.createClass({
       console.log('lesson ' + lessonId + ' updated');
 
       $.ajax({
-          url: "/do/lessons/update",
+          url: "/do/lesson/update",
           method: "POST",
           data: {
               lessonId: lessonId,
@@ -1077,7 +1246,7 @@ var Lesson = React.createClass({
               eventId: eventId
           },
           success: this.props.reloadClientAndContracts,
-          error: logAjaxError.bind(this, "/do/lessons/update")
+          error: logAjaxError.bind(this, "/do/lesson/update")
       })
     },
 
@@ -1122,10 +1291,6 @@ var Lesson = React.createClass({
       });
     },
 
-    dropSeconds: function(time) {
-        return moment(time, "HH:mm:ss").format("HH:mm")
-    },
-
     render: function() {
         var fields = [];
         if (this.state.editMode) {
@@ -1143,9 +1308,9 @@ var Lesson = React.createClass({
                                    value={this.state.eventId} />
                         </td>);
         } else {
-            var date = moment(this.props.lesson.date).format("DD-MM-YYYY");
-            var startTime = this.dropSeconds(this.props.lesson.startTime);
-            var finishTime = this.dropSeconds(this.props.lesson.finishTime);
+            var date = moment(this.props.lesson.date).format("DD-MM-YYYY (dd)");
+            var startTime = dropSeconds(this.props.lesson.startTime);
+            var finishTime = dropSeconds(this.props.lesson.finishTime);
 
             fields.push(<td key="date">{date}</td>);
             fields.push(<td key="time">{startTime + " : " + finishTime}</td>);
@@ -1165,7 +1330,7 @@ var Lesson = React.createClass({
     },
     componentDidUpdate: function() {
         if(this.state.editMode) {
-            var weekdays = this.props.schedule.map(function(event) {
+            var weekdays = this.props.teacherEvents.map(function(event) {
                 return event.weekday;
             });
 
@@ -1185,19 +1350,14 @@ var Lesson = React.createClass({
                         function(event) {
                             return {
                               id: event.id,
-                              text: this.eventToString(event)
+                              text: eventToString(event)
                             };
-                        }.bind(this))
+                        })
             });
 
             $(this.refs.eventInput).on("change", this.eventIdChanged);
         }
-    },
-    eventToString: function(event) {
-        return this.dropSeconds(event.startTime) + " : " + 
-               this.dropSeconds(event.finishTime) + 
-               " (" + event.roomS + ")";
-    }
+    }    
 });
 
 var Payment = React.createClass({
@@ -1374,6 +1534,69 @@ var Payment = React.createClass({
                 this.dateChanged(date);
             }.bind(this)
         });
+    }
+});
+
+var EventCreator = React.createClass({
+    getInitialState: function() {
+        return {
+            eventId: this.props.teacherEvents[0].id  
+        };
+    },
+    insertEvent: function() {
+        console.log('new schedule event inserted!');
+        console.log(this.props.contractId);
+        console.log(this.state.eventId);
+        $.ajax({
+            url:     "/do/contract/schedule/insert",
+            method:  "POST",
+            data:    {
+                      contractId: this.props.contractId,
+                      eventId: this.state.eventId
+                     },
+            success: this.props.reloadClientAndContracts,
+            error:   logAjaxError.bind(this, "/do/contract/schedule/insert")
+        });
+        this.props.hideCreator();
+    },
+    eventIdChanged: function(e) {
+        this.setState({
+          eventId: parseInt(e.target.value)
+        });
+    },
+    render: function() {
+        return(
+            <tr>
+                <td>
+                    <input onChange={$.noop} 
+                           ref="eventInput" 
+                           type="text" 
+                           value={this.state.eventId} />
+                </td>
+                <td className="action-cell">
+                    <ContractItemAction key="insertEventAction" 
+                                        clickHandler={this.insertEvent} 
+                                        iconName="icon-save" />
+                    <ContractItemAction key="hideCreatorAction" 
+                                        clickHandler={this.props.hideCreator} 
+                                        iconName="icon-remove" />
+                </td>
+            </tr>
+        );
+    },
+    componentDidMount: function() {
+        $(this.refs.eventInput).select2({
+            data: this.props.teacherEvents.map(
+                function(event) {
+                    return {
+                      id: event.id,
+                      text: eventToString(event)
+                    };
+                }),
+            minimumResultsForSearch: Infinity
+        });
+
+        $(this.refs.eventInput).on("change", this.eventIdChanged);
     }
 });
 

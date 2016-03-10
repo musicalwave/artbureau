@@ -45,6 +45,8 @@ public interface ContractsMapper {
 
     int getCountPlannedLessons(int contractId);
 
+    int getCompletedLessonCount(int contractId);
+
     void updateStatus(@Param("contractId")int contractId, @Param("contractStatus")int contractStatus);
 
     void updateActive(@Param("contractId")int contractId, @Param("active")int active);
@@ -56,4 +58,6 @@ public interface ContractsMapper {
     List<ContractModel> getContractsByLastLessonDate(String lastLessonDate);
 
     void deleteContract(@Param("contractId") int contractId);
+
+    void deletePlannedLessons(int contractId);
 }

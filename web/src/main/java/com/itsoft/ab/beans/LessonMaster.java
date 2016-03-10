@@ -120,7 +120,7 @@ public class LessonMaster {
         contract.setCountLessons(1);
 
         //Создание занятия в конце контракта
-        contractMaster.createSchedule(contract);
+        contractMaster.planLessons(contract);
 
         //Удаление переносимого занятия
         lessonsMapper.deleteLesson(lesson);
@@ -163,7 +163,7 @@ public class LessonMaster {
         c.setCountLessons(lessons.size());
 
         //Создание занятий после finishdate
-        contractMaster.createSchedule(c);
+        contractMaster.planLessons(c);
 
     }
 

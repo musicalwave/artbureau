@@ -61,6 +61,9 @@ public class AjaxController {
     private ContractsMapper contractsMapper;
 
     @Autowired
+    private ContractMaster contractMaster;
+
+    @Autowired
     private CallsStatusMapper callsStatusMapper;
 
     @Autowired
@@ -394,7 +397,8 @@ public class AjaxController {
             contract.setPayments(paymentMapper.getContractPayments(contract.getId()));
             contract.setContractOptionModel(
                     contractsMapper.getContractOptionById(contract.getContractOptionId()));
-            contract.setEvents(eventMaster.getEmptyEvents(contract.getTeacherId()));
+            contract.setTeacherEvents(eventMaster.getEmptyEvents(contract.getTeacherId()));
+            contract.setSchedule(scheduleMapper.getContractSchedule(contract.getId()));
         }
         return contracts;
     }
@@ -460,6 +464,34 @@ public class AjaxController {
             contractsMapper.updateStatus(contractId, 1); // active
     }
 
+    @RequestMapping(value = "/do/contract/schedule/insert", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void insertContractScheduleEvent(@RequestParam("contractId") int contractId,
+                                     @RequestParam("eventId") int eventId) {
+        scheduleMapper.insertContractScheduleEvent(contractId, eventId);
+        contractMaster.replanLessons(contractsMapper.getContractById(contractId));
+    }
+
+    @RequestMapping(value = "/do/contract/schedule/update", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void updateContractScheduleEvent(@RequestParam("contractId") int contractId,
+                                     @RequestParam("contractScheduleId") int contractScheduleId,
+                                     @RequestParam("eventId") int eventId) {
+        scheduleMapper.updateContractScheduleEvent(contractScheduleId, eventId);
+        contractMaster.replanLessons(contractsMapper.getContractById(contractId));
+    }
+
+    @RequestMapping(value = "/do/contract/schedule/delete", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void deleteContractScheduleEvent(@RequestParam("contractId") int contractId,
+                                     @RequestParam("contractScheduleId") int contractScheduleId) {
+        scheduleMapper.deleteContractScheduleEvent(contractScheduleId);
+        contractMaster.replanLessons(contractsMapper.getContractById(contractId));
+    }
+
     @RequestMapping(value = "/do/payment/commit", method = RequestMethod.POST)
     public
     @ResponseBody
@@ -509,7 +541,4 @@ public class AjaxController {
         payment.setValue(value);
         paymentMapper.updatePayment(payment);
     }
-
-
-
 }
