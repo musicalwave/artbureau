@@ -133,14 +133,14 @@
         SELECT *
         FROM lessons l
         WHERE l.contractId = #{contractId}
-          AND (l.date BETWEEN #{dateFrom} AND #{dateTo})
+          AND (l.date BETWEEN #{dateFrom} AND DATE_ADD(#{dateTo}, INTERVAL 1 DAY))
           AND l.statusId = #{statusId}
     </select>
 
     <delete id="deleteLessonsWithinPeriod">
         DELETE FROM lessons
         WHERE contractId = #{contractId}
-          AND (date BETWEEN #{dateFrom} AND #{dateTo})
+          AND (date BETWEEN #{dateFrom} AND DATE_ADD(#{dateTo}, INTERVAL 1 DAY))
           AND statusId = #{statusId}
     </delete>
 </mapper>

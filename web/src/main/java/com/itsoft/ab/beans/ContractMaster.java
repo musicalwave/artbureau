@@ -245,15 +245,19 @@ public class ContractMaster {
         return (date.get(Calendar.DAY_OF_WEEK) - 2 + 7) % 7 + 1;
     }
 
+    private boolean dateWithinInterval(Calendar date, Calendar leftDate, Calendar rightDate, boolean inclusive) {
+        return (date.after(leftDate) && date.before(rightDate)) ||
+               (inclusive && (date.equals(leftDate) ||
+                              date.equals(rightDate)));
+    }
+
     private boolean isDateFrozen(ContractModel contract, Calendar date) {
         if(contract.getFreezed() == 1) {
             Calendar startFreezeDate = new GregorianCalendar();
             startFreezeDate.setTime(contract.getFreezeDate());
             Calendar finishFreezeDate = new GregorianCalendar();
             finishFreezeDate.setTime(contract.getFreezeFinishDate());
-            return (contract.getFreezed() == 1 &&
-                date.after(startFreezeDate) &&
-                date.before(finishFreezeDate));
+            return dateWithinInterval(date, startFreezeDate, finishFreezeDate, true);
         }
         return false;
     }
