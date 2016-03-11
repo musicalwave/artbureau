@@ -30,4 +30,14 @@ public interface LessonsMapper {
     void updateLesson(@Param("lessonId") int lessonId,
                      @Param("date") String date,
                      @Param("eventId") int eventId);
+
+    List<LessonModel> getLessonsWithinPeriod(@Param("contractId") int contractId,
+                                             @Param("dateFrom") Date dateFrom,
+                                             @Param("dateTo") Date dateTo,
+                                             @Param("statusId") int statusId);
+
+    void deleteLessonsWithinPeriod(@Param("contractId") int contractId,
+                                   @Param("dateFrom") Date dateFrom,
+                                   @Param("dateTo") Date dateTo,
+                                   @Param("statusId") int statusId);
 }

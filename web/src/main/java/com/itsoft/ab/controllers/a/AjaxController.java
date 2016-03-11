@@ -421,19 +421,11 @@ public class AjaxController {
     public
     @ResponseBody
     void freezeContract(@RequestParam(value = "contractId") int contractId,
-                        @RequestParam(value = "lockFrom") String lockFromDate,
-                        @RequestParam(value = "lockTo") String lockToDate) {
-        ContractModel contract = contractsMapper.getContractById(contractId);
-        contract.setFreezeDateS(lockFromDate);
-        contract.setFreezeFinishDateS(lockToDate);
-        contract.setFreezed(1);
-        try {
-            lessonMaster.freezeContract(contract);
-            contractsMapper.freezeContract(contract);
-        }
-        catch (ParseException pe) {
-            throw new ApplicationException(ECode.ERROR1102);
-        }
+                        @RequestParam(value = "lockFrom") long lockFromDate,
+                        @RequestParam(value = "lockTo") long lockToDate) {
+        contractMaster.freezeContract(contractId,
+                                      new Date(lockFromDate),
+                                      new Date(lockToDate));
     }
 
     @RequestMapping(value = "/do/contract/unfreeze", method = RequestMethod.POST)

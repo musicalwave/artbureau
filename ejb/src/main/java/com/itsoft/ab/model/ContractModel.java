@@ -24,8 +24,8 @@ public class ContractModel extends BasicModel{
     private int special;
     private int deleted;
     private int freezed;
-    private long freezeDate;
-    private long freezeFinishDate;
+    private Date freezeDate;
+    private Date freezeFinishDate;
     private int cash;
 
     private int price;
@@ -115,11 +115,11 @@ public class ContractModel extends BasicModel{
         this.typeId = typeId;
     }
 
-    public long getFreezeFinishDate() {
+    public Date getFreezeFinishDate() {
         return freezeFinishDate;
     }
 
-    public void setFreezeFinishDate(long freezeFinishDate) {
+    public void setFreezeFinishDate(Date freezeFinishDate) {
         this.freezeFinishDate = freezeFinishDate;
     }
 
@@ -243,11 +243,11 @@ public class ContractModel extends BasicModel{
         this.freezed = freezed;
     }
 
-    public long getFreezeDate() {
+    public Date getFreezeDate() {
         return freezeDate;
     }
 
-    public void setFreezeDate(long freezeDate) {
+    public void setFreezeDate(Date freezeDate) {
         this.freezeDate = freezeDate;
     }
 

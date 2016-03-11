@@ -218,17 +218,15 @@ public class ContractMaster {
 
     private Calendar getDateToPlanFrom(ContractModel contract) {
         Calendar dateToPlanFrom = new GregorianCalendar();
-        if(contract.getFreezed() == 1)
-            dateToPlanFrom.setTimeInMillis(contract.getFreezeFinishDate());
+        Date lastCompletedLessonDate = getLastCompletedLessonDate(contract);
+
+        if(lastCompletedLessonDate == null)
+            dateToPlanFrom.setTime(contract.getDate());
         else {
-            Date lastCompletedLessonDate = getLastCompletedLessonDate(contract);
-            if(lastCompletedLessonDate == null)
-                dateToPlanFrom.setTime(contract.getDate());
-            else
-                dateToPlanFrom.setTime(lastCompletedLessonDate);
+            dateToPlanFrom.setTime(lastCompletedLessonDate);
+            dateToPlanFrom.add(Calendar.DATE, 1);
         }
 
-        dateToPlanFrom.add(Calendar.DATE, 1);
         return dateToPlanFrom;
     }
 
@@ -247,16 +245,29 @@ public class ContractMaster {
         return (date.get(Calendar.DAY_OF_WEEK) - 2 + 7) % 7 + 1;
     }
 
-    public void replanLessons(ContractModel contract) {
-        contractsMapper.deletePlannedLessons(contract.getId());
+    private boolean isDateFrozen(ContractModel contract, Calendar date) {
+        if(contract.getFreezed() == 1) {
+            Calendar startFreezeDate = new GregorianCalendar();
+            startFreezeDate.setTime(contract.getFreezeDate());
+            Calendar finishFreezeDate = new GregorianCalendar();
+            finishFreezeDate.setTime(contract.getFreezeFinishDate());
+            return (contract.getFreezed() == 1 &&
+                date.after(startFreezeDate) &&
+                date.before(finishFreezeDate));
+        }
+        return false;
+    }
+
+    private void createLessons(ContractModel contract, Calendar dateToPlanFrom, int lessonsToPlan) {
         List<EventModel> schedule = scheduleMapper.getContractSchedule(contract.getId());
         if(!schedule.isEmpty()) {
-            Calendar dateToPlanFrom = getDateToPlanFrom(contract);
-            int lessonsToPlan = countLessonsToPlan(contract);
             while (lessonsToPlan > 0) {
                 EventModel appropriateEvent =
                         scheduleMaster.getAppropriateEvent(schedule, getWeekday(dateToPlanFrom));
-                if (appropriateEvent != null) {
+                if (appropriateEvent != null &&
+                    !isDateFrozen(contract, dateToPlanFrom) &&
+                    contractsMapper.isEventFree(
+                            contract.getId(), dateToPlanFrom.getTime(), appropriateEvent.getId())) {
                     LessonModel lesson = new LessonModel();
                     lesson.setContractId(contract.getId());
                     lesson.setEventId(appropriateEvent.getId());
@@ -268,6 +279,29 @@ public class ContractMaster {
                 dateToPlanFrom.add(Calendar.DATE, 1);
             }
         }
+    }
+
+    public void replanLessons(ContractModel contract) {
+        contractsMapper.deletePlannedLessons(contract.getId());
+        Calendar dateToPlanFrom = getDateToPlanFrom(contract);
+        int lessonsToPlan = countLessonsToPlan(contract);
+        createLessons(contract, dateToPlanFrom, lessonsToPlan);
+    }
+
+    public void freezeContract(int contractId, Date freezeFrom, Date freezeTo) {
+        ContractModel contract = contractsMapper.getContractById(contractId);
+        contract.setFreezed(1);
+        contract.setFreezeDate(freezeFrom);
+        contract.setFreezeFinishDate(freezeTo);
+        contractsMapper.freezeContract(contract);
+
+        int lessonsToPlan = lessonsMapper.getLessonsWithinPeriod(
+                contractId, freezeFrom, freezeTo, 1).size();
+
+        lessonsMapper.deleteLessonsWithinPeriod(
+                contractId, freezeFrom, freezeTo, 1);
+
+        createLessons(contract, getDateToPlanFrom(contract), lessonsToPlan);
     }
 
     public ContractModel insertContract(ContractModel c) {

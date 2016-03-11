@@ -72,15 +72,7 @@ public class ClientController {
     public String showClient(@PathVariable String clientId, Model m){
         m = authMaster.setModel(m);
         ClientModel client = clientsMaster.getClientById(Integer.parseInt(clientId));
-        List<PaymentModel> payments = paymentMapper.getPlannedClientPayments(Integer.parseInt(clientId));
-        List<ContractModel> contracts = contractMapper.getActiveClientContracts(Integer.parseInt(clientId));
-        List<CallModel> calls = callsMapper.getAllClientCalls(Integer.parseInt(clientId));
-
-
         m.addAttribute("client", client);
-        m.addAttribute("payments", paymentMaster.preparePayments(payments));
-        m.addAttribute("contracts", contractMaster.prepareContracts(contracts));
-        m.addAttribute("calls", callMaster.prepareCallsNew(calls));
         return "/a/client/show";
     }
 

@@ -355,8 +355,8 @@
     <update id="freezeContract" parameterType="ContractModel">
         UPDATE contracts
         SET freezed = #{freezed},
-         freezeDate = #{freezeDate},
-         freezeFinishDate = #{freezeFinishDate}
+            freezeDate = #{freezeDate},
+            freezeFinishDate = #{freezeFinishDate}
         WHERE id = #{id}
     </update>
 
@@ -405,4 +405,12 @@
         WHERE contractId = #{contractId}
           AND statusId = 1
     </delete>
+
+    <select id="isEventFree" resultType="boolean">
+        SELECT COUNT(l.id) = 0
+        FROM lessons l
+        WHERE l.contractId = #{contractId}
+          AND l.date = #{date}
+          AND l.eventId = #{eventId}
+    </select>
 </mapper>

@@ -128,4 +128,19 @@
             eventId = #{eventId}
        WHERE id = #{lessonId}
     </update>
+
+    <select id="getLessonsWithinPeriod" resultType="LessonModel">
+        SELECT *
+        FROM lessons l
+        WHERE l.contractId = #{contractId}
+          AND (l.date BETWEEN #{dateFrom} AND #{dateTo})
+          AND l.statusId = #{statusId}
+    </select>
+
+    <delete id="deleteLessonsWithinPeriod">
+        DELETE FROM lessons
+        WHERE contractId = #{contractId}
+          AND (date BETWEEN #{dateFrom} AND #{dateTo})
+          AND statusId = #{statusId}
+    </delete>
 </mapper>

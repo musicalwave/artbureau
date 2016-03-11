@@ -181,7 +181,7 @@ public class ContractController {
             }
 
         contractMaster.updateSchedule(contract.getId(), contract.getDays().split(","));
-        contractMaster.planLessons(contract);
+        contractMaster.replanLessons(contract);
         session.setComplete();
         return "redirect:/client/" + contract.getClientId();
     }

@@ -351,8 +351,8 @@ var ContractList = React.createClass({
             method: "POST",
             data: {
                 contractId: contractId,
-                lockFrom: lockFrom,
-                lockTo: lockTo
+                lockFrom:   moment(lockFrom, 'DD-MM-YYYY').format('x'),
+                lockTo:     moment(lockTo, 'DD-MM-YYYY').format('x')
             },
             success: function() {
                 this.reloadData();
@@ -817,6 +817,21 @@ var Contract = React.createClass({
 
     render: function() {
 
+        var freezeDates = [];
+        if(this.props.contract.freezed) {
+            freezeDates.push(
+                <tr key="freezeDate">
+                    <th>Дата заморозки:</th>
+                    <td>{moment(this.props.contract.freezeDate).format("DD-MM-YYYY")}</td>
+                </tr>);
+
+            freezeDates.push(
+                <tr key="freezeFinishDate">
+                    <th>Дата разморозки:</th>
+                    <td>{moment(this.props.contract.freezeFinishDate).format("DD-MM-YYYY")}</td>
+                </tr>);
+        }
+
         return (
             <div className="contract widget widget-closed box">
 
@@ -871,6 +886,7 @@ var Contract = React.createClass({
                                 <th>Дата заключения:</th>
                                 <td>{moment(this.props.contract.date).format("DD-MM-YYYY")}</td>
                             </tr>
+                            {freezeDates}
                             <tr>
                                 <th>Cумма:</th>
                                 <td>{this.props.contract.price}</td>
@@ -1036,7 +1052,8 @@ var Event = React.createClass({
     },
     edit: function() {
         this.setState({
-            editMode: true
+            editMode: true,
+            eventId: this.props.event.id
         });
     },
     cancel: function() {
