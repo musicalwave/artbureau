@@ -26,6 +26,8 @@ public interface ScheduleMapper {
     List<LessonWeb> selectAllByTeacher(int teacherId);
     List<LessonWeb> selectAllActive();
 
+    List<EventModel> selectAllEvents();
+
     int countLessons(@Param("eventId") int eventId, @Param("date") Date date);
     int countLessonsByTeacherAndTime(@Param("teacherTypeId") int teacherTypeId, @Param("startTime") int startTime, @Param("date") java.util.Date date);
     void shiftLesson(@Param("eventId") int eventId, @Param("lessonId") int lessonId, @Param("newDate") String newDate);

@@ -72,6 +72,9 @@ public class AjaxController {
     @Autowired
     private PaymentMaster paymentMaster;
 
+    @Autowired
+    private DiscountsMapper discountsMapper;
+
     @RequestMapping(value = "/do/teacher/find", method = RequestMethod.POST)
     public
     @ResponseBody
@@ -171,9 +174,10 @@ public class AjaxController {
     }
 
     @RequestMapping(value = "/do/events/all", method = RequestMethod.GET)
-    public @ResponseBody List<LessonWeb> getAllEvents(){
-        List<LessonWeb> lessons = scheduleMapper.selectAllActive();
-        return lessons;
+    public
+    @ResponseBody
+    List<EventModel> getAllEvents(){
+        return scheduleMapper.selectAllEvents();
     }
 
     @RequestMapping(value = "/do/events/{classId}", method = RequestMethod.GET)
@@ -194,6 +198,13 @@ public class AjaxController {
     List<TypeModel> getAllTypes(){
         List<TypeModel> types = typesMapper.selectAllActive();
         return types;
+    }
+
+    @RequestMapping(value = "/do/teacherTypes", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<TeacherTypeModel> getTeacherTypes() {
+        return teacherTypeMapper.getAllActive();
     }
 
     @RequestMapping(value = "/do/teachers/type/{typeId}", method = RequestMethod.GET)
@@ -533,4 +544,36 @@ public class AjaxController {
         payment.setValue(value);
         paymentMapper.updatePayment(payment);
     }
+
+
+    @RequestMapping(value = "/do/options", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<ContractOptionModel> getContractOptions() {
+        return contractsMapper.selectContractOptions();
+    }
+
+    @RequestMapping(value = "/do/contractTypes", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<SimpleModel> getContractTypes() {
+        return contractsMapper.selectContractTypes();
+    }
+
+    @RequestMapping(value = "/do/discounts", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<SimpleModel> getDiscounts() {
+        return discountsMapper.selectAllActive();
+    }
+
+    @RequestMapping(value = "/do/contract/create",
+                    method = RequestMethod.POST,
+                    headers = {"Content-type=application/json"})
+    public
+    @ResponseBody
+    int createContract(@RequestBody ContractModel contract) {
+        return contractMaster.createContract(contract);
+    }
+
 }

@@ -40,6 +40,9 @@ public class ContractMaster {
     private PaymentMaster paymentMaster;
 
     @Autowired
+    private PaymentMapper paymentMapper;
+
+    @Autowired
     private JContractsMapper jContractsMapper;
 
     @Autowired
@@ -125,6 +128,19 @@ public class ContractMaster {
         paymentMaster.updateVBalance(p);
 
         return contract;
+    }
+
+    public int createContract(ContractModel contract) {
+        contract = insertContract(contract);
+        updateSchedule(contract.getId(), contract.getDays().split(","));
+        replanLessons(contract);
+
+        for(PaymentModel payment: contract.getPayments()) {
+            payment.setContractId(contract.getId());
+            paymentMapper.insertPayment(payment);
+        }
+
+        return contract.getId();
     }
 
     private void insertPrev(int id, int prev) {

@@ -117,6 +117,23 @@
         WHERE e.active=1
     </select>
 
+    <select id="selectAllEvents" resultType="EventModel">
+        SELECT e.id,
+               e.weekday,
+               e.startTime,
+               e.finishTime,
+               e.roomId,
+               e.teacherId,
+               r.name as roomS,
+               t.name as teacherName
+        FROM events e
+        INNER JOIN rooms r
+        ON r.id = e.roomId
+        INNER JOIN teachers t
+        ON t.id = e.teacherId
+        WHERE e.active = 1;
+    </select>
+
     <!--проверка возможности создания занятия (преподаватель, дата начала, время занятия) -->
     <select id="countLessons" resultType="int">
         SELECT COUNT(*)

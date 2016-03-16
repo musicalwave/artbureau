@@ -20,13 +20,23 @@
 
     <select id="getAllActive" resultMap="result">
         SELECT
-        J_TEACHERS_TYPES.*,
-        types.name AS typeName,
-        teachers.name AS teacherName
-        FROM J_TEACHERS_TYPES, teachers, types
-        WHERE J_TEACHERS_TYPES.active=1
-        AND teachers.id = J_TEACHERS_TYPES.teacherId
-        AND types.id = J_TEACHERS_TYPES.typeId
+        jtt.id,
+        jtt.typeId,
+        jtt.teacherId,
+        IF(jtt.pPrice = 0, pd.pPrice, jtt.pPrice) as pPrice,
+        IF(jtt.gPrice = 0, pd.gPrice, jtt.gPrice) as gPrice,
+        IF(jtt.aPrice = 0, pd.aPrice, jtt.aPrice) as aPrice,
+        IF(jtt.dPrice = 0, pd.dPrice, jtt.dPrice) as dPrice,
+        t.name AS typeName,
+        te.name AS teacherName
+        FROM J_TEACHERS_TYPES jtt
+        INNER JOIN teachers te
+          ON te.id = jtt.teacherId
+        INNER JOIN types t
+          ON t.id = jtt.typeId
+        INNER JOIN prices_default pd
+          ON pd.typeId = jtt.typeId
+        WHERE jtt.active = 1
     </select>
 
     <select id="getById" parameterType="int" resultType="TeacherTypeModel">

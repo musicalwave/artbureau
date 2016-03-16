@@ -152,7 +152,8 @@
           LEFT JOIN payments p
             ON p.contractId = c.id
         WHERE c.clientId = #{clientId}
-        GROUP BY c.id;
+        GROUP BY c.id
+        ORDER BY c.date DESC, c.id DESC;
     </select>
 
     <select id="selectContract" parameterType="int" resultType="ContractModel">

@@ -66,6 +66,12 @@ div.contract-list {
     margin-top: 30px;
 }
 
+i.add-contract-btn {
+    margin-top: 5px;
+    color: #555555;
+    font-weight: 100;
+}
+
 i.contract-menu-btn {
     color: #E6E6E6;
 }
@@ -107,6 +113,35 @@ i.contract-menu-btn:hover {
 
 .deleted i.contract-menu-btn {
     color: #6E6E6E;
+}
+
+/* CONTRACT CREATOR */
+
+.contract-creator {
+    border: 1px solid #eeeeee;
+    padding: 10px;
+    margin-bottom: -1px;
+}
+
+.close-contract-creator-button {
+    margin-top: -5px;
+    margin-right: -5px;
+    margin-bottom: 5px;
+}
+
+.create-contract-button {
+    margin-top: 10px;
+}
+
+.new-payments-table {
+    margin-top: 60px;
+    clear: left;
+}
+
+.payment-counter {
+    margin-left: 15px;
+    border: 1px solid #E6E6E6;
+    width: 50px;
 }
 
 /* CONTRACT MENU */
@@ -185,14 +220,16 @@ div.contract-item-list {
     margin-bottom: 10px;
 }
 
-.contract-item-table input {
+.contract-item-table input,
+.new-payments-table input {
     border: 1px solid #E6E6E6;
     padding: 0 !important;
     margin: -1px;
     width: 100px;
 }
 
-.contract-item-table div.select2-container {
+.contract-item-table div.select2-container,
+.contract-info-table div.select2-container {
     width: 220px !important;
 }
 
@@ -201,6 +238,10 @@ td.action-cell {
     padding-left: 10px;
     padding-top: 5px;
     text-align: right;
+}
+
+td.hidden-cell {
+    border: 0 !important;
 }
 
 .icon-remove,
