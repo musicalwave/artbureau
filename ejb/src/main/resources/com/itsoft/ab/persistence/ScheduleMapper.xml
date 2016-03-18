@@ -250,7 +250,8 @@
             ON w.id = e.weekday
           INNER JOIN rooms r
             ON r.id = e.roomId
-        WHERE cs.contractId = #{contractId};
+        WHERE cs.contractId = #{contractId}
+        ORDER BY e.weekday, e.startTime
     </select>
 
     <insert id="insertContractScheduleEvent">
