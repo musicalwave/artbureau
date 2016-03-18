@@ -1209,7 +1209,7 @@ var Lesson = React.createClass({
     getAvailableEvents: function(moment) {
         return this.props.teacherEvents.filter(
             function(event) {
-                return event.weekday === moment.weekday();
+                return event.weekday === moment.isoWeekday();
             }
         );
     },
