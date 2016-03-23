@@ -46,6 +46,9 @@ public class AjaxController {
     private RoomMapper roomMapper;
 
     @Autowired
+    private FilialsMapper filialsMapper;
+
+    @Autowired
     private TypesMapper typesMapper;
 
     @Autowired
@@ -89,12 +92,18 @@ public class AjaxController {
         return clientsMapper.findClients(null, "%" + client.getLname() + "%", null, null, null, null);
     }
 
-    @RequestMapping(value = "/do/rooms/all", method = RequestMethod.GET)
+    @RequestMapping(value = "/do/rooms", method = RequestMethod.GET)
     public
     @ResponseBody
     List<RoomModel> getRooms() {
-        //Филиал 1
-        return roomMapper.selectActiveFilialRooms(1);
+        return roomMapper.selectActiveRooms();
+    }
+
+    @RequestMapping(value = "/do/filials", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<FilialModel> getFilials() {
+        return filialsMapper.getFilials();
     }
 
     @RequestMapping(value = "/do/lesson/{lessonId}", method = RequestMethod.GET)
@@ -290,12 +299,8 @@ public class AjaxController {
                     finishTime,
                     date);
 
-        if(emptyEvent != null) {
-            scheduleMapper.shiftLesson(emptyEvent.getId(), id, date);
-            return true;
-        }
-
-        return false;
+            return emptyEvent != null &&
+                   scheduleMaster.shiftLesson(id, emptyEvent.getId(), date);
     }
 
     @RequestMapping(value = "/do/events", method = RequestMethod.GET)

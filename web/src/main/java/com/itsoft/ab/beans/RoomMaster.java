@@ -23,9 +23,7 @@ public class RoomMaster {
     private RoomMapper roomMapper;
 
     public Model setRooms(Model m){
-        //В данном проекте используется только одни филиал, поэтому id филиала вбиваем вручную
-        List<RoomModel> rooms = roomMapper.selectActiveFilialRooms(1);
-        m.addAttribute("rooms", rooms);
+        m.addAttribute("rooms", roomMapper.selectActiveRooms());
         return m;
     }
 }

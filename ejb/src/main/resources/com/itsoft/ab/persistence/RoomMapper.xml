@@ -11,6 +11,15 @@
 
     <!--All queries here-->
 
+    <select id="selectActiveRooms" resultType="RoomModel">
+        SELECT
+          r.id,
+          r.name,
+          r.filialId
+        FROM rooms r
+        WHERE r.active = 1
+    </select>
+
     <select id="selectActiveFilialRooms" parameterType="int" resultMap="result">
         SELECT
         rooms.id,

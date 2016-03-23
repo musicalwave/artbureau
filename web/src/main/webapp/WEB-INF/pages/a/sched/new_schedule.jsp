@@ -8,6 +8,7 @@
   <meta charset="utf-8">
 
   <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/js/lib/jquery-ui/jquery-ui.min.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/js/lib/assets/css/fontawesome/font-awesome.min.css">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/js/lib/fullcalendar/fullcalendar.css">
   <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/js/lib/plugins/jquery-context-menu/jquery.contextMenu.css">
   <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/schedule.css">
@@ -20,23 +21,17 @@
   <script src="${pageContext.request.contextPath}/resources/js/lib/plugins/jquery-context-menu/jquery.contextMenu.js"></script>
   <script src="${pageContext.request.contextPath}/resources/js/lib/plugins/jquery-context-menu/jquery.ui.position.js"></script>
 
-  <script src='${pageContext.request.contextPath}/resources/js/schedule.js'></script>
+  <script type="text/babel" src='${pageContext.request.contextPath}/resources/js/schedule.js'></script>
 
   <script src='${pageContext.request.contextPath}/resources/js/lib/fullcalendar/lang-all.js'></script>
+
+  <script src="${pageContext.request.contextPath}/resources/js/lib/react/react.js"></script>
+  <script src="${pageContext.request.contextPath}/resources/js/lib/react/react-dom.js"></script>
+  <script src="${pageContext.request.contextPath}/resources/js/lib/react/babel/browser.js"></script>
 </head>
 
 <body>
-    <div class="rooms">
-        <ul class="rooms-list">
-           <c:forEach var="room" items="${rooms}">
-               <li>
-                   <a room_id="${room.id}" href="">${room.name}</a>
-               </li>
-           </c:forEach>
-        </ul>
-    </div>
-
-    <div id="calendar"/>
+    <div id="calendar"></div>
 </body>
 
 </html>

@@ -30,7 +30,6 @@ public class SchedController {
     @RequestMapping(value="/sched", method = RequestMethod.GET)
     public String showSchedule(Model m){
         m = authMaster.setModel(m);
-        m = roomMaster.setRooms(m);
         return "/a/sched/new_schedule";
     }
 

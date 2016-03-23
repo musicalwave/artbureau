@@ -11,6 +11,7 @@ import java.util.List;
  * Time: 15:30
  */
 public interface RoomMapper {
+    List<RoomModel> selectActiveRooms();
     List<RoomModel> selectActiveFilialRooms(int filialId);
     RoomModel selectRoomById(int roomId);
 }

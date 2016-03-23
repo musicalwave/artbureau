@@ -8,6 +8,7 @@ public class ContractOptionModel extends BasicModel {
     private int lessonCount;
     private int maxPaymentsCount;
     private int paymentInterval;
+    private int maxShifts;
 
     public ContractOptionModel() {
 
@@ -52,4 +53,13 @@ public class ContractOptionModel extends BasicModel {
     public void setPaymentInterval(int paymentInterval) {
         this.paymentInterval = paymentInterval;
     }
+
+    public int getMaxShifts() {
+        return maxShifts;
+    }
+
+    public void setMaxShifts(int maxShifts) {
+        this.maxShifts = maxShifts;
+    }
+
 }

@@ -8,7 +8,6 @@
     background: #FFFCBB;
     padding-left: 5px;
     padding-bottom: 3px;
-
 }
 
 .event-icons-list img {
@@ -31,41 +30,55 @@
     border: 5px solid;
 }
 
-.rooms {
+#calendar-header {
+    width: 70%;
+    margin: auto;
+}
+
+.link-list {
+    padding-left: 0;
     display: flex;
-    flex-flow: row nowrap;
-    justify-content: center;
+    flex-wrap: wrap;
+    list-style-type: none;
 }
 
-.rooms-list li {
-    display: inline;
+.link-list li {
+    margin-top: 15px
 }
 
-.rooms-list li:after {
-    content: "|";
+.link-list a {
+    border: 1px solid rgb(147, 195, 205);
+    background: url("../i/schedule-button-bg.png") 50% 50% repeat;
+    padding: 5px;
+    cursor: pointer;
+    box-sizing: border-box;
 }
 
-
-.rooms li:last-child:after {
-    content: none;
+.link-list li:first-child a {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
 }
 
-.rooms-list a {
+.link-list li:last-child a {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.link-list a.selected,
+.link-list a.selected:hover {
+    border: 1px solid #db4865;
+    background: url("../i/schedule-button-pressed-bg.png") 50% 50% repeat; 
+}
+
+.link-list a:hover {
+    border: 1px solid #999;
+    background: url("../i/schedule-button-hover-bg.png") 50% 50% repeat;  
+}
+
+.home-btn {    
+    cursor: pointer;
+    float: right;
     text-decoration: none;
+    color: black;
 }
 
-.rooms-list a:hover {
-    text-decoration: underline;
-}
-
-.rooms-list a:visited {
-    color: blue;
-}
-
-a.selected-room {
-    font-weight: bold;    
-}
-
-a.selected-room:hover {
-    text-decoration: none;
-}

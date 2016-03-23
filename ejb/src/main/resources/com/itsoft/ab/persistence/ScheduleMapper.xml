@@ -189,6 +189,7 @@
                l.date,
                e.startTime,
                e.finishTime,
+               co.clientId,
                concat(c.fname, ' ', c.lname) as clientName,
                c.phone1 as clientPhone,
                jtt.teacherId,
