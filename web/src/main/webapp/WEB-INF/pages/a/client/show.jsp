@@ -10,12 +10,12 @@
         <title>Страница клиента | ARTBUREAU</title>
     </jsp:attribute>
     <jsp:attribute name="addimports">
-        <link href="${pageContext.request.contextPath}/resources/css/show-contract.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/resources/css/client.css" rel="stylesheet" type="text/css" />
         <script src="${pageContext.request.contextPath}/resources/js/lib/react/react.js"></script>
         <script src="${pageContext.request.contextPath}/resources/js/lib/react/react-dom.js"></script>
         <script src="${pageContext.request.contextPath}/resources/js/lib/react/babel/browser.js"></script>
         <script src="${pageContext.request.contextPath}/resources/js/lib/moment.js"></script>
-        <script type="text/babel" src="${pageContext.request.contextPath}/resources/js/show-contract.js"></script>
+        <script type="text/babel" src="${pageContext.request.contextPath}/resources/js/client.js"></script>
     </jsp:attribute>
     <jsp:body>
         <div class="container">
