@@ -120,6 +120,7 @@
           c.date,
           c.price,
           c.countLessons,
+          c.countShifts,
           c.freezed,
           c.freezeDate,
           c.freezeFinishDate,

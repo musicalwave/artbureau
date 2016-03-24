@@ -868,6 +868,10 @@ var Contract = React.createClass({
                 </tr>);
         }
 
+        var shiftCount = this.props.contract.countShifts;
+        var maxShifts  = this.props.contract.contractOptionModel.maxShifts;
+        var shiftStr   = shiftCount + '(' + (maxShifts - shiftCount) + ')';
+
         return (
             <div className="contract widget widget-closed box">
 
@@ -930,6 +934,10 @@ var Contract = React.createClass({
                             <tr>
                                 <th>Баланс:</th>
                                 <td>{this.props.contract.moneyR - this.props.contract.price}</td>
+                            </tr>
+                            <tr>
+                                <th>Переносы:</th>
+                                <td>{shiftStr}</td>
                             </tr>
                             <tr>
                                 <th>Кол-во занятий:</th>
