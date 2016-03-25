@@ -11,23 +11,17 @@
   <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/js/lib/assets/css/fontawesome/font-awesome.min.css">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/js/lib/fullcalendar/fullcalendar.css">
   <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/js/lib/plugins/jquery-context-menu/jquery.contextMenu.css">
-  <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/schedule.css">
+  <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/schedule.min.css">
 
   <script src="${pageContext.request.contextPath}/resources/js/lib/fullcalendar/lib/jquery.min.js"></script>
   <script src="${pageContext.request.contextPath}/resources/js/lib/jquery-ui/jquery-ui.min.js"></script>
   <script src="${pageContext.request.contextPath}/resources/js/lib/fullcalendar/lib/moment.min.js"></script>
   <script src="${pageContext.request.contextPath}/resources/js/lib/fullcalendar/fullcalendar.js"></script>
-
   <script src="${pageContext.request.contextPath}/resources/js/lib/plugins/jquery-context-menu/jquery.contextMenu.js"></script>
   <script src="${pageContext.request.contextPath}/resources/js/lib/plugins/jquery-context-menu/jquery.ui.position.js"></script>
-
-  <script type="text/babel" src='${pageContext.request.contextPath}/resources/js/schedule.js'></script>
-
+  <script src='${pageContext.request.contextPath}/resources/js/schedule.min.js'></script>
   <script src='${pageContext.request.contextPath}/resources/js/lib/fullcalendar/lang-all.js'></script>
 
-  <script src="${pageContext.request.contextPath}/resources/js/lib/react/react.js"></script>
-  <script src="${pageContext.request.contextPath}/resources/js/lib/react/react-dom.js"></script>
-  <script src="${pageContext.request.contextPath}/resources/js/lib/react/babel/browser.js"></script>
 </head>
 
 <body>

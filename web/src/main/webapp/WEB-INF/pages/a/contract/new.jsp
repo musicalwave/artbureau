@@ -11,7 +11,7 @@
 
     <jsp:attribute name="addimports">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/contract.css"/>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/moment.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/moment/moment.min.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/contract.js"></script>
     </jsp:attribute>
 
