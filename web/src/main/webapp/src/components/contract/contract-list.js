@@ -122,7 +122,7 @@ var ContractList = React.createClass({
 
         return (
             <div className="contract-list">
-                <h4 className="pull-left">Контракт:</h4>
+                <h4 className="pull-left">Контракты:</h4>
                     <div className="contract-toolbar">
                         <i  style={newContractButtonStyle}
                             className="pull-right icon-plus icon-2x icon-btn add-contract-btn"

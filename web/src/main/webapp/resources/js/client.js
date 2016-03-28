@@ -20142,7 +20142,7 @@ var ContractList = React.createClass({
             React.createElement(
                 'h4',
                 { className: 'pull-left' },
-                'Контракт:'
+                'Контракты:'
             ),
             React.createElement(
                 'div',
