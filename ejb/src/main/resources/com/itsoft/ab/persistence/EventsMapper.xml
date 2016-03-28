@@ -64,8 +64,10 @@
     <select id="isEventFree" resultType="boolean">
         SELECT COUNT(l.id) = 0
         FROM lessons l
-        WHERE l.contractId = #{contractId}
-          AND l.date = #{date}
+        INNER JOIN contracts c
+          ON c.id = l.contractId
+        WHERE l.date = #{date}
           AND l.eventId = #{eventId}
+          AND c.statusId = 1
     </select>
 </mapper>

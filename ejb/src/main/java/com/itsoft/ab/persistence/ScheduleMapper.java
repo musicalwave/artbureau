@@ -47,7 +47,10 @@ public interface ScheduleMapper {
                              @Param("finishTime") String finishTime,
                              @Param("date") String date);
 
-    List<EventModel> getEmptyEventsByTeacherAndRoom(@Param("teacherId") int teacherId, @Param("roomId") int roomId);
+    List<EventModel> getEmptyEvents(@Param("teacherId") int teacherId,
+                                    @Param("roomId") int roomId,
+                                    @Param("start") String start,
+                                    @Param("end") String end);
 
     void updateContractSchedule(@Param("contractId") int contractId, @Param("eventIds") String[] eventIds);
 

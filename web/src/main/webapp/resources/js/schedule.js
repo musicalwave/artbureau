@@ -19083,13 +19083,16 @@ var Calendar = React.createClass({
                 return 'red';
         }
     },
-    getEmptyEvents: function getEmptyEvents(draggedEvent, roomId) {
+    getEmptyEvents: function getEmptyEvents(draggedEvent, roomId, start, end) {
         return $.ajax({
-            url: '/do/events',
+            url: '/do/events/empty',
             data: {
                 teacherId: draggedEvent.teacherId,
-                roomId: roomId
-            } });
+                roomId: roomId,
+                start: start.format('YYYY-MM-DD'),
+                end: end.subtract(1, 'd').format('YYYY-MM-DD')
+            }
+        });
     },
     emptyEventToCalendarEvent: function emptyEventToCalendarEvent(postition, firstDayOfWeek) {
 
@@ -19104,7 +19107,7 @@ var Calendar = React.createClass({
             color: 'green' };
     },
     getEmptyCalendarEvents: function getEmptyCalendarEvents(start, end, timezone, callback) {
-        $.when(this.getEmptyEvents(this.state.draggedEvent, this.state.selectedRoomId)).done(function (emptyEvents) {
+        $.when(this.getEmptyEvents(this.state.draggedEvent, this.state.selectedRoomId, start, end)).done(function (emptyEvents) {
             var emptyCalendarEvents = emptyEvents.map(function (event) {
                 return this.emptyEventToCalendarEvent(event, moment(start));
             }.bind(this));

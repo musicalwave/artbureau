@@ -303,12 +303,14 @@ public class AjaxController {
                    scheduleMaster.shiftLesson(id, emptyEvent.getId(), date);
     }
 
-    @RequestMapping(value = "/do/events", method = RequestMethod.GET)
+    @RequestMapping(value = "/do/events/empty", method = RequestMethod.GET)
     public
     @ResponseBody
-    List<EventModel> getEmptyEventsByTeacherAndRoom(@RequestParam(value = "teacherId") int teacherId,
-                                               @RequestParam(value = "roomId") int roomId) {
-        return scheduleMapper.getEmptyEventsByTeacherAndRoom(teacherId, roomId);
+    List<EventModel> getEmptyEvents(@RequestParam(value = "teacherId") int teacherId,
+                                    @RequestParam(value = "roomId") int roomId,
+                                    @RequestParam(value = "start") String start,
+                                    @RequestParam(value = "end") String end) {
+        return scheduleMapper.getEmptyEvents(teacherId, roomId, start, end);
     }
 
     @RequestMapping(value = "/do/lessons/conduct", method = RequestMethod.POST)

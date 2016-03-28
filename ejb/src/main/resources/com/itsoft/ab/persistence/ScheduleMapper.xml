@@ -174,13 +174,18 @@
         ORDER BY e.weekday, e.startTime
     </select>
 
-    <select id="getEmptyEventsByTeacherAndRoom" resultType="EventModel">
+    <select id="getEmptyEvents" resultType="EventModel">
         SELECT e.id,
                e.startTime,
                e.finishTime,
                e.weekday
         FROM events e
-        WHERE e.teacherId = #{teacherId} AND e.roomId = #{roomId}
+          LEFT JOIN lessons l
+            ON l.eventId = e.id
+              AND (l.date BETWEEN #{start} AND #{end})
+        WHERE e.teacherId = #{teacherId}
+          AND e.roomId = #{roomId}
+          AND l.id IS NULL
     </select>
 
     <select id="getLessonsByRoom" resultType="LessonWeb">
