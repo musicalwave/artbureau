@@ -177,37 +177,44 @@ var Contract = React.createClass({
 
     render: function() {
 
+        var contract = this.props.contract;
+
         var freezeDates = [];
-        if(this.props.contract.freezed) {
+        if(contract.freezed) {
             freezeDates.push(
                 <tr key="freezeDate">
                     <th>Дата заморозки:</th>
-                    <td>{moment(this.props.contract.freezeDate).format("DD-MM-YYYY")}</td>
+                    <td>{moment(contract.freezeDate).format("DD-MM-YYYY")}</td>
                 </tr>);
 
             freezeDates.push(
                 <tr key="freezeFinishDate">
                     <th>Дата разморозки:</th>
-                    <td>{moment(this.props.contract.freezeFinishDate).format("DD-MM-YYYY")}</td>
+                    <td>{moment(contract.freezeFinishDate).format("DD-MM-YYYY")}</td>
                 </tr>);
         }
 
-        var shiftCount = this.props.contract.countShifts;
-        var maxShifts  = this.props.contract.contractOptionModel.maxShifts;
+        var shiftCount = contract.countShifts;
+        var maxShifts  = contract.contractOptionModel.maxShifts;
         var shiftStr   = shiftCount + '(' + (maxShifts - shiftCount) + ')';
+
+        var contractDate = moment(contract.date).format('DD-MM-YYYY');
+        var contractTitle = contract.teacherS +
+                            " - " +
+                            contract.typeS +
+                            " - " +
+                            contractDate;
 
         return (
             <div className="contract widget widget-closed box">
 
-                <LockForm contractId={this.props.contract.id}
+                <LockForm contractId={contract.id}
                           visible={this.state.lockFormVisible}
                           cancelHandler={this.lockFormCancelHandler}
                           lockHandler={this.props.lockHandler}
                           ref="lockForm"/>
 
-                <WidgetCollapser title={this.props.contract.teacherS +
-                                        " - " +
-                                        this.props.contract.typeS}
+                <WidgetCollapser title={contractTitle}
                                  classNameModifier={this.getClassNameModifier()}/>
                 <div className={"widget-content " + this.getClassNameModifier()}>
                     <i ref="menuButton"
@@ -217,7 +224,7 @@ var Contract = React.createClass({
                     <ContractMenu visible={this.state.menuVisible}
                                   top={this.state.menuTop}
                                   left={this.state.menuLeft}
-                                  locked={this.props.contract.freezed}
+                                  locked={contract.freezed}
                                   lockHandler={this.lockHandler}
                                   unlockHandler={this.unlockHandler}
                                   deleted={this.props.contract.deleted}
@@ -228,36 +235,36 @@ var Contract = React.createClass({
                         <tbody>
                             <tr>
                                 <th>Преподаватель:</th>
-                                <td>{this.props.contract.teacherS}</td>
+                                <td>{contract.teacherS}</td>
                             </tr>
                             <tr>
                                 <th>Предмет:</th>
-                                <td>{this.props.contract.typeS}</td>
+                                <td>{contract.typeS}</td>
                             </tr>
                             <tr>
                                 <th>Тип:</th>
-                                <td>{this.props.contract.contractTypeS}</td>
+                                <td>{contract.contractTypeS}</td>
                             </tr>
                             <tr>
                                 <th>Вариант:</th>
-                                <td>{this.props.contract.contractOptionS}</td>
+                                <td>{contract.contractOptionS}</td>
                             </tr>
                             <tr>
                                 <th>Статус:</th>
-                                <td>{this.props.contract.statusS}</td>
+                                <td>{contract.statusS}</td>
                             </tr>
                             <tr>
                                 <th>Дата заключения:</th>
-                                <td>{moment(this.props.contract.date).format("DD-MM-YYYY")}</td>
+                                <td>{contractDate}</td>
                             </tr>
                             {freezeDates}
                             <tr>
                                 <th>Cумма:</th>
-                                <td>{this.props.contract.price}</td>
+                                <td>{contract.price}</td>
                             </tr>
                             <tr>
                                 <th>Баланс:</th>
-                                <td>{this.props.contract.moneyR - this.props.contract.price}</td>
+                                <td>{contract.moneyR - contract.price}</td>
                             </tr>
                             <tr>
                                 <th>Переносы:</th>
@@ -265,31 +272,31 @@ var Contract = React.createClass({
                             </tr>
                             <tr>
                                 <th>Кол-во занятий:</th>
-                                <td>{this.props.contract.countLessons}</td>
+                                <td>{contract.countLessons}</td>
                             </tr>
                             <tr>
                                 <th>Осталось занятий:</th>
-                                <td>{this.props.contract.availableLessons}</td>
+                                <td>{contract.availableLessons}</td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <ContractItemList contractId={this.props.contract.id}
-                                 items={this.props.contract.schedule}
+                    <ContractItemList contractId={contract.id}
+                                 items={contract.schedule}
                                  title="Расписание"
                                  creatorVisible={this.state.eventCreatorVisible}
                                  showCreator={this.showNewEventCreator}
                                  createItemElement={this.createEventElement}
                                  createItemCreator={this.createEventCreator}/>
 
-                    <ContractItemList contractId={this.props.contract.id}
-                                items={this.props.contract.lessons}
+                    <ContractItemList contractId={contract.id}
+                                items={contract.lessons}
                                 url="/do/contract/lessons"
                                 title="Занятия"
                                 createItemElement={this.createLessonElement}/>
 
-                    <ContractItemList contractId={this.props.contract.id}
-                                 items={this.props.contract.payments}
+                    <ContractItemList contractId={contract.id}
+                                 items={contract.payments}
                                  url="/do/contract/payments"
                                  title="Платежи"
                                  creatorVisible={this.state.paymentCreatorVisible}

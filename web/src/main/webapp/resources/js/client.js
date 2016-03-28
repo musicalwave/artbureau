@@ -20460,8 +20460,10 @@ var Contract = React.createClass({
 
     render: function render() {
 
+        var contract = this.props.contract;
+
         var freezeDates = [];
-        if (this.props.contract.freezed) {
+        if (contract.freezed) {
             freezeDates.push(React.createElement(
                 'tr',
                 { key: 'freezeDate' },
@@ -20473,7 +20475,7 @@ var Contract = React.createClass({
                 React.createElement(
                     'td',
                     null,
-                    moment(this.props.contract.freezeDate).format("DD-MM-YYYY")
+                    moment(contract.freezeDate).format("DD-MM-YYYY")
                 )
             ));
 
@@ -20488,24 +20490,27 @@ var Contract = React.createClass({
                 React.createElement(
                     'td',
                     null,
-                    moment(this.props.contract.freezeFinishDate).format("DD-MM-YYYY")
+                    moment(contract.freezeFinishDate).format("DD-MM-YYYY")
                 )
             ));
         }
 
-        var shiftCount = this.props.contract.countShifts;
-        var maxShifts = this.props.contract.contractOptionModel.maxShifts;
+        var shiftCount = contract.countShifts;
+        var maxShifts = contract.contractOptionModel.maxShifts;
         var shiftStr = shiftCount + '(' + (maxShifts - shiftCount) + ')';
+
+        var contractDate = moment(contract.date).format('DD-MM-YYYY');
+        var contractTitle = contract.teacherS + " - " + contract.typeS + " - " + contractDate;
 
         return React.createElement(
             'div',
             { className: 'contract widget widget-closed box' },
-            React.createElement(LockForm, { contractId: this.props.contract.id,
+            React.createElement(LockForm, { contractId: contract.id,
                 visible: this.state.lockFormVisible,
                 cancelHandler: this.lockFormCancelHandler,
                 lockHandler: this.props.lockHandler,
                 ref: 'lockForm' }),
-            React.createElement(WidgetCollapser, { title: this.props.contract.teacherS + " - " + this.props.contract.typeS,
+            React.createElement(WidgetCollapser, { title: contractTitle,
                 classNameModifier: this.getClassNameModifier() }),
             React.createElement(
                 'div',
@@ -20516,7 +20521,7 @@ var Contract = React.createClass({
                 React.createElement(ContractMenu, { visible: this.state.menuVisible,
                     top: this.state.menuTop,
                     left: this.state.menuLeft,
-                    locked: this.props.contract.freezed,
+                    locked: contract.freezed,
                     lockHandler: this.lockHandler,
                     unlockHandler: this.unlockHandler,
                     deleted: this.props.contract.deleted,
@@ -20539,7 +20544,7 @@ var Contract = React.createClass({
                             React.createElement(
                                 'td',
                                 null,
-                                this.props.contract.teacherS
+                                contract.teacherS
                             )
                         ),
                         React.createElement(
@@ -20553,7 +20558,7 @@ var Contract = React.createClass({
                             React.createElement(
                                 'td',
                                 null,
-                                this.props.contract.typeS
+                                contract.typeS
                             )
                         ),
                         React.createElement(
@@ -20567,7 +20572,7 @@ var Contract = React.createClass({
                             React.createElement(
                                 'td',
                                 null,
-                                this.props.contract.contractTypeS
+                                contract.contractTypeS
                             )
                         ),
                         React.createElement(
@@ -20581,7 +20586,7 @@ var Contract = React.createClass({
                             React.createElement(
                                 'td',
                                 null,
-                                this.props.contract.contractOptionS
+                                contract.contractOptionS
                             )
                         ),
                         React.createElement(
@@ -20595,7 +20600,7 @@ var Contract = React.createClass({
                             React.createElement(
                                 'td',
                                 null,
-                                this.props.contract.statusS
+                                contract.statusS
                             )
                         ),
                         React.createElement(
@@ -20609,7 +20614,7 @@ var Contract = React.createClass({
                             React.createElement(
                                 'td',
                                 null,
-                                moment(this.props.contract.date).format("DD-MM-YYYY")
+                                contractDate
                             )
                         ),
                         freezeDates,
@@ -20624,7 +20629,7 @@ var Contract = React.createClass({
                             React.createElement(
                                 'td',
                                 null,
-                                this.props.contract.price
+                                contract.price
                             )
                         ),
                         React.createElement(
@@ -20638,7 +20643,7 @@ var Contract = React.createClass({
                             React.createElement(
                                 'td',
                                 null,
-                                this.props.contract.moneyR - this.props.contract.price
+                                contract.moneyR - contract.price
                             )
                         ),
                         React.createElement(
@@ -20666,7 +20671,7 @@ var Contract = React.createClass({
                             React.createElement(
                                 'td',
                                 null,
-                                this.props.contract.countLessons
+                                contract.countLessons
                             )
                         ),
                         React.createElement(
@@ -20680,25 +20685,25 @@ var Contract = React.createClass({
                             React.createElement(
                                 'td',
                                 null,
-                                this.props.contract.availableLessons
+                                contract.availableLessons
                             )
                         )
                     )
                 ),
-                React.createElement(ContractItemList, { contractId: this.props.contract.id,
-                    items: this.props.contract.schedule,
+                React.createElement(ContractItemList, { contractId: contract.id,
+                    items: contract.schedule,
                     title: 'Расписание',
                     creatorVisible: this.state.eventCreatorVisible,
                     showCreator: this.showNewEventCreator,
                     createItemElement: this.createEventElement,
                     createItemCreator: this.createEventCreator }),
-                React.createElement(ContractItemList, { contractId: this.props.contract.id,
-                    items: this.props.contract.lessons,
+                React.createElement(ContractItemList, { contractId: contract.id,
+                    items: contract.lessons,
                     url: '/do/contract/lessons',
                     title: 'Занятия',
                     createItemElement: this.createLessonElement }),
-                React.createElement(ContractItemList, { contractId: this.props.contract.id,
-                    items: this.props.contract.payments,
+                React.createElement(ContractItemList, { contractId: contract.id,
+                    items: contract.payments,
                     url: '/do/contract/payments',
                     title: 'Платежи',
                     creatorVisible: this.state.paymentCreatorVisible,
