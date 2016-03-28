@@ -129,7 +129,8 @@ var ContractList = React.createClass({
                             onClick={this.openContractCreator}/>
                     </div>
                 <div style={{clear: "both"}}>
-                    <ContractCreator visible={this.state.contractCreatorVisible}
+                    <ContractCreator clientId={this.props.clientId}
+                                     visible={this.state.contractCreatorVisible}
                                      close={this.closeContractCreator}
                                      reload={this.reloadDataAndClient}/>
                     {contracts}

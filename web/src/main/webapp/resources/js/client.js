@@ -19545,7 +19545,7 @@ var ContractCreator = React.createClass({
             method: "POST",
             contentType: 'application/json',
             data: JSON.stringify({
-                clientId: getClientId(),
+                clientId: this.props.clientId,
                 teacherTypeId: this.state.teacherTypeId,
                 contractOptionId: this.state.optionId,
                 countLessons: option.lessonCount,
@@ -19562,7 +19562,7 @@ var ContractCreator = React.createClass({
                 this.props.reload();
                 this.props.close();
             }.bind(this),
-            error: logAjaxError.bind("/do/contract/create")
+            error: Utils.logAjaxError.bind("/do/contract/create")
         });
     },
     getMaxNumOfPayments: function getMaxNumOfPayments() {
@@ -20154,7 +20154,8 @@ var ContractList = React.createClass({
             React.createElement(
                 'div',
                 { style: { clear: "both" } },
-                React.createElement(ContractCreator, { visible: this.state.contractCreatorVisible,
+                React.createElement(ContractCreator, { clientId: this.props.clientId,
+                    visible: this.state.contractCreatorVisible,
                     close: this.closeContractCreator,
                     reload: this.reloadDataAndClient }),
                 contracts
