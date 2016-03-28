@@ -61,4 +61,11 @@
         delete from events where id = #{id}
     </delete>
 
+    <select id="isEventFree" resultType="boolean">
+        SELECT COUNT(l.id) = 0
+        FROM lessons l
+        WHERE l.contractId = #{contractId}
+          AND l.date = #{date}
+          AND l.eventId = #{eventId}
+    </select>
 </mapper>

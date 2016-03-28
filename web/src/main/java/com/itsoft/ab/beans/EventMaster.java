@@ -64,4 +64,13 @@ public class EventMaster {
         EventModel event = eventsMapper.getEventById(eventId);
         return event;
     }
+
+    public List<EventModel> filterEventsByWeekday(List<EventModel> events, int weekday) {
+        List<EventModel> filteredEvents = new ArrayList<>();
+        for(EventModel event: events)
+            if(event.getWeekday() == weekday)
+               filteredEvents.add(event);
+
+        return filteredEvents;
+    }
 }

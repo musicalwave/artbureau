@@ -1,7 +1,9 @@
 package com.itsoft.ab.persistence;
 
 import com.itsoft.ab.model.EventModel;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -20,4 +22,8 @@ public interface EventsMapper {
     void updateEvent(EventModel event);
 
     void deleteEvent(EventModel event);
+
+    boolean isEventFree(@Param("contractId") int contractId,
+                        @Param("date") Date date,
+                        @Param("eventId") int eventId);
 }

@@ -193,4 +193,13 @@ public class LessonMaster {
         return lessons;
     }
 
+    public LessonModel createLesson(int contractId, int eventId, Date date, int statusId) {
+        LessonModel lesson = new LessonModel();
+        lesson.setContractId(contractId);
+        lesson.setEventId(eventId);
+        lesson.setDate(date);
+        lesson.setStatusId(statusId);
+        return lesson;
+    }
+
 }

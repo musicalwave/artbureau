@@ -8,8 +8,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 /**
  * Created with IntelliJ IDEA.
  * User: itertychnyi
@@ -33,14 +31,6 @@ public class ScheduleMaster {
     public LessonWeb getLesson(int lessonId) {
         LessonWeb lesson = scheduleMapper.getLesson(lessonId);
         return lesson;
-    }
-
-    public EventModel getAppropriateEvent(List<EventModel> events, int dayOfWeek) {
-        for(EventModel event: events)
-            if(event.getWeekday() == dayOfWeek)
-                return event;
-
-        return null;
     }
 
     public boolean shiftLesson(int lessonId, int eventId, String date) {

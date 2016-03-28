@@ -60,8 +60,4 @@ public interface ContractsMapper {
     void deleteContract(@Param("contractId") int contractId);
 
     void deletePlannedLessons(int contractId);
-
-    boolean isEventFree(@Param("contractId") int contractId,
-                        @Param("date") Date date,
-                        @Param("eventId") int eventId);
 }

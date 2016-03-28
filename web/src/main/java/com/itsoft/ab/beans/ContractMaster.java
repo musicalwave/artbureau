@@ -31,7 +31,13 @@ public class ContractMaster {
     private LessonsMapper lessonsMapper;
 
     @Autowired
+    private LessonMaster lessonMaster;
+
+    @Autowired
     private EventsMapper eventsMapper;
+
+    @Autowired
+    private EventMaster eventMaster;
 
     @Autowired
     private ContractsMapper contractsMapper;
@@ -47,9 +53,6 @@ public class ContractMaster {
 
     @Autowired
     private ScheduleMapper scheduleMapper;
-
-    @Autowired
-    private ScheduleMaster scheduleMaster;
 
     public ContractMaster() {
     }
@@ -278,34 +281,49 @@ public class ContractMaster {
         return false;
     }
 
-    private void createLessons(ContractModel contract, Calendar dateToPlanFrom, int lessonsToPlan) {
-        List<EventModel> schedule = scheduleMapper.getContractSchedule(contract.getId());
-        if(!schedule.isEmpty()) {
-            while (lessonsToPlan > 0) {
-                EventModel appropriateEvent =
-                        scheduleMaster.getAppropriateEvent(schedule, getWeekday(dateToPlanFrom));
-                if (appropriateEvent != null &&
-                    !isDateFrozen(contract, dateToPlanFrom) &&
-                    contractsMapper.isEventFree(
-                            contract.getId(), dateToPlanFrom.getTime(), appropriateEvent.getId())) {
-                    LessonModel lesson = new LessonModel();
-                    lesson.setContractId(contract.getId());
-                    lesson.setEventId(appropriateEvent.getId());
-                    lesson.setDate(dateToPlanFrom.getTime());
-                    lesson.setStatusId(1);
-                    lessonsMapper.insertLesson(lesson);
-                    lessonsToPlan--;
+    private void createLessons(
+        ContractModel contract,
+        Calendar dateToPlanFrom,
+        int lessonsToCreate,
+        int statusId) {
+            List<EventModel> schedule = scheduleMapper.getContractSchedule(contract.getId());
+            if(!schedule.isEmpty()) {
+                while (lessonsToCreate > 0) {
+                    if(!isDateFrozen(contract, dateToPlanFrom)) {
+                        List<EventModel> appropriateEvents =
+                            eventMaster.filterEventsByWeekday(
+                                schedule,
+                                getWeekday(dateToPlanFrom)
+                            );
+                        for (EventModel event : appropriateEvents) {
+                            if (eventsMapper.isEventFree(
+                                    contract.getId(),
+                                    dateToPlanFrom.getTime(),
+                                    event.getId())) {
+                                LessonModel lesson = lessonMaster.createLesson(
+                                    contract.getId(),
+                                    event.getId(),
+                                    dateToPlanFrom.getTime(),
+                                    statusId
+                                );
+                                lessonsMapper.insertLesson(lesson);
+                                lessonsToCreate--;
+                            }
+                        }
+                    }
+                    dateToPlanFrom.add(Calendar.DATE, 1);
                 }
-                dateToPlanFrom.add(Calendar.DATE, 1);
             }
-        }
     }
 
     public void replanLessons(ContractModel contract) {
         contractsMapper.deletePlannedLessons(contract.getId());
-        Calendar dateToPlanFrom = getDateToPlanFrom(contract);
-        int lessonsToPlan = countLessonsToPlan(contract);
-        createLessons(contract, dateToPlanFrom, lessonsToPlan);
+        createLessons(
+            contract,
+            getDateToPlanFrom(contract),
+            countLessonsToPlan(contract),
+            1 // 'planned' statusId
+        );
     }
 
     public void freezeContract(int contractId, Date freezeFrom, Date freezeTo) {
@@ -321,7 +339,12 @@ public class ContractMaster {
         lessonsMapper.deleteLessonsWithinPeriod(
                 contractId, freezeFrom, freezeTo, 1);
 
-        createLessons(contract, getDateToPlanFrom(contract), lessonsToPlan);
+        createLessons(
+            contract,
+            getDateToPlanFrom(contract),
+            lessonsToPlan,
+            1 // 'planned' statusId
+        );
     }
 
     public ContractModel insertContract(ContractModel c) {
