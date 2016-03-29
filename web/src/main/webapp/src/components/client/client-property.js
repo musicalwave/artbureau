@@ -4,28 +4,25 @@ var ClientProperty = React.createClass({
     getDefaultProps: function() {
         return {
             editMode: false,
-            type: "text",
-            name: "prop",
-            title: "prop",
-            value: "",
-            isDate: false,
-            outerHandler: $.noop
+            type: 'text',
+            name: 'prop',
+            title: 'prop',
+            value: '',
+            needDatePicker: false,
+            outerHandler: $.noop,
+            placeholder: ''
         };
     },
     handleValueChange: function(e) {
         this.props.outerHandler(this.props.name, e.target.value);
     },
     render: function() {
-        // prohibit manual input for date fields
-        var valueChangeHandler = this.props.isDate
-                                 ? $.noop
-                                 : this.handleValueChange;
-
         var valueField = this.props.editMode
                          ? <input type={this.props.type}
                                   value={this.props.value}
-                                  onChange={valueChangeHandler}
-                                  ref="input"/>
+                                  onChange={this.handleValueChange}
+                                  ref='input'
+                                  placeholder={this.props.placeholder}/>
                          : this.props.value;
 
         return (
@@ -36,9 +33,9 @@ var ClientProperty = React.createClass({
         )
     },
     componentDidUpdate: function() {
-        if(this.props.editMode && this.props.isDate) {
+        if(this.props.editMode && this.props.needDatePicker) {
             $(this.refs.input).datepicker({
-                dateFormat: "dd-mm-yy",
+                dateFormat: 'dd-mm-yy',
                 onSelect: function() {
                     // unfortunately, the datepicker's changes
                     // cannot be tracked by the onChange handler
