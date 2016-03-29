@@ -264,7 +264,7 @@ var Contract = React.createClass({
                             </tr>
                             <tr>
                                 <th>Баланс:</th>
-                                <td>{contract.moneyR - contract.price}</td>
+                                <td>{contract.balance}</td>
                             </tr>
                             <tr>
                                 <th>Переносы:</th>

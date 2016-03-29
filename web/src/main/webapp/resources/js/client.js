@@ -20649,7 +20649,7 @@ var Contract = React.createClass({
                             React.createElement(
                                 'td',
                                 null,
-                                contract.moneyR - contract.price
+                                contract.balance
                             )
                         ),
                         React.createElement(

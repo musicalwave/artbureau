@@ -70,15 +70,17 @@
           c.phone1,
           c.bdate,
           c.email,
-          min(co.date) AS firstContractDate,
-          count(co.id) AS countContracts,
-          COALESCE(SUM(CASE WHEN co.statusId = 1 THEN 1 ELSE 0 END), 0) AS countActiveContracts,
-          COALESCE(SUM(co.price), 0) AS total
+          MIN(co.date) AS firstContractDate,
+          COALESCE(SUM(IF(cs.deleted, 0, 1)), 0) AS countContracts,
+          COALESCE(SUM(IF(cs.active, 1, 0)), 0) AS countActiveContracts,
+          COALESCE(SUM(IF(cs.deleted, 0, co.price)), 0) AS total
         FROM clients c
           LEFT JOIN contracts co
-          ON co.clientId = c.id AND co.statusId != 3
+            ON co.clientId = c.id
+          LEFT JOIN contractsStatus cs
+            ON cs.id = co.statusId
         WHERE c.id = #{id}
-        GROUP BY c.id;
+        GROUP BY c.id
     </select>
 
     <select id="getClientByContract" parameterType="int" resultType="ClientModel">
@@ -98,6 +100,47 @@
         LEFT JOIN contractsStatus cs
           ON cs.id = con.statusId
         WHERE p.done AND con.clientId = #{id} AND NOT cs.deleted;
+    </select>
+
+    <select id="getClientBalance" parameterType="int" resultType="int">
+        SELECT
+        (
+            SELECT COALESCE(SUM(p.value), 0) as donePaymentsTotal
+            FROM contracts c
+            LEFT JOIN payments p
+              ON p.contractId = c.id
+            INNER JOIN contractsStatus cs
+              ON cs.id = c.statusId
+            WHERE p.done
+              AND c.clientId = #{clientId}
+              AND NOT cs.deleted
+        ) -
+        (
+            SELECT
+            COALESCE(
+              SUM(
+                  CASE c.contractType
+                      WHEN 1 THEN IF(jtt.pPrice != 0, jtt.pPrice, COALESCE(pd.pPrice, 0))
+                      WHEN 2 THEN IF(jtt.gPrice != 0, jtt.gPrice, COALESCE(pd.gPrice, 0))
+                      WHEN 3 THEN IF(jtt.dPrice != 0, jtt.dPrice, COALESCE(pd.dPrice, 0))
+                      WHEN 4 THEN IF(jtt.aPrice != 0, jtt.aPrice, COALESCE(pd.aPrice, 0))
+                      ELSE 0
+                  END
+              ),
+              0) as conductedLessonsTotal
+            FROM contracts c
+            INNER JOIN J_TEACHERS_TYPES jtt
+              ON jtt.id = c.teacherTypeId
+            LEFT JOIN prices_default pd
+              ON pd.typeId = jtt.typeId
+            INNER JOIN lessons l
+              ON l.contractId = c.id
+            INNER JOIN contractsStatus cs
+              ON cs.id = c.statusId
+            WHERE c.clientId = #{clientId}
+              AND l.statusId != 1
+              AND NOT cs.deleted
+        )
     </select>
 
     <select id="getPlannedPaymentsTotal" parameterType="int" resultType="int">

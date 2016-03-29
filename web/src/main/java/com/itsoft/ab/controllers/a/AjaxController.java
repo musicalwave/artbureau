@@ -379,7 +379,7 @@ public class AjaxController {
     @ResponseBody
     ClientModel getClient(@RequestParam(value = "id") int id) {
         ClientModel client = clientsMapper.getClientWithContractDataById(id);
-        client.setBalance(clientsMapper.getDonePaymentsTotal(client.getId()) - client.getTotal());
+        client.setBalance(clientsMapper.getClientBalance(id));
         return client;
     }
 
@@ -408,7 +408,7 @@ public class AjaxController {
     public
     @ResponseBody
     List<ContractModel> getClientContracts(@RequestParam(value = "clientId") int clientId) {
-        List<ContractModel> contracts = contractsMapper.getClientContractsWithBalance(clientId);
+        List<ContractModel> contracts = contractsMapper.getClientContracts(clientId);
         for(ContractModel contract : contracts) {
             contract.setAvailableLessons(contractsMapper.getCountPlannedLessons(contract.getId()));
             contract.setLessons(lessonsMapper.getContractLessons(contract.getId()));
@@ -417,6 +417,7 @@ public class AjaxController {
                     contractsMapper.getContractOptionById(contract.getContractOptionId()));
             contract.setTeacherEvents(eventMaster.getEmptyEvents(contract.getTeacherId()));
             contract.setSchedule(scheduleMapper.getContractSchedule(contract.getId()));
+            contract.setBalance(contractsMapper.getContractBalance(contract.getId()));
         }
         return contracts;
     }

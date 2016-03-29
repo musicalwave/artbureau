@@ -91,25 +91,6 @@
 
     <select id="getClientContracts" parameterType="int" resultMap="result">
         SELECT
-        contracts.id,
-        contracts.freezed,
-        contracts.countShifts,
-        contracts.date,
-        teachers.name AS teacherS,
-        types.name AS typeS,
-        contractsStatus.name AS statusS
-        FROM contracts, teachers, types, J_TEACHERS_TYPES, contractsStatus
-        WHERE
-        contracts.clientId = #{id}
-        AND contracts.statusId = contractsStatus.id
-        AND contracts.teacherTypeId = J_TEACHERS_TYPES.id
-        AND J_TEACHERS_TYPES.teacherId = teachers.id
-        AND J_TEACHERS_TYPES.typeId = types.id
-        ORDER BY contracts.date DESC
-    </select>
-
-    <select id="getClientContractsWithBalance" parameterType="int" resultMap="result">
-        SELECT
           c.id,
           t.name as teacherS,
           t.id as teacherId,
@@ -126,17 +107,7 @@
           c.freezeFinishDate,
           c.contractOptionId,
           c.statusId,
-          cs.deleted,
-          COALESCE(SUM(CASE
-                         WHEN p.done
-                         THEN p.value
-                         ELSE 0
-                       END), 0) as moneyR,
-           COALESCE(SUM(CASE
-                         WHEN p.planned
-                         THEN p.value
-                         ELSE 0
-                       END), 0) as moneyV
+          cs.deleted
         FROM contracts c
           INNER JOIN J_TEACHERS_TYPES jtt
             ON jtt.id = c.teacherTypeId
@@ -150,8 +121,6 @@
             ON ct.id = c.contractType
           INNER JOIN contractsStatus cs
             ON cs.id = c.statusId
-          LEFT JOIN payments p
-            ON p.contractId = c.id
         WHERE c.clientId = #{clientId}
         GROUP BY c.id
         ORDER BY c.date DESC, c.id DESC;
@@ -407,5 +376,38 @@
         WHERE contractId = #{contractId}
           AND statusId = 1
     </delete>
+
+    <select id="getContractBalance" parameterType="int" resultType="int">
+        SELECT
+        (
+          SELECT SUM(p.value)
+          FROM payments p
+          WHERE p.done = 1
+            AND p.contractId = #{contractId}
+        ) -
+        (
+        SELECT
+            COALESCE(
+              SUM(
+                  CASE c.contractType
+                      WHEN 1 THEN IF(jtt.pPrice != 0, jtt.pPrice, COALESCE(pd.pPrice, 0))
+                      WHEN 2 THEN IF(jtt.gPrice != 0, jtt.gPrice, COALESCE(pd.gPrice, 0))
+                      WHEN 3 THEN IF(jtt.dPrice != 0, jtt.dPrice, COALESCE(pd.dPrice, 0))
+                      WHEN 4 THEN IF(jtt.aPrice != 0, jtt.aPrice, COALESCE(pd.aPrice, 0))
+                      ELSE 0
+                  END
+              ),
+              0) as conductedLessonsTotal
+            FROM contracts c
+            INNER JOIN J_TEACHERS_TYPES jtt
+              ON jtt.id = c.teacherTypeId
+            LEFT JOIN prices_default pd
+              ON pd.typeId = jtt.typeId
+            INNER JOIN lessons l
+              ON l.contractId = c.id
+            WHERE c.id = #{contractId}
+              AND l.statusId != 1
+        )
+    </select>
 
 </mapper>

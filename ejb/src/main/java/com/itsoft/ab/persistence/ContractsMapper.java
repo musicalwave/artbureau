@@ -15,7 +15,6 @@ import java.util.List;
 public interface ContractsMapper {
     List<ContractModel> getActiveClientContracts(int id);
     List<ContractModel> getClientContracts(int id);
-    List<ContractModel> getClientContractsWithBalance(int clientId);
 
     ContractModel selectContract(int id);
     void updateContractMoney(PaymentModel payment);
@@ -29,7 +28,6 @@ public interface ContractsMapper {
     ContractModel getContractById(int contractId);
 
     void doLesson(LessonModel lesson);
-
 
     void insertContract(ContractModel c);
 
@@ -60,4 +58,6 @@ public interface ContractsMapper {
     void deleteContract(@Param("contractId") int contractId);
 
     void deletePlannedLessons(int contractId);
+
+    int getContractBalance(int contractId);
 }

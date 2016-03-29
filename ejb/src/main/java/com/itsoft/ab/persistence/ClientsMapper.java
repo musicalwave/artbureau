@@ -43,4 +43,6 @@ public interface ClientsMapper {
     List<ClientModel> getSiteUndoneClients();
 
     void deleteClient(int id);
+
+    int getClientBalance(@Param("clientId") int clientId);
 }
