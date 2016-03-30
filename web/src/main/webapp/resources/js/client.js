@@ -20117,6 +20117,20 @@ var ContractList = React.createClass({
             error: Utils.logAjaxError.bind(this, "/do/contract/restore")
         });
     },
+    writeoffHandler: function writeoffHandler(contractId) {
+        $.ajax({
+            url: "/do/contract/writeoff",
+            method: "POST",
+            data: {
+                contractId: contractId
+            },
+            success: function () {
+                this.reloadData();
+                this.props.reloadClient();
+            }.bind(this),
+            error: Utils.logAjaxError.bind(this, "/do/contract/writeoff")
+        });
+    },
     openContractCreator: function openContractCreator() {
         this.setState({
             contractCreatorVisible: true
@@ -20133,6 +20147,7 @@ var ContractList = React.createClass({
                 unlockHandler: this.unlockHandler,
                 deleteHandler: this.deleteHandler,
                 restoreHandler: this.restoreHandler,
+                writeoffHandler: this.writeoffHandler,
                 reloadContractList: this.reloadData,
                 reloadClient: this.props.reloadClient,
                 contract: contract,
@@ -20256,7 +20271,7 @@ var ContractMenu = React.createClass({
             name: "Удалить" });
         var writeOffAction = React.createElement(ContractMenuAction, {
             key: "writeOffAction",
-            clickHandler: this.handleWriteOffClick,
+            clickHandler: this.props.writeoffHandler,
             iconName: "icon-pencil",
             name: "Списать" });
         var cashbackAction = React.createElement(ContractMenuAction, {
@@ -20267,7 +20282,8 @@ var ContractMenu = React.createClass({
 
         if (this.props.locked) actions.push(unlockAction);else actions.push(lockAction);
 
-        actions.push(writeOffAction);
+        if (this.props.showWriteoff) actions.push(writeOffAction);
+
         actions.push(cashbackAction);
 
         if (this.props.deleted) actions.push(restoreAction);else actions.push(deleteAction);
@@ -20285,10 +20301,6 @@ var ContractMenu = React.createClass({
                 this.getActions()
             )
         );
-    },
-
-    handleWriteOffClick: function handleWriteOffClick(e) {
-        console.log('write off clicked!');
     },
 
     handleCashbackClick: function handleCashbackClick(e) {
@@ -20532,7 +20544,9 @@ var Contract = React.createClass({
                     unlockHandler: this.unlockHandler,
                     deleted: this.props.contract.deleted,
                     deleteHandler: this.deleteHandler,
-                    restoreHandler: this.restoreHandler }),
+                    restoreHandler: this.restoreHandler,
+                    writeoffHandler: this.writeoffHandler,
+                    showWriteoff: contract.writeoff === 0 }),
                 React.createElement(
                     'table',
                     { className: 'info-table contract-info-table' },
@@ -20652,6 +20666,20 @@ var Contract = React.createClass({
                                 contract.balance
                             )
                         ),
+                        contract.writeoff !== 0 ? React.createElement(
+                            'tr',
+                            null,
+                            React.createElement(
+                                'th',
+                                null,
+                                'Списано:'
+                            ),
+                            React.createElement(
+                                'td',
+                                null,
+                                contract.writeoff
+                            )
+                        ) : null,
                         React.createElement(
                             'tr',
                             null,
@@ -20747,7 +20775,12 @@ var Contract = React.createClass({
         this.props.deleteHandler(this.props.contract.id);
     },
     restoreHandler: function restoreHandler() {
+        this.setState({ menuVisible: false });
         this.props.restoreHandler(this.props.contract.id);
+    },
+    writeoffHandler: function writeoffHandler() {
+        this.setState({ menuVisible: false });
+        this.props.writeoffHandler(this.props.contract.id);
     },
     componentDidMount: function componentDidMount() {
         // activate collapser

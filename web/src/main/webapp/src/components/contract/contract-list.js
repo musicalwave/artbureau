@@ -92,6 +92,20 @@ var ContractList = React.createClass({
            error: Utils.logAjaxError.bind(this, "/do/contract/restore")
         });
     },
+    writeoffHandler: function(contractId) {
+        $.ajax({
+           url: "/do/contract/writeoff",
+           method: "POST",
+           data: {
+               contractId: contractId
+           },
+           success: function() {
+               this.reloadData();
+               this.props.reloadClient();
+           }.bind(this),
+           error: Utils.logAjaxError.bind(this, "/do/contract/writeoff")
+        });
+    },
     openContractCreator: function() {
         this.setState({
             contractCreatorVisible: true
@@ -109,6 +123,7 @@ var ContractList = React.createClass({
                           unlockHandler={this.unlockHandler}
                           deleteHandler={this.deleteHandler}
                           restoreHandler={this.restoreHandler}
+                          writeoffHandler={this.writeoffHandler}
                           reloadContractList={this.reloadData}
                           reloadClient={this.props.reloadClient}
                           contract={contract}

@@ -47,6 +47,7 @@ public class ContractModel extends BasicModel{
     private String contractTypeS;
     private String contractOptionS;
     private int balance;
+    private int writeoff;
     private String statusS;
     private String clientFS;
     private String clientLS;
@@ -321,6 +322,14 @@ public class ContractModel extends BasicModel{
 
     public void setBalance(int balance) {
         this.balance = balance;
+    }
+
+    public int getWriteoff() {
+        return writeoff;
+    }
+
+    public void setWriteoff(int writeoff) {
+        this.writeoff = writeoff;
     }
 
     public String getStatusS() {

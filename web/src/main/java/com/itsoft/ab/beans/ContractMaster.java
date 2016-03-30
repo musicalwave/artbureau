@@ -386,4 +386,15 @@ public class ContractMaster {
     public void updateSchedule(int contractId, String[] eventIds) {
         scheduleMapper.updateContractSchedule(contractId, eventIds);
     }
+
+    public int getContractBalance(int contractId) {
+        return contractsMapper.getDonePaymentsTotal(contractId) -
+               contractsMapper.getMoneySpentOnLessons(contractId) -
+               contractsMapper.getWriteoffTotal(contractId);
+    }
+
+    public void writeoff(int contractId) {
+        contractsMapper.writeoff(contractId, getContractBalance(contractId));
+        updateStatus(contractId, 2); // finished
+    }
 }

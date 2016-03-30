@@ -64,7 +64,7 @@ var ContractMenu = React.createClass({
             name="Удалить" />;
         var writeOffAction = <ContractMenuAction
             key="writeOffAction"
-            clickHandler={this.handleWriteOffClick}
+            clickHandler={this.props.writeoffHandler}
             iconName="icon-pencil"
             name="Списать" />;
         var cashbackAction  = <ContractMenuAction
@@ -77,8 +77,10 @@ var ContractMenu = React.createClass({
             actions.push(unlockAction);
         else
             actions.push(lockAction);
+        
+        if (this.props.showWriteoff)
+           actions.push(writeOffAction);
 
-        actions.push(writeOffAction);
         actions.push(cashbackAction);
 
         if (this.props.deleted)
@@ -97,10 +99,6 @@ var ContractMenu = React.createClass({
                 </tbody>
             </table>
         );
-    },
-
-    handleWriteOffClick: function(e) {
-        console.log('write off clicked!');
     },
 
     handleCashbackClick: function(e) {

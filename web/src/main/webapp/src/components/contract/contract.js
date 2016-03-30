@@ -229,7 +229,9 @@ var Contract = React.createClass({
                                   unlockHandler={this.unlockHandler}
                                   deleted={this.props.contract.deleted}
                                   deleteHandler={this.deleteHandler}
-                                  restoreHandler={this.restoreHandler}/>
+                                  restoreHandler={this.restoreHandler}
+                                  writeoffHandler={this.writeoffHandler}
+                                  showWriteoff={contract.writeoff === 0}/>
 
                     <table className="info-table contract-info-table">
                         <tbody>
@@ -266,6 +268,14 @@ var Contract = React.createClass({
                                 <th>Баланс:</th>
                                 <td>{contract.balance}</td>
                             </tr>
+                            {
+                              contract.writeoff !== 0 
+                              ? <tr>
+                                    <th>Списано:</th>
+                                    <td>{contract.writeoff}</td>
+                                </tr>   
+                              : null
+                            }
                             <tr>
                                 <th>Переносы:</th>
                                 <td>{shiftStr}</td>
@@ -337,7 +347,12 @@ var Contract = React.createClass({
         this.props.deleteHandler(this.props.contract.id);
     },
     restoreHandler: function() {
+        this.setState({menuVisible: false});
         this.props.restoreHandler(this.props.contract.id);
+    },
+    writeoffHandler: function() {
+        this.setState({menuVisible: false});
+        this.props.writeoffHandler(this.props.contract.id);
     },
     componentDidMount: function() {
         // activate collapser

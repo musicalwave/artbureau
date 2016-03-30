@@ -31,6 +31,10 @@ public interface ClientsMapper {
 
     int getPlannedPaymentsTotal(@Param("id") int id);
 
+    int getMoneySpentOnLessons(@Param("clientId") int clientId);
+
+    int getWriteoffTotal(@Param("clientId") int clientId);
+
     //Для платежей "на месте"
     void updateBalance(PaymentModel payment);
 
@@ -44,5 +48,4 @@ public interface ClientsMapper {
 
     void deleteClient(int id);
 
-    int getClientBalance(@Param("clientId") int clientId);
 }

@@ -120,4 +120,10 @@ public class ClientsMaster {
 
         j_clients_mapper.insert(c);
     }
+
+    public int getClientBalance(int clientId) {
+        return clientsMapper.getDonePaymentsTotal(clientId) -
+               clientsMapper.getMoneySpentOnLessons(clientId) -
+               clientsMapper.getWriteoffTotal(clientId);
+    }
 }

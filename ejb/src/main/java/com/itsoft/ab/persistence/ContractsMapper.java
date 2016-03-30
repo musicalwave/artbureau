@@ -59,5 +59,10 @@ public interface ContractsMapper {
 
     void deletePlannedLessons(int contractId);
 
-    int getContractBalance(int contractId);
+    void writeoff(@Param("contractId") int contractId,
+                  @Param("value") int value);
+
+    int getDonePaymentsTotal(@Param("contractId") int contractId);
+    int getMoneySpentOnLessons(@Param("contractId") int contractId);
+    int getWriteoffTotal(@Param("contractId") int contractId);
 }

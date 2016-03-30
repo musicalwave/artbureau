@@ -31,6 +31,9 @@ public class AjaxController {
     private ClientsMapper clientsMapper;
 
     @Autowired
+    private ClientsMaster clientsMaster;
+
+    @Autowired
     private ScheduleMapper scheduleMapper;
 
     @Autowired
@@ -379,7 +382,7 @@ public class AjaxController {
     @ResponseBody
     ClientModel getClient(@RequestParam(value = "id") int id) {
         ClientModel client = clientsMapper.getClientWithContractDataById(id);
-        client.setBalance(clientsMapper.getClientBalance(id));
+        client.setBalance(clientsMaster.getClientBalance(id));
         return client;
     }
 
@@ -417,7 +420,7 @@ public class AjaxController {
                     contractsMapper.getContractOptionById(contract.getContractOptionId()));
             contract.setTeacherEvents(eventMaster.getEmptyEvents(contract.getTeacherId()));
             contract.setSchedule(scheduleMapper.getContractSchedule(contract.getId()));
-            contract.setBalance(contractsMapper.getContractBalance(contract.getId()));
+            contract.setBalance(contractMaster.getContractBalance(contract.getId()));
         }
         return contracts;
     }
@@ -473,6 +476,13 @@ public class AjaxController {
             contractsMapper.updateStatus(contractId, 2); // finished
         else
             contractsMapper.updateStatus(contractId, 1); // active
+    }
+
+    @RequestMapping(value = "/do/contract/writeoff", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void writeoffContract(@RequestParam(value = "contractId") int contractId) {
+        contractMaster.writeoff(contractId);
     }
 
     @RequestMapping(value = "/do/contract/schedule/insert", method = RequestMethod.POST)
