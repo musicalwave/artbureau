@@ -75,25 +75,6 @@ public class LessonMaster {
         return 200;
     }
 
-    public Map<String, List<LessonWeb>> sortLessonsByClass(List<LessonWeb> lessons) {
-        Map<String, List<LessonWeb>> result = new HashMap<String, List<LessonWeb>>();
-
-        for(LessonWeb l : lessons){
-            int room = l.getRoomId();
-            if(result.containsKey(room + "")){
-                List<LessonWeb> ll = result.get(room + "");
-                ll.add(l);
-                result.put(room + "", ll);
-            }else{
-                List<LessonWeb> ll = new ArrayList<LessonWeb>();
-                ll.add(l);
-                result.put(room + "", ll);
-            }
-
-        }
-        return result;
-    }
-
     public LessonModel saveFromWeb(LessonModel lesson) {
         try {
             lesson.setDate(new SimpleDateFormat("dd-MM-yyyy").parse(lesson.getDateS()));

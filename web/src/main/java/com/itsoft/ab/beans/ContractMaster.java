@@ -57,14 +57,6 @@ public class ContractMaster {
     public ContractMaster() {
     }
 
-    public List<ContractModel> prepareContracts(List<ContractModel> contracts){
-        List<ContractModel> l = new ArrayList<ContractModel>();
-        for(ContractModel contract : contracts){
-            l.add(prepareContract(contract));
-        }
-        return l;
-    }
-
     public ContractModel prepareContract(ContractModel contract){
 
         //Преобразование временных констант
@@ -88,25 +80,6 @@ public class ContractMaster {
 
         contract.setMoneyNeed(contract.getPrice() - contract.getMoneyV());
         return contract;
-    }
-
-    public ContractModel setContractPrice(ContractModel c){
-        TeacherTypeModel t = teacherTypeMapper.getById(c.getTeacherTypeId());
-        int type = c.getContractType();
-        if(1 == type){
-            c.setPrice(c.getCountLessons() * t.getpPrice());
-        }
-        if(2 == type){
-            c.setPrice(c.getCountLessons() * t.getgPrice());
-        }
-        if(3 == type){
-            c.setPrice(c.getCountLessons() * t.getdPrice());
-        }
-        if(4 == type){
-            c.setPrice(c.getCountLessons() * t.getaPrice());
-        }
-        return c;
-
     }
 
     public ContractModel saveFromWeb(ContractModel contract){
@@ -373,10 +346,6 @@ public class ContractMaster {
 
     public void updateStatus(int contractId, int contractStatus) {
         contractsMapper.updateStatus(contractId, contractStatus);
-    }
-
-    public void updateActive(int contractId, int active) {
-        contractsMapper.updateActive(contractId, active);
     }
 
     public void updateCash(int contractId, int cash) {

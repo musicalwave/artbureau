@@ -109,82 +109,6 @@ public class AjaxController {
         return filialsMapper.getFilials();
     }
 
-    @RequestMapping(value = "/do/lesson/{lessonId}", method = RequestMethod.GET)
-    public @ResponseBody LessonWeb getLesson(@PathVariable int lessonId){
-        LessonWeb lesson = scheduleMaster.getLesson(lessonId);
-        return lesson;
-    }
-
-    @RequestMapping(value = "/do/lessons/all", method = RequestMethod.GET)
-    public @ResponseBody Map<String, List<LessonWeb>> getAllLessons(@RequestParam("sd") String sdate, @RequestParam("fd") String fdate){
-        List<LessonWeb> lessons = new ArrayList<LessonWeb>();
-        Date startDate, finishDate;
-
-        try {
-            startDate = new SimpleDateFormat("dd-MM-yy").parse(sdate);
-            finishDate = new SimpleDateFormat("dd-MM-yy").parse(fdate);
-        } catch (ParseException e) {
-            throw new ApplicationException(ECode.ERROR415);
-        }
-        Calendar start = Calendar.getInstance();
-        start.setTime(startDate);
-        Calendar end = Calendar.getInstance();
-        end.setTime(finishDate);
-        for (Date date = start.getTime(); start.before(end); start.add(Calendar.DATE, 1), date = start.getTime()) {
-            lessons.addAll(scheduleMapper.selectEventsByDate(new java.sql.Date(date.getTime())));
-        }
-
-        return lessonMaster.sortLessonsByClass(lessons);
-    }
-
-    @RequestMapping(value = "/do/lessons/{classId}", method = RequestMethod.GET)
-    public @ResponseBody List<LessonWeb> getClassLessons(@PathVariable int classId, @RequestParam("sd") String sdate, @RequestParam("fd") String fdate){
-        List<LessonWeb> lessons = new ArrayList<LessonWeb>();
-        Date startDate, finishDate;
-
-        try {
-            startDate = new SimpleDateFormat("dd-MM-yy").parse(sdate);
-            finishDate = new SimpleDateFormat("dd-MM-yy").parse(fdate);
-        } catch (ParseException e) {
-            throw new ApplicationException(ECode.ERROR415);
-        }
-        Calendar start = Calendar.getInstance();
-        start.setTime(startDate);
-        Calendar end = Calendar.getInstance();
-        end.setTime(finishDate);
-        for (Date date = start.getTime(); start.before(end); start.add(Calendar.DATE, 1), date = start.getTime()) {
-            lessons.addAll(scheduleMapper.selectEventsByDateAndClass(new java.sql.Date(date.getTime()), classId));
-        }
-        return lessons;
-    }
-
-    @RequestMapping(value = "/do/lessons/teacher/{teacherId}", method = RequestMethod.GET)
-    public @ResponseBody List<LessonWeb> getTeacherLessons(@PathVariable int teacherId, @RequestParam("sd") String sdate, @RequestParam("fd") String fdate){
-        List<LessonWeb> lessons = new ArrayList<LessonWeb>();
-        Date startDate, finishDate;
-
-        try {
-            startDate = new SimpleDateFormat("dd-MM-yy").parse(sdate);
-            finishDate = new SimpleDateFormat("dd-MM-yy").parse(fdate);
-        } catch (ParseException e) {
-            throw new ApplicationException(ECode.ERROR415);
-        }
-        Calendar start = Calendar.getInstance();
-        start.setTime(startDate);
-        Calendar end = Calendar.getInstance();
-        end.setTime(finishDate);
-        for (Date date = start.getTime(); start.before(end); start.add(Calendar.DATE, 1), date = start.getTime()) {
-            lessons.addAll(scheduleMapper.selectEventsByDateAndTeacher(new java.sql.Date(date.getTime()), teacherId));
-        }
-        return lessons;
-    }
-
-    @RequestMapping(value = "/do/event/{eventId}", method = RequestMethod.GET)
-    public @ResponseBody LessonWeb getEvent(@PathVariable int eventId){
-        LessonWeb event = scheduleMapper.getEvent(eventId);
-        return event;
-    }
-
     @RequestMapping(value = "/do/events/all", method = RequestMethod.GET)
     public
     @ResponseBody
@@ -195,12 +119,6 @@ public class AjaxController {
     @RequestMapping(value = "/do/events/{classId}", method = RequestMethod.GET)
     public @ResponseBody List<LessonWeb> getClassEvents(@PathVariable int classId){
         List<LessonWeb> lessons = scheduleMapper.selectAllByClass(classId);
-        return lessons;
-    }
-
-    @RequestMapping(value = "/do/events/teacher/{teacherId}", method = RequestMethod.GET)
-    public @ResponseBody List<LessonWeb> getTeacherEvents(@PathVariable int teacherId){
-        List<LessonWeb> lessons = scheduleMapper.selectAllByTeacher(teacherId);
         return lessons;
     }
 
