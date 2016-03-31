@@ -23,6 +23,8 @@
         <result property="trial" column="trial"/>
         <result property="contractOptionId" column="contractOptionId"/>
         <result property="writeoff" column="writeoff"/>
+        <result property="cashback" column="cashback"/>
+        <result property="fine" column="fine"/>
 
         <result property="statusS" column="statusS"/>
         <result property="typeId" column="typeId"/>
@@ -109,7 +111,10 @@
           c.contractOptionId,
           c.statusId,
           cs.deleted,
-          c.writeoff
+          cs.active,
+          c.writeoff,
+          c.cashback,
+          c.fine
         FROM contracts c
           INNER JOIN J_TEACHERS_TYPES jtt
             ON jtt.id = c.teacherTypeId
@@ -411,14 +416,27 @@
     </select>
 
     <select id="getWriteoffTotal" parameterType="int" resultType="int">
-        SELECT COALESCE(SUM(c.writeoff), 0)
+        SELECT c.writeoff
         FROM contracts c
         WHERE c.id = #{contractId}
     </select>
 
-    <update id="writeoff" >
+    <select id="getCashbackTotal" parameterType="int" resultType="int">
+        SELECT c.cashback + c.fine
+        FROM contracts c
+        WHERE c.id = #{contractId}
+    </select>
+
+    <update id="writeoff">
         UPDATE contracts
         SET writeoff = #{value}
+        WHERE id = #{contractId}
+    </update>
+
+    <update id="cashback">
+        UPDATE contracts
+        SET cashback = #{cashback},
+            fine = #{fine}
         WHERE id = #{contractId}
     </update>
 

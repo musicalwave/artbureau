@@ -196,7 +196,7 @@ var Contract = React.createClass({
 
         var shiftCount = contract.countShifts;
         var maxShifts  = contract.contractOptionModel.maxShifts;
-        var shiftStr   = shiftCount + '(' + (maxShifts - shiftCount) + ')';
+        var shiftStr   = shiftCount + ' (' + (maxShifts - shiftCount) + ')';
 
         var contractDate = moment(contract.date).format('DD-MM-YYYY');
         var contractTitle = contract.teacherS +
@@ -224,14 +224,15 @@ var Contract = React.createClass({
                     <ContractMenu visible={this.state.menuVisible}
                                   top={this.state.menuTop}
                                   left={this.state.menuLeft}
+                                  active={contract.active}
                                   locked={contract.freezed}
+                                  deleted={contract.deleted}
                                   lockHandler={this.lockHandler}
                                   unlockHandler={this.unlockHandler}
-                                  deleted={this.props.contract.deleted}
                                   deleteHandler={this.deleteHandler}
                                   restoreHandler={this.restoreHandler}
                                   writeoffHandler={this.writeoffHandler}
-                                  showWriteoff={contract.writeoff === 0}/>
+                                  cashbackHandler={this.cashbackHandler}/>
 
                     <table className="info-table contract-info-table">
                         <tbody>
@@ -274,6 +275,16 @@ var Contract = React.createClass({
                                     <th>Списано:</th>
                                     <td>{contract.writeoff}</td>
                                 </tr>   
+                              : null
+                            }
+                            {
+                              contract.cashback !== 0
+                              ? <tr>
+                                    <th>Возврат:</th>
+                                    <td>
+                                      {contract.cashback + ' (' + contract.fine + ')'}
+                                    </td>
+                                </tr>
                               : null
                             }
                             <tr>
@@ -353,6 +364,10 @@ var Contract = React.createClass({
     writeoffHandler: function() {
         this.setState({menuVisible: false});
         this.props.writeoffHandler(this.props.contract.id);
+    },
+    cashbackHandler: function() {
+        this.setState({menuVisible: false});
+        this.props.cashbackHandler(this.props.contract.id);
     },
     componentDidMount: function() {
         // activate collapser

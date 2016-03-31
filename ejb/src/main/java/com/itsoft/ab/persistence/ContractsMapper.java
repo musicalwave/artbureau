@@ -62,7 +62,12 @@ public interface ContractsMapper {
     void writeoff(@Param("contractId") int contractId,
                   @Param("value") int value);
 
+    void cashback(@Param("contractId") int contractId,
+                  @Param("cashback") int cashback,
+                  @Param("fine") int fine);
+
     int getDonePaymentsTotal(@Param("contractId") int contractId);
     int getMoneySpentOnLessons(@Param("contractId") int contractId);
     int getWriteoffTotal(@Param("contractId") int contractId);
+    int getCashbackTotal(@Param("contractId") int contractId);
 }

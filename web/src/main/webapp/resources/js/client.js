@@ -20131,7 +20131,20 @@ var ContractList = React.createClass({
             error: Utils.logAjaxError.bind(this, "/do/contract/writeoff")
         });
     },
-    openContractCreator: function openContractCreator() {
+    cashbackHandler: function cashbackHandler(contractId) {
+        $.ajax({
+            url: "/do/contract/cashback",
+            method: "POST",
+            data: {
+                contractId: contractId
+            },
+            success: function () {
+                this.reloadData();
+                this.props.reloadClient();
+            }.bind(this),
+            error: Utils.logAjaxError.bind(this, "/do/contract/cashback")
+        });
+    }, openContractCreator: function openContractCreator() {
         this.setState({
             contractCreatorVisible: true
         });
@@ -20148,6 +20161,7 @@ var ContractList = React.createClass({
                 deleteHandler: this.deleteHandler,
                 restoreHandler: this.restoreHandler,
                 writeoffHandler: this.writeoffHandler,
+                cashbackHandler: this.cashbackHandler,
                 reloadContractList: this.reloadData,
                 reloadClient: this.props.reloadClient,
                 contract: contract,
@@ -20276,15 +20290,16 @@ var ContractMenu = React.createClass({
             name: "Списать" });
         var cashbackAction = React.createElement(ContractMenuAction, {
             key: "cashbackAction",
-            clickHandler: this.handleCashbackClick,
+            clickHandler: this.props.cashbackHandler,
             iconName: "icon-money",
             name: "Вернуть деньги" });
 
-        if (this.props.locked) actions.push(unlockAction);else actions.push(lockAction);
+        if (this.props.active) {
+            if (this.props.locked) actions.push(unlockAction);else actions.push(lockAction);
 
-        if (this.props.showWriteoff) actions.push(writeOffAction);
-
-        actions.push(cashbackAction);
+            actions.push(writeOffAction);
+            actions.push(cashbackAction);
+        }
 
         if (this.props.deleted) actions.push(restoreAction);else actions.push(deleteAction);
 
@@ -20301,10 +20316,6 @@ var ContractMenu = React.createClass({
                 this.getActions()
             )
         );
-    },
-
-    handleCashbackClick: function handleCashbackClick(e) {
-        console.log('cashback clicked!');
     }
 });
 
@@ -20515,7 +20526,7 @@ var Contract = React.createClass({
 
         var shiftCount = contract.countShifts;
         var maxShifts = contract.contractOptionModel.maxShifts;
-        var shiftStr = shiftCount + '(' + (maxShifts - shiftCount) + ')';
+        var shiftStr = shiftCount + ' (' + (maxShifts - shiftCount) + ')';
 
         var contractDate = moment(contract.date).format('DD-MM-YYYY');
         var contractTitle = contract.teacherS + " - " + contract.typeS + " - " + contractDate;
@@ -20539,14 +20550,15 @@ var Contract = React.createClass({
                 React.createElement(ContractMenu, { visible: this.state.menuVisible,
                     top: this.state.menuTop,
                     left: this.state.menuLeft,
+                    active: contract.active,
                     locked: contract.freezed,
+                    deleted: contract.deleted,
                     lockHandler: this.lockHandler,
                     unlockHandler: this.unlockHandler,
-                    deleted: this.props.contract.deleted,
                     deleteHandler: this.deleteHandler,
                     restoreHandler: this.restoreHandler,
                     writeoffHandler: this.writeoffHandler,
-                    showWriteoff: contract.writeoff === 0 }),
+                    cashbackHandler: this.cashbackHandler }),
                 React.createElement(
                     'table',
                     { className: 'info-table contract-info-table' },
@@ -20680,6 +20692,20 @@ var Contract = React.createClass({
                                 contract.writeoff
                             )
                         ) : null,
+                        contract.cashback !== 0 ? React.createElement(
+                            'tr',
+                            null,
+                            React.createElement(
+                                'th',
+                                null,
+                                'Возврат:'
+                            ),
+                            React.createElement(
+                                'td',
+                                null,
+                                contract.cashback + ' (' + contract.fine + ')'
+                            )
+                        ) : null,
                         React.createElement(
                             'tr',
                             null,
@@ -20781,6 +20807,10 @@ var Contract = React.createClass({
     writeoffHandler: function writeoffHandler() {
         this.setState({ menuVisible: false });
         this.props.writeoffHandler(this.props.contract.id);
+    },
+    cashbackHandler: function cashbackHandler() {
+        this.setState({ menuVisible: false });
+        this.props.cashbackHandler(this.props.contract.id);
     },
     componentDidMount: function componentDidMount() {
         // activate collapser

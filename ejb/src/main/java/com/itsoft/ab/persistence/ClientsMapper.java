@@ -35,6 +35,8 @@ public interface ClientsMapper {
 
     int getWriteoffTotal(@Param("clientId") int clientId);
 
+    int getCashbackTotal(@Param("clientId") int clientId);
+
     //Для платежей "на месте"
     void updateBalance(PaymentModel payment);
 

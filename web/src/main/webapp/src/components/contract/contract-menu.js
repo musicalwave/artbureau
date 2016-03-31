@@ -69,19 +69,19 @@ var ContractMenu = React.createClass({
             name="Списать" />;
         var cashbackAction  = <ContractMenuAction
             key="cashbackAction"
-            clickHandler={this.handleCashbackClick}
+            clickHandler={this.props.cashbackHandler}
             iconName="icon-money"
             name="Вернуть деньги" />;
 
-        if (this.props.locked)
-            actions.push(unlockAction);
-        else
-            actions.push(lockAction);
-        
-        if (this.props.showWriteoff)
-           actions.push(writeOffAction);
-
-        actions.push(cashbackAction);
+        if (this.props.active) {
+            if (this.props.locked)
+                actions.push(unlockAction);
+            else
+                actions.push(lockAction);
+            
+            actions.push(writeOffAction);
+            actions.push(cashbackAction);
+        }
 
         if (this.props.deleted)
             actions.push(restoreAction);
@@ -99,10 +99,6 @@ var ContractMenu = React.createClass({
                 </tbody>
             </table>
         );
-    },
-
-    handleCashbackClick: function(e) {
-        console.log('cashback clicked!');
     }
 });
 

@@ -106,7 +106,20 @@ var ContractList = React.createClass({
            error: Utils.logAjaxError.bind(this, "/do/contract/writeoff")
         });
     },
-    openContractCreator: function() {
+    cashbackHandler: function(contractId) {
+        $.ajax({
+           url: "/do/contract/cashback",
+           method: "POST",
+           data: {
+               contractId: contractId
+           },
+           success: function() {
+               this.reloadData();
+               this.props.reloadClient();
+           }.bind(this),
+           error: Utils.logAjaxError.bind(this, "/do/contract/cashback")
+        });
+    },openContractCreator: function() {
         this.setState({
             contractCreatorVisible: true
         })
@@ -124,6 +137,7 @@ var ContractList = React.createClass({
                           deleteHandler={this.deleteHandler}
                           restoreHandler={this.restoreHandler}
                           writeoffHandler={this.writeoffHandler}
+                          cashbackHandler={this.cashbackHandler}
                           reloadContractList={this.reloadData}
                           reloadClient={this.props.reloadClient}
                           contract={contract}

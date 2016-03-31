@@ -403,6 +403,13 @@ public class AjaxController {
         contractMaster.writeoff(contractId);
     }
 
+    @RequestMapping(value = "/do/contract/cashback", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void cashbackContract(@RequestParam(value = "contractId") int contractId) {
+        contractMaster.cashback(contractId);
+    }
+
     @RequestMapping(value = "/do/contract/schedule/insert", method = RequestMethod.POST)
     public
     @ResponseBody

@@ -359,11 +359,20 @@ public class ContractMaster {
     public int getContractBalance(int contractId) {
         return contractsMapper.getDonePaymentsTotal(contractId) -
                contractsMapper.getMoneySpentOnLessons(contractId) -
-               contractsMapper.getWriteoffTotal(contractId);
+               contractsMapper.getWriteoffTotal(contractId) -
+               contractsMapper.getCashbackTotal(contractId);
     }
 
     public void writeoff(int contractId) {
         contractsMapper.writeoff(contractId, getContractBalance(contractId));
+        updateStatus(contractId, 2); // finished
+    }
+
+    public void cashback(int contractId) {
+        int balance = getContractBalance(contractId);
+        int fine = (int)(balance * 0.15);
+        int cashback = balance - fine;
+        contractsMapper.cashback(contractId, cashback, fine);
         updateStatus(contractId, 2); // finished
     }
 }

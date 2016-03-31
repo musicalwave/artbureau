@@ -124,6 +124,7 @@ public class ClientsMaster {
     public int getClientBalance(int clientId) {
         return clientsMapper.getDonePaymentsTotal(clientId) -
                clientsMapper.getMoneySpentOnLessons(clientId) -
-               clientsMapper.getWriteoffTotal(clientId);
+               clientsMapper.getWriteoffTotal(clientId) -
+               clientsMapper.getCashbackTotal(clientId);
     }
 }

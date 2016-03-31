@@ -99,7 +99,9 @@
           ON p.contractId = con.id
         LEFT JOIN contractsStatus cs
           ON cs.id = con.statusId
-        WHERE p.done AND con.clientId = #{id} AND NOT cs.deleted;
+        WHERE p.done
+          AND con.clientId = #{id}
+          AND NOT cs.deleted;
     </select>
 
     <select id="getMoneySpentOnLessons" parameterType="int" resultType="int">
@@ -132,7 +134,19 @@
     <select id="getWriteoffTotal" parameterType="int" resultType="int">
         SELECT COALESCE(SUM(c.writeoff), 0)
         FROM contracts c
+        INNER JOIN contractsStatus cs
+          ON cs.id = c.statusId
         WHERE c.clientId = #{clientId}
+          AND NOT cs.deleted
+    </select>
+
+    <select id="getCashbackTotal" parameterType="int" resultType="int">
+        SELECT COALESCE(SUM(c.cashback + c.fine), 0)
+        FROM contracts c
+        INNER JOIN contractsStatus cs
+          ON cs.id = c.statusId
+        WHERE c.clientId = #{clientId}
+          AND NOT cs.deleted
     </select>
 
     <select id="getPlannedPaymentsTotal" parameterType="int" resultType="int">

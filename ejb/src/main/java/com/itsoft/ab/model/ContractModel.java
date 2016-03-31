@@ -23,6 +23,7 @@ public class ContractModel extends BasicModel{
     private int countShifts;
     private int special;
     private int deleted;
+    private int active;
     private int freezed;
     private Date freezeDate;
     private Date freezeFinishDate;
@@ -32,6 +33,10 @@ public class ContractModel extends BasicModel{
     private int moneyR;
     private int moneyV;
     private int discount;
+    private int balance;
+    private int writeoff;
+    private int cashback;
+    private int fine;
 
     private int contractType;
     private String days;
@@ -46,8 +51,6 @@ public class ContractModel extends BasicModel{
     private String typeS;
     private String contractTypeS;
     private String contractOptionS;
-    private int balance;
-    private int writeoff;
     private String statusS;
     private String clientFS;
     private String clientLS;
@@ -236,6 +239,14 @@ public class ContractModel extends BasicModel{
         this.deleted = deleted;
     }
 
+    public int getActive() {
+        return active;
+    }
+
+    public void setActive(int active) {
+        this.active = active;
+    }
+
     public int getFreezed() {
         return freezed;
     }
@@ -330,6 +341,22 @@ public class ContractModel extends BasicModel{
 
     public void setWriteoff(int writeoff) {
         this.writeoff = writeoff;
+    }
+
+    public int getCashback() {
+        return cashback;
+    }
+
+    public void setCashback(int cashback) {
+        this.cashback = cashback;
+    }
+
+    public int getFine() {
+        return fine;
+    }
+
+    public void setFine(int fine) {
+        this.fine = fine;
     }
 
     public String getStatusS() {
@@ -446,7 +473,6 @@ public class ContractModel extends BasicModel{
                 ", dateS='" + dateS + '\'' +
                 '}';
     }
-
 
 
 }
