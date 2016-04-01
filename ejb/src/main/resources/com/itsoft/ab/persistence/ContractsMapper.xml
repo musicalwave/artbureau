@@ -114,7 +114,9 @@
           cs.active,
           c.writeoff,
           c.cashback,
-          c.fine
+          c.fine,
+          COALESCE(SUM(CASE p.done WHEN 1 THEN p.value ELSE 0 END), 0) as moneyR,
+          COALESCE(SUM(CASE p.planned WHEN 1 THEN p.value ELSE 0 END), 0) as moneyV
         FROM contracts c
           INNER JOIN J_TEACHERS_TYPES jtt
             ON jtt.id = c.teacherTypeId
@@ -128,6 +130,8 @@
             ON ct.id = c.contractType
           INNER JOIN contractsStatus cs
             ON cs.id = c.statusId
+          LEFT JOIN payments p
+            ON p.contractId = c.id
         WHERE c.clientId = #{clientId}
         GROUP BY c.id
         ORDER BY c.date DESC, c.id DESC;
