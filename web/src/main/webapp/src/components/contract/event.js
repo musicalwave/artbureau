@@ -1,8 +1,8 @@
-var React = require('react');
-var ContractItemAction = require('./contract-item-action.js');
-var Utils = require('../../utils/utils.js');
+import React from 'react';
+import ContractItemAction from './contract-item-action.js';
+import {logAjaxError, eventToString} from '../../utils/utils.js';
 
-var Event = React.createClass({
+export default React.createClass({
     getInitialState: function() {
         return {
             editMode: false,
@@ -30,7 +30,7 @@ var Event = React.createClass({
                        eventId: this.state.eventId
                      },
             success: this.props.reloadClientAndContracts,
-            error:   Utils.logAjaxError.bind(this, "/do/contract/schedule/update")
+            error:   logAjaxError.bind(this, "/do/contract/schedule/update")
         });
 
         this.cancel();
@@ -45,7 +45,7 @@ var Event = React.createClass({
                        contractScheduleId: this.props.event.contractScheduleId
                      },
             success: this.props.reloadClientAndContracts,
-            error:   Utils.logAjaxError.bind(this, "/do/contract/schedule/delete")
+            error:   logAjaxError.bind(this, "/do/contract/schedule/delete")
         });
     },
     getActions: function() {
@@ -103,7 +103,7 @@ var Event = React.createClass({
                     function(event) {
                         return {
                           id: event.id,
-                          text: Utils.eventToString(event)
+                          text: eventToString(event)
                         };
                     }),
             minimumResultsForSearch: Infinity
@@ -118,4 +118,3 @@ var Event = React.createClass({
     }
 });
 
-module.exports = Event;

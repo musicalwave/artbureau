@@ -1,7 +1,7 @@
-var React = require('react');
-var Link = require('./link.js');
+import React from 'react';
+import Link from './link.js';
 
-var LinkList = React.createClass({
+export default React.createClass({
    render: function() {
        var links = this.props.links.map(function(link) {
           var selected = (link.id === this.props.selectedId)          
@@ -21,4 +21,3 @@ var LinkList = React.createClass({
    } 
 });
 
-module.exports = LinkList;

@@ -1,10 +1,11 @@
-var React = require('react');
-var Property = require('./client-property.js');
-var ClientToolbar = require('./client-toolbar.js');
-var ContractList = require('../contract/contract-list.js');
-var Utils = require('../../utils/utils.js');
+import React from 'react';
+import moment from 'moment';
+import Property from './client-property.js';
+import ClientToolbar from './client-toolbar.js';
+import ContractList from '../contract/contract-list.js';
+import {logAjaxError} from '../../utils/utils.js';
 
-var Client = React.createClass({
+export default React.createClass({
     getDefaultProps: function() {
         return {
             id: 0,
@@ -201,7 +202,7 @@ var Client = React.createClass({
             success: function(client) {
                 this.setState(this.clientToState(client));
             }.bind(this),
-            error: Utils.logAjaxError.bind(this, this.props.url)
+            error: logAjaxError.bind(this, this.props.url)
         });
     },
     componentDidMount: function() {
@@ -209,4 +210,3 @@ var Client = React.createClass({
     }
 });
 
-module.exports = Client;

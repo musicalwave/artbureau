@@ -1,5 +1,6 @@
-var React = require('react');
-var ContractItemAction = React.createClass({
+import React from 'react';
+
+export default React.createClass({
     getDefaultProps: function() {
         return {
             clickHandler: $.noop,
@@ -12,4 +13,3 @@ var ContractItemAction = React.createClass({
     }
 });
 
-module.exports = ContractItemAction;

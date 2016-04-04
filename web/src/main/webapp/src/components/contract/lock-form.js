@@ -1,5 +1,10 @@
-var React = require('react');
-var LockForm = React.createClass({
+import React from 'react';
+import moment from 'moment';
+import {
+  lockContract
+} from '../../actions/contract_actions';
+
+export default React.createClass({
     getDefaultProps: function() {
         return {
             visible: false,
@@ -25,12 +30,16 @@ var LockForm = React.createClass({
             submitDisabled: this.submitDisabled(this.state.lockFrom, lockToValue)
         });
     },
+    hideAndReloadData: function() {
+        this.props.hide();
+        this.props.reloadData();
+    },
     handleSubmit: function(e) {
         e.preventDefault();
-        this.props.lockHandler(this.props.contractId,
-                               this.state.lockFrom,
-                               this.state.lockTo);
-        this.props.cancelHandler();
+        lockContract(this.props.contractId,
+                     moment(this.state.lockFrom, 'DD-MM-YYYY'),
+                     moment(this.state.lockTo, 'DD-MM-YYYY'),
+                     this.hideAndReloadData);
     },
     submitDisabled: function(lockFrom, lockTo) {
         return lockFrom === "" || lockTo === "";
@@ -84,4 +93,3 @@ var LockForm = React.createClass({
     }
 });
 
-module.exports = LockForm;

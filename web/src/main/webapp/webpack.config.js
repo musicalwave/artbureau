@@ -14,11 +14,13 @@ module.exports = {
       test: /\.jsx?$/,
       exclude: /node_modules/,
       loader: 'babel'
+    }, {
+      test: /\.css$/, loader: 'style-loader!css-loader'
     }]
   },
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
-      minimize: true, 
+      minimize: true,
       compress: {
         warnings: false
       }})

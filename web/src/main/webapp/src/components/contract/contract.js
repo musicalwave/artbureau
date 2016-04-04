@@ -1,15 +1,25 @@
-var React = require('react');
-var ContractMenu = require('./contract-menu');
-var WidgetCollapser = require('../widget-collapser.js');
-var LockForm = require('./lock-form.js');
-var Payment = require('./payment.js');
-var PaymentCreator = require('./payment-creator.js');
-var Lesson = require('./lesson.js');
-var Event = require('./event.js');
-var EventCreator = require('./event-creator.js');
-var ContractItemList = require('./contract-item-list.js');
+import React from 'react';
+import moment from 'moment';
+import ContractMenu from './contract-menu';
+import WidgetCollapser from '../widget-collapser.js';
+import LockForm from './lock-form.js';
+import Payment from './payment.js';
+import PaymentCreator from './payment-creator.js';
+import Lesson from './lesson.js';
+import Event from './event.js';
+import EventCreator from './event-creator.js';
+import ContractItemList from './contract-item-list.js';
 
-var Contract = React.createClass({
+import {
+  deleteContract, 
+  restoreContract,
+  writeoffContract,
+  cashbackContract,
+  unlockContract
+} from '../../actions/contract_actions';
+
+
+export default React.createClass({
 
     getInitialState: function() {
         return {
@@ -210,8 +220,8 @@ var Contract = React.createClass({
 
                 <LockForm contractId={contract.id}
                           visible={this.state.lockFormVisible}
-                          cancelHandler={this.lockFormCancelHandler}
-                          lockHandler={this.props.lockHandler}
+                          hide={this.hideLockForm}
+                          reloadData={this.reloadClientAndContracts}
                           ref="lockForm"/>
 
                 <WidgetCollapser title={contractTitle}
@@ -219,20 +229,15 @@ var Contract = React.createClass({
                 <div className={"widget-content " + this.getClassNameModifier()}>
                     <i ref="menuButton"
                        className="contract-menu-btn pull-right icon-ellipsis-horizontal icon-2x"
-                       onClick={this.handleMenuBtnClick} />
+                       onClick={this.menuButtonClickHandler} />
 
-                    <ContractMenu visible={this.state.menuVisible}
+                    <ContractMenu contract={contract}
+                                  visible={this.state.menuVisible}
                                   top={this.state.menuTop}
                                   left={this.state.menuLeft}
-                                  active={contract.active}
-                                  locked={contract.freezed}
-                                  deleted={contract.deleted}
-                                  lockHandler={this.lockHandler}
-                                  unlockHandler={this.unlockHandler}
-                                  deleteHandler={this.deleteHandler}
-                                  restoreHandler={this.restoreHandler}
-                                  writeoffHandler={this.writeoffHandler}
-                                  cashbackHandler={this.cashbackHandler}/>
+                                  openLockForm={this.openLockForm}
+                                  hide={this.hideMenu}
+                                  reloadData={this.reloadClientAndContracts} />
 
                     <table className="info-table contract-info-table">
                         <tbody>
@@ -330,7 +335,7 @@ var Contract = React.createClass({
             </div>
         );
     },
-    handleMenuBtnClick: function(e) {
+    menuButtonClickHandler: function(e) {
       // show or hide contract menu
       var $menuBtn = $(this.refs.menuButton);
       var menuPos = {
@@ -342,32 +347,15 @@ var Contract = React.createClass({
                      menuTop: menuPos.top,
                      menuLeft: menuPos.left});
     },
-    lockFormCancelHandler: function() {
+    hideMenu: function() {
+        this.setState({menuVisible: false});
+    }, 
+    hideLockForm: function() {
         this.setState({lockFormVisible: false});
     },
-    lockHandler: function() {
+    openLockForm: function() {
         this.setState({lockFormVisible: true,
                        menuVisible: false});
-    },
-    unlockHandler: function() {
-        this.setState({menuVisible: false});
-        this.props.unlockHandler(this.props.contract.id);
-    },
-    deleteHandler: function() {
-        this.setState({menuVisible: false});
-        this.props.deleteHandler(this.props.contract.id);
-    },
-    restoreHandler: function() {
-        this.setState({menuVisible: false});
-        this.props.restoreHandler(this.props.contract.id);
-    },
-    writeoffHandler: function() {
-        this.setState({menuVisible: false});
-        this.props.writeoffHandler(this.props.contract.id);
-    },
-    cashbackHandler: function() {
-        this.setState({menuVisible: false});
-        this.props.cashbackHandler(this.props.contract.id);
     },
     componentDidMount: function() {
         // activate collapser
@@ -391,4 +379,3 @@ var Contract = React.createClass({
     }
 });
 
-module.exports = Contract;

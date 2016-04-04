@@ -1,22 +1,31 @@
-var React = require('react');
+import React from 'react';
+import {
+  deleteContract, 
+  restoreContract,
+  writeoffContract,
+  cashbackContract,
+  unlockContract
+} from '../../actions/contract_actions';
+
+
 var ContractMenuAction = React.createClass({
     getDefaultProps: function() {
         return {
             clickHandler: $.noop,
-            iconName:     "icon-beer"
+            iconName:     'icon-beer'
         };
     },
     render: function() {
         return(
             <tr onClick={this.props.clickHandler}>
-                <td><i className={this.props.iconName + " icon-2x"} /></td>
+                <td><i className={this.props.iconName + ' icon-2x'} /></td>
                 <td><label>{this.props.name}</label></td>
             </tr>
         );
     }
 });
 
-var ContractMenu = React.createClass({
+export default React.createClass({
 
     getDefaultProps: function() {
         return {
@@ -34,56 +43,62 @@ var ContractMenu = React.createClass({
 
     getStyle: function() {
         if (this.props.visible)
-            return {top:  this.props.top,
-                left: this.props.left};
+            return {
+              top:  this.props.top,
+              left: this.props.left
+            };
         else
-            return {display: "none"};
+            return { display: 'none' };
     },
-
+    hideAndReloadData: function() {
+        this.props.hide();
+        this.props.reloadData();
+    },
     getActions: function() {
+        var contractId = this.props.contract.id;
         var actions = [];
         var unlockAction    = <ContractMenuAction
-            key="lockAction"
-            clickHandler={this.props.unlockHandler}
-            iconName="icon-unlock"
-            name="Разморозить" />
-        var lockAction      = <ContractMenuAction
-            key="unlockAction"
-            clickHandler={this.props.lockHandler}
-            iconName="icon-lock"
-            name="Заморозить" />;
+            key='unlockAction'
+            clickHandler={unlockContract.bind(null, contractId, this.hideAndReloadData)}
+            iconName='icon-unlock'
+            name='Разморозить' />
+        var openLockFormAction      = <ContractMenuAction
+            key='lockAction'
+            clickHandler={this.props.openLockForm}
+            iconName='icon-lock'
+            name='Заморозить' />;
         var restoreAction   = <ContractMenuAction
-            key="restoreAction"
-            clickHandler={this.props.restoreHandler}
-            iconName="icon-refresh"
-            name="Восстановить" />
+            key='restoreAction'
+            clickHandler={restoreContract.bind(null, contractId, this.hideAndReloadData)}
+            iconName='icon-refresh'
+            name='Восстановить' />
         var deleteAction    = <ContractMenuAction
-            key="deleteAction"
-            clickHandler={this.props.deleteHandler}
-            iconName="icon-trash"
-            name="Удалить" />;
+            key='deleteAction'
+            clickHandler={deleteContract.bind(null, contractId, this.hideAndReloadData)}
+            iconName='icon-trash'
+            name='Удалить' />;
         var writeOffAction = <ContractMenuAction
-            key="writeOffAction"
-            clickHandler={this.props.writeoffHandler}
-            iconName="icon-pencil"
-            name="Списать" />;
+            key='writeOffAction'
+            clickHandler={writeoffContract.bind(null, contractId, this.hideAndReloadData)}
+            iconName='icon-pencil'
+            name='Списать' />;
         var cashbackAction  = <ContractMenuAction
-            key="cashbackAction"
-            clickHandler={this.props.cashbackHandler}
-            iconName="icon-money"
-            name="Вернуть деньги" />;
+            key='cashbackAction'
+            clickHandler={cashbackContract.bind(null, contractId, this.hideAndReloadData)}
+            iconName='icon-money'
+            name='Вернуть деньги' />;
 
-        if (this.props.active) {
-            if (this.props.locked)
+        if (this.props.contract.active) {
+            if (this.props.contract.freezed)
                 actions.push(unlockAction);
             else
-                actions.push(lockAction);
+                actions.push(openLockFormAction);
             
             actions.push(writeOffAction);
             actions.push(cashbackAction);
         }
 
-        if (this.props.deleted)
+        if (this.props.contract.deleted)
             actions.push(restoreAction);
         else
             actions.push(deleteAction);
@@ -93,7 +108,7 @@ var ContractMenu = React.createClass({
 
     render: function() {
         return (
-            <table style={this.getStyle()} className="contract-menu">
+            <table style={this.getStyle()} className='contract-menu'>
                 <tbody>
                 {this.getActions()}
                 </tbody>
@@ -102,4 +117,3 @@ var ContractMenu = React.createClass({
     }
 });
 
-module.exports = ContractMenu;

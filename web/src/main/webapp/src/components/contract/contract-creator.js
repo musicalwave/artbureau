@@ -1,8 +1,9 @@
-var React = require('react');
-var NewPayment = require('./new-payment.js');
-var Utils = require('../../utils/utils.js');
+import React from 'react';
+import moment from 'moment';
+import NewPayment from './new-payment.js';
+import {logAjaxError, eventToString, coalesce} from '../../utils/utils.js';
 
-var ContractCreator = React.createClass({
+export default React.createClass({
     getInitialState: function() {
         return {
             lessonTypeId: 0,
@@ -143,7 +144,7 @@ var ContractCreator = React.createClass({
                 this.props.reload();
                 this.props.close();
             }.bind(this),
-            error: Utils.logAjaxError.bind("/do/contract/create")
+            error: logAjaxError.bind("/do/contract/create")
         });
     },
     getMaxNumOfPayments: function() {
@@ -445,7 +446,7 @@ var ContractCreator = React.createClass({
     },
     initTeacherTypeSelect: function(elem, filteredTeacherTypes) {
 
-        filteredTeacherTypes = Utils.coalesce(filteredTeacherTypes, []);
+        filteredTeacherTypes = coalesce(filteredTeacherTypes, []);
 
         elem.select2({
             data: filteredTeacherTypes.map(function(tt) {
@@ -458,13 +459,13 @@ var ContractCreator = React.createClass({
     },
     initScheduleSelect: function(elem, events) {
 
-        events = Utils.coalesce(events, []);
+        events = coalesce(events, []);
 
         elem.select2({
             data: events.map(function(event) {
                 return {
                     id: event.id,
-                    text: Utils.eventToString(event)
+                    text: eventToString(event)
                 };
             }),
             multiple: "multiple"
@@ -478,7 +479,7 @@ var ContractCreator = React.createClass({
         });
     },
     setDatePickerWeekdays: function(elem, weekdays) {
-        weekdays = Utils.coalesce(weekdays, []);
+        weekdays = coalesce(weekdays, []);
         elem.datepicker("option", "beforeShowDay", function(date) {
             return [weekdays.indexOf(moment(date).isoWeekday()) !== -1 &&
             moment(date).isSameOrAfter(moment())];
@@ -587,4 +588,3 @@ var ContractCreator = React.createClass({
     }
 });
 
-module.exports = ContractCreator;

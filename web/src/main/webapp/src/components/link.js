@@ -1,6 +1,6 @@
-var React = require('react');
+import React from 'react';
 
-var Link = React.createClass({
+export default React.createClass({
     getDefaultProps: function() {
         return {
             clickHandler: $.noop,
@@ -35,4 +35,3 @@ var Link = React.createClass({
     }
 });
 
-module.exports = Link;

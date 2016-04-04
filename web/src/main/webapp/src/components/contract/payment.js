@@ -1,8 +1,9 @@
-var React = require('react');
-var ContractItemAction = require('./contract-item-action.js');
-var Utils = require('../../utils/utils.js');
+import React from 'react';
+import moment from 'moment';
+import ContractItemAction from './contract-item-action.js';
+import {logAjaxError} from '../../utils/utils.js';
 
-var Payment = React.createClass({
+export default React.createClass({
     getInitialState: function() {
         return {
             editMode: false,
@@ -70,7 +71,7 @@ var Payment = React.createClass({
             method:  "POST",
             data:    { paymentId: this.props.payment.id },
             success: this.props.reloadClientAndContracts,
-            error:   Utils.logAjaxError.bind(this, "/do/payment/commit")
+            error:   logAjaxError.bind(this, "/do/payment/commit")
         });
     },
 
@@ -81,7 +82,7 @@ var Payment = React.createClass({
             method:  "POST",
             data:    { paymentId: this.props.payment.id },
             success: this.props.reloadClientAndContracts,
-            error:   Utils.logAjaxError.bind(this, "/do/payment/restore")
+            error:   logAjaxError.bind(this, "/do/payment/restore")
         });
     },
 
@@ -92,7 +93,7 @@ var Payment = React.createClass({
             method:  "POST",
             data:    { paymentId: this.props.payment.id },
             success: this.props.reloadClientAndContracts,
-            error:   Utils.logAjaxError.bind(this, "/do/payment/delete")
+            error:   logAjaxError.bind(this, "/do/payment/delete")
         });
     },
 
@@ -108,7 +109,7 @@ var Payment = React.createClass({
                        value: this.state.value
                      },
             success: this.props.reloadClientAndContracts,
-            error:   Utils.logAjaxError.bind(this, "/do/payment/update")
+            error:   logAjaxError.bind(this, "/do/payment/update")
         });
 
         this.cancel();
@@ -179,4 +180,3 @@ var Payment = React.createClass({
     }
 });
 
-module.exports = Payment;

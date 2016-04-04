@@ -1,7 +1,7 @@
-var React = require('react');
-var LinkList = require('../link-list.js');
+import React from 'react';
+import LinkList from '../link-list.js';
 
-var CalendarHeader = React.createClass({
+export default React.createClass({
     getInitialState: function() {
        return {
             filials:          [],
@@ -83,4 +83,3 @@ var CalendarHeader = React.createClass({
     }
 });
 
-module.exports = CalendarHeader;

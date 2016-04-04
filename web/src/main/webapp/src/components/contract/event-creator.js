@@ -1,8 +1,8 @@
-var React = require('react');
-var ContractItemAction = require('./contract-item-action.js');
-var Utils = require('../../utils/utils.js');
+import React from 'react';
+import ContractItemAction from './contract-item-action.js';
+import {logAjaxError, eventToString} from '../../utils/utils.js';
 
-var EventCreator = React.createClass({
+export default React.createClass({
     getInitialState: function() {
         return {
             eventId: this.props.teacherEvents[0].id
@@ -20,7 +20,7 @@ var EventCreator = React.createClass({
                       eventId: this.state.eventId
                      },
             success: this.props.reloadClientAndContracts,
-            error:   Utils.logAjaxError.bind(this, "/do/contract/schedule/insert")
+            error:   logAjaxError.bind(this, "/do/contract/schedule/insert")
         });
         this.props.hideCreator();
     },
@@ -55,7 +55,7 @@ var EventCreator = React.createClass({
                 function(event) {
                     return {
                       id: event.id,
-                      text: Utils.eventToString(event)
+                      text: eventToString(event)
                     };
                 }),
             minimumResultsForSearch: Infinity
@@ -64,6 +64,4 @@ var EventCreator = React.createClass({
         $(this.refs.eventInput).on("change", this.eventIdChanged);
     }
 });
-
-module.exports = EventCreator;
 

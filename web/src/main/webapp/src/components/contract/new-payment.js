@@ -1,5 +1,6 @@
-var React = require('react');
-var NewPayment = React.createClass({
+import React from 'react';
+
+export default React.createClass({
     dateChanged: function(newDate) {
         this.props.dateChanged(this.props.payment.id, newDate);
     },
@@ -43,5 +44,3 @@ var NewPayment = React.createClass({
         })
     }
 });
-
-module.exports = NewPayment;

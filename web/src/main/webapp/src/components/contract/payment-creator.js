@@ -1,8 +1,9 @@
-var React = require('react');
-var ContractItemAction = require('./contract-item-action.js');
-var Utils = require('../../utils/utils.js');
+import React from 'react';
+import moment from 'moment';
+import ContractItemAction from './contract-item-action.js';
+import {logAjaxError} from '../../utils/utils.js';
 
-var PaymentCreator = React.createClass({
+export default React.createClass({
     insertPayment: function() {
         console.log('new payment inserted!');
         $.ajax({
@@ -16,7 +17,7 @@ var PaymentCreator = React.createClass({
                 done: this.props.status === 1 ? 0 : 1
             },
             success: this.props.reloadClientAndContracts,
-            error: Utils.logAjaxError.bind(this, "/do/payment/insert")
+            error: logAjaxError.bind(this, "/do/payment/insert")
         });
         this.props.hideCreator();
     },
@@ -71,4 +72,3 @@ var PaymentCreator = React.createClass({
     }
 });
 
-module.exports = PaymentCreator;

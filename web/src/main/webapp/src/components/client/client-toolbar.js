@@ -1,4 +1,4 @@
-var React = require('react');
+import React from 'react';
 
 var ClientToolbarAction = React.createClass({
     getDefaultProps: function() {
@@ -15,7 +15,7 @@ var ClientToolbarAction = React.createClass({
     }
 });
 
-var ClientToolbar = React.createClass({
+export default React.createClass({
     getDefaultProps: function() {
         return {
             saveHandler:   $.noop,
@@ -53,4 +53,3 @@ var ClientToolbar = React.createClass({
     }
 });
 
-module.exports = ClientToolbar;

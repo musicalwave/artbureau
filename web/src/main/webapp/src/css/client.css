@@ -1,0 +1,267 @@
+/* CLIENT */
+
+div.client {
+    padding-left: 30px;
+    margin-bottom: 50px;
+}
+
+.client-info-table {
+    clear: both;
+    width: 50%;
+}
+
+.info-table th {
+    width: 200px;
+}
+
+.info-table td, 
+.info-table th {
+    padding: 5px;
+    font-size: 1em;
+    border: 1px solid #eeeeee;
+}
+
+.client-info-table input {
+    border: 1px solid #E6E6E6;
+    padding: 0 !important;
+    margin: -1px;
+    width: 100%;
+}
+
+/* CLIENT TOOLBAR */
+
+.client-toolbar-box {
+    width: 50%;
+}
+
+.client-toolbar-box h2 {
+    float: left;
+}
+
+.client-toolbar {    
+    float: right;
+    margin-top: 25px;
+}
+
+.client-toolbar i {
+    margin-left: 5px;
+}
+
+.icon-btn:hover {
+    background: #eeeeee;
+}
+
+.icon-btn:active {
+    background: #E6E6E6;
+}
+
+/* CONTRACT */
+
+div.contract {
+    margin-bottom: -1px;
+}
+
+div.contract-list {
+    width: 50%;
+    margin-top: 30px;
+}
+
+i.add-contract-btn {
+    margin-top: 5px;
+    color: #555555;
+    font-weight: 100;
+}
+
+i.contract-menu-btn {
+    color: #E6E6E6;
+}
+
+.freezed i.contract-menu-btn:hover,
+.deleted i.contract-menu-btn:hover,
+i.contract-menu-btn:hover {
+    color: black;
+}
+
+.contract-info-table {
+    width: 100%;
+    clear: right;
+}
+
+.freezed {
+    background-color: #E0ECF8 !important;
+}
+
+.freezed .info-table td,
+.freezed th,
+.freezed i.icon-border {
+    border: 1px solid #BDBDBD;
+}
+
+.freezed i.contract-menu-btn {
+    color: #BDBDBD;
+}
+
+.deleted {
+    background-color: #F79F81 !important;
+}
+
+.deleted .info-table td,
+.deleted th,
+.deleted i.icon-border {
+    border: 1px solid #6E6E6E;
+}
+
+.deleted i.contract-menu-btn {
+    color: #6E6E6E;
+}
+
+/* CONTRACT CREATOR */
+
+.contract-creator {
+    border: 1px solid #eeeeee;
+    padding: 10px;
+    margin-bottom: -1px;
+}
+
+.close-contract-creator-button {
+    margin-top: -5px;
+    margin-right: -5px;
+    margin-bottom: 5px;
+}
+
+.create-contract-button {
+    margin-top: 10px;
+}
+
+.new-payments-table {
+    margin-top: 60px;
+    clear: left;
+}
+
+.payment-counter {
+    margin-left: 15px;
+    border: 1px solid #E6E6E6;
+    width: 50px;
+}
+
+/* CONTRACT MENU */
+
+.contract-menu {
+    position: absolute;
+    width: 180px;
+}
+
+.contract-menu tr {
+    border: 1px solid #E6E6E6;
+}
+
+.contract-menu tr:hover {
+    background: #E6E6E6;
+}
+
+.contract-menu label {
+    font-size: 1.1em !important;
+    margin-bottom: 0;
+}
+
+/* LOCK FORM */
+
+.lock-container {
+    position: fixed;
+    top: 30%;
+    left: 40%;
+    width: 400px;
+    height: 170px;
+    border: 3px solid #eeeeee;
+    border-radius: 1em;
+    background: white;
+    padding: 10px;
+    z-index: 2;
+}
+
+.lock-container div+div{
+    margin-top: 1.2em;
+}
+
+.lock-container form {
+    position: relative;
+    top: 10%;
+}
+
+.lock-container i {
+    position: relative;
+    left: 96%;
+}
+
+.lock-container label {
+    width: 170px;
+}
+
+.lock-container input {
+    height: 30px;
+    border: 1px solid #BDBDBD;
+}
+
+.lock-container button {
+    position: relative;
+    left: 70%;
+}
+
+/* CONTRACT ITEMS */
+
+div.contract-item-list {
+    width: 90%;
+    padding-top: 10px;
+}
+
+.contract-item-table {
+    width: 100%;
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+.contract-item-table input,
+.new-payments-table input {
+    border: 1px solid #E6E6E6;
+    padding: 0 !important;
+    margin: -1px;
+    width: 100px;
+}
+
+.contract-item-table div.select2-container,
+.contract-info-table div.select2-container {
+    width: 220px !important;
+}
+
+td.action-cell {
+    border: 0 !important;
+    padding-left: 10px;
+    padding-top: 5px;
+    text-align: right;
+}
+
+td.hidden-cell {
+    border: 0 !important;
+}
+
+.icon-remove,
+.icon-trash {
+    color: tomato;
+}
+
+.icon-check {
+    color: green;
+}
+
+.icon-fire {
+    color: orange;
+}
+
+.icon-plus{
+    color: blue;
+}
+
+.add-btn {
+    margin-left: 20px;
+}
+

@@ -10,8 +10,6 @@
         <title>Страница клиента | ARTBUREAU</title>
     </jsp:attribute>
     <jsp:attribute name="addimports">
-        <link href="${pageContext.request.contextPath}/resources/css/client.min.css" rel="stylesheet" type="text/css" />
-        <script src="${pageContext.request.contextPath}/resources/js/lib/moment/moment.min.js"></script>
         <script src="${pageContext.request.contextPath}/resources/js/client.min.js"></script>
     </jsp:attribute>
     <jsp:body>

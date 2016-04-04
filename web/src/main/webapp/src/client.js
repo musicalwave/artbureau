@@ -1,6 +1,7 @@
-var React = require('react');
-var ReactDOM = require('react-dom');
-var Client = require('./components/client/client.js');
+require('./css/client.css');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Client from './components/client/client.js';
 
 function getClientId() {
     var pathParts = window.location.pathname.split('/');

@@ -1,6 +1,6 @@
-var React = require('react');
+import React from 'react';
 
-var WidgetCollapser = React.createClass({
+export default React.createClass({
     getDefaultProps: function() {
         return {
             title: "Default title",
@@ -28,4 +28,3 @@ var WidgetCollapser = React.createClass({
     }
 });
 
-module.exports = WidgetCollapser;

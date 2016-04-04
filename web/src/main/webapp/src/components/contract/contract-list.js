@@ -1,9 +1,9 @@
-var React = require('react');
-var ContractCreator = require('./contract-creator.js');
-var Contract = require('./contract.js');
-var Utils = require('../../utils/utils.js');
+import React from 'react';
+import ContractCreator from './contract-creator.js';
+import Contract from './contract.js';
+import {logAjaxError} from '../../utils/utils.js';
 
-var ContractList = React.createClass({
+export default React.createClass({
     getDefaultProps: function() {
         return {
             clientId: 0,
@@ -29,97 +29,14 @@ var ContractList = React.createClass({
                 if(callback)
                     callback();
             }.bind(this),
-            error: Utils.logAjaxError.bind(this, this.props.url)
+            error: logAjaxError.bind(this, this.props.url)
         });
     },
     reloadDataAndClient: function() {
         this.reloadData();
         this.props.reloadClient();
     },
-    lockHandler: function(contractId, lockFrom, lockTo) {
-        $.ajax({
-            url: "/do/contract/freeze",
-            method: "POST",
-            data: {
-                contractId: contractId,
-                lockFrom:   moment(lockFrom, 'DD-MM-YYYY').format('x'),
-                lockTo:     moment(lockTo, 'DD-MM-YYYY').format('x')
-            },
-            success: function() {
-                this.reloadData();
-            }.bind(this),
-            error: Utils.logAjaxError.bind(this, "/do/contract/freeze")
-        });
-    },
-    unlockHandler: function(contractId) {
-        $.ajax({
-            url: "/do/contract/unfreeze",
-            method: "POST",
-            data: {
-                contractId: contractId
-            },
-            success: function() {
-                this.reloadData();
-            }.bind(this),
-            error: Utils.logAjaxError.bind(this, "/do/contract/unfreeze")
-        });
-    },
-    deleteHandler: function(contractId) {
-        $.ajax({
-           url: "/do/contract/delete",
-           method: "POST",
-           data: {
-               contractId: contractId
-           },
-           success: function() {
-               this.reloadData();
-               this.props.reloadClient();
-           }.bind(this),
-           error: Utils.logAjaxError.bind(this, "/do/contract/delete")
-        });
-    },
-    restoreHandler: function(contractId) {
-        $.ajax({
-           url: "/do/contract/restore",
-           method: "POST",
-           data: {
-               contractId: contractId
-           },
-           success: function() {
-               this.reloadData();
-               this.props.reloadClient();
-           }.bind(this),
-           error: Utils.logAjaxError.bind(this, "/do/contract/restore")
-        });
-    },
-    writeoffHandler: function(contractId) {
-        $.ajax({
-           url: "/do/contract/writeoff",
-           method: "POST",
-           data: {
-               contractId: contractId
-           },
-           success: function() {
-               this.reloadData();
-               this.props.reloadClient();
-           }.bind(this),
-           error: Utils.logAjaxError.bind(this, "/do/contract/writeoff")
-        });
-    },
-    cashbackHandler: function(contractId) {
-        $.ajax({
-           url: "/do/contract/cashback",
-           method: "POST",
-           data: {
-               contractId: contractId
-           },
-           success: function() {
-               this.reloadData();
-               this.props.reloadClient();
-           }.bind(this),
-           error: Utils.logAjaxError.bind(this, "/do/contract/cashback")
-        });
-    },openContractCreator: function() {
+    openContractCreator: function() {
         this.setState({
             contractCreatorVisible: true
         })
@@ -132,13 +49,7 @@ var ContractList = React.createClass({
     render: function() {
         var contracts = this.state.contracts.map(function(contract) {
             return (
-                <Contract lockHandler={this.lockHandler}
-                          unlockHandler={this.unlockHandler}
-                          deleteHandler={this.deleteHandler}
-                          restoreHandler={this.restoreHandler}
-                          writeoffHandler={this.writeoffHandler}
-                          cashbackHandler={this.cashbackHandler}
-                          reloadContractList={this.reloadData}
+                <Contract reloadContractList={this.reloadData}
                           reloadClient={this.props.reloadClient}
                           contract={contract}
                           key={contract.id} />
@@ -172,4 +83,3 @@ var ContractList = React.createClass({
     }
 });
 
-module.exports = ContractList;

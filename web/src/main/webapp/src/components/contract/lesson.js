@@ -1,8 +1,9 @@
-var React = require('react');
-var ContractItemAction = require('./contract-item-action.js');
-var Utils = require('../../utils/utils.js');
+import React from 'react';
+import moment from 'moment';
+import ContractItemAction from './contract-item-action.js';
+import {logAjaxError, dropSeconds, eventToString} from '../../utils/utils.js';
 
-var Lesson = React.createClass({
+export default React.createClass({
 
     getInitialState: function() {
         return {
@@ -68,7 +69,7 @@ var Lesson = React.createClass({
             method:  "POST",
             data:    { id: this.props.lesson.id },
             success: this.props.reloadClientAndContracts,
-            error:   Utils.logAjaxError.bind(this, "/do/lessons/burn")
+            error:   logAjaxError.bind(this, "/do/lessons/burn")
         });
     },
 
@@ -79,7 +80,7 @@ var Lesson = React.createClass({
             method:  "POST",
             data:    { id: this.props.lesson.id },
             success: this.props.reloadClientAndContracts,
-            error:   Utils.logAjaxError.bind(this, "/do/lessons/conduct")
+            error:   logAjaxError.bind(this, "/do/lessons/conduct")
         });
     },
 
@@ -90,7 +91,7 @@ var Lesson = React.createClass({
             method:  "POST",
             data:    { id: this.props.lesson.id },
             success: this.props.reloadClientAndContracts,
-            error:   Utils.logAjaxError.bind(this, "/do/lessons/restore")
+            error:   logAjaxError.bind(this, "/do/lessons/restore")
         });
     },
 
@@ -106,7 +107,7 @@ var Lesson = React.createClass({
               eventId: eventId
           },
           success: this.props.reloadClientAndContracts,
-          error: Utils.logAjaxError.bind(this, "/do/lesson/update")
+          error: logAjaxError.bind(this, "/do/lesson/update")
       })
     },
 
@@ -169,8 +170,8 @@ var Lesson = React.createClass({
                         </td>);
         } else {
             var date = moment(this.props.lesson.date).format("DD-MM-YYYY (dd)");
-            var startTime = Utils.dropSeconds(this.props.lesson.startTime);
-            var finishTime = Utils.dropSeconds(this.props.lesson.finishTime);
+            var startTime = dropSeconds(this.props.lesson.startTime);
+            var finishTime = dropSeconds(this.props.lesson.finishTime);
 
             fields.push(<td key="date">{date}</td>);
             fields.push(<td key="time">{startTime + " : " + finishTime}</td>);
@@ -210,7 +211,7 @@ var Lesson = React.createClass({
                         function(event) {
                             return {
                               id: event.id,
-                              text: Utils.eventToString(event)
+                              text: eventToString(event)
                             };
                         })
             });
@@ -220,4 +221,3 @@ var Lesson = React.createClass({
     }
 });
 
-module.exports = Lesson;

@@ -1,6 +1,6 @@
-var React = require('react');
+import React from 'react';
 
-var ClientProperty = React.createClass({
+export default React.createClass({
     getDefaultProps: function() {
         return {
             editMode: false,
@@ -46,4 +46,3 @@ var ClientProperty = React.createClass({
     }
 });
 
-module.exports = ClientProperty;

@@ -1,5 +1,6 @@
-var React = require('react');
-var ContractItemList = React.createClass({
+import React from 'react';
+
+export default React.createClass({
     getDefaultProps: function() {
         return {
           items: [],
@@ -43,4 +44,3 @@ var ContractItemList = React.createClass({
     }
 });
 
-module.exports = ContractItemList;

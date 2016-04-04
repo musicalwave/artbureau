@@ -1,7 +1,7 @@
-var React = require('react');
-var CalendarHeader = require('./calendar-header.js'); 
+import React from 'react';
+import CalendarHeader from './calendar-header.js';
 
-var Calendar = React.createClass({
+export default React.createClass({
     getInitialState: function() {
         return {
             selectedRoomId:         -1,
@@ -364,4 +364,3 @@ var Calendar = React.createClass({
     }
 });
 
-module.exports = Calendar;
