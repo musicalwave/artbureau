@@ -1,6 +1,7 @@
 import React from 'react';
 import ContractItemAction from './contract-item-action.js';
 import {logAjaxError, eventToString} from '../../utils/utils.js';
+import {updateScheduleEvent, deleteScheduleEvent} from '../../actions/schedule_event_actions.js';
 
 export default React.createClass({
     getInitialState: function() {
@@ -19,34 +20,20 @@ export default React.createClass({
         this.setState(this.getInitialState());
     },
     update: function() {
-        console.log('schedule event ' + this.props.event.contractScheduleId + ' updated!');
-        console.log('new event id: ' + this.state.eventId);
-        $.ajax({
-            url:     "/do/contract/schedule/update",
-            method:  "POST",
-            data:    {
-                       contractId: this.props.contractId,
-                       contractScheduleId: this.props.event.contractScheduleId,
-                       eventId: this.state.eventId
-                     },
-            success: this.props.reloadClientAndContracts,
-            error:   logAjaxError.bind(this, "/do/contract/schedule/update")
-        });
-
-        this.cancel();
+        updateScheduleEvent(
+          this.props.contractId, 
+          this.props.event.contractScheduleId, 
+          this.state.eventId, 
+          this.props.reloadClientAndContracts
+        );
+        this.cancel(); 
     },
     delete: function() {
-        console.log('schedule event' + this.props.event.contractScheduleId + ' deleted!');
-        $.ajax({
-            url:     "/do/contract/schedule/delete",
-            method:  "POST",
-            data:    {
-                       contractId: this.props.contractId,
-                       contractScheduleId: this.props.event.contractScheduleId
-                     },
-            success: this.props.reloadClientAndContracts,
-            error:   logAjaxError.bind(this, "/do/contract/schedule/delete")
-        });
+        deleteScheduleEvent(
+          this.props.contractId,
+          this.props.event.contractScheduleId,
+          this.props.reloadClientAndContracts
+        );
     },
     getActions: function() {
         var editAction   = <ContractItemAction
@@ -71,7 +58,6 @@ export default React.createClass({
             return [editAction, deleteAction];
     },
     render: function() {
-
         var fields = [];
         if (this.state.editMode) {
             fields.push(<td key="eventId" colSpan="4">
@@ -99,14 +85,14 @@ export default React.createClass({
     },
     componentDidUpdate: function() {
         $(this.refs.eventInput).select2({
-            data: this.props.teacherEvents.map(
-                    function(event) {
-                        return {
-                          id: event.id,
-                          text: eventToString(event)
-                        };
-                    }),
-            minimumResultsForSearch: Infinity
+          data: this.props.teacherEvents.map(
+            function(event) {
+              return {
+                id: event.id,
+                text: eventToString(event)
+              };
+          }),
+          minimumResultsForSearch: Infinity
         });
 
         $(this.refs.eventInput).on("change", this.eventIdChanged);
