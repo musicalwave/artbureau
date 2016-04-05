@@ -11,9 +11,6 @@
     <http pattern="/logout" security="none" />
     <http pattern="/error" security="none" />
     <http pattern="/index" security="none" />
-    <!--<http pattern="/resources/**" security="none" />-->
-    <http pattern="/do/**" security="none" />
-    <http pattern="/out" security="none" />
 
     <http use-expressions="true" request-matcher="ant">
         <intercept-url pattern="/**" access="hasAnyRole('admin','manager','topadmin','topmanager','smanager')"/>
