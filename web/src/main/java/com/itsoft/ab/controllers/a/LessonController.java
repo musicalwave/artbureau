@@ -2,15 +2,10 @@ package com.itsoft.ab.controllers.a;
 
 import com.itsoft.ab.beans.AuthMaster;
 import com.itsoft.ab.beans.LessonMaster;
+import com.itsoft.ab.beans.ScheduleMaster;
 import com.itsoft.ab.exceptions.ApplicationException;
-import com.itsoft.ab.model.ContractModel;
-import com.itsoft.ab.model.EventModel;
-import com.itsoft.ab.model.JLessonTransfer;
-import com.itsoft.ab.model.LessonModel;
-import com.itsoft.ab.persistence.ContractsMapper;
-import com.itsoft.ab.persistence.EventsMapper;
-import com.itsoft.ab.persistence.JournalMapper;
-import com.itsoft.ab.persistence.LessonsMapper;
+import com.itsoft.ab.model.*;
+import com.itsoft.ab.persistence.*;
 import com.itsoft.ab.sys.ECode;
 import com.itsoft.ab.sys.HTTPCode;
 import com.itsoft.ab.sys.HTTPResponse;
@@ -51,6 +46,12 @@ public class LessonController {
 
     @Autowired
     private EventsMapper eventsMapper;
+
+    @Autowired
+    private ScheduleMapper scheduleMapper;
+
+    @Autowired
+    private ScheduleMaster scheduleMaster;
 
     @Autowired
     private JournalMapper journalMapper;
@@ -146,30 +147,20 @@ public class LessonController {
         lessonMaster.burnLesson(lesson);
         return "redirect:/contract/" + lesson.getContractId();
     }
-//
-//    @RequestMapping(value="/lesson/transfer", method = RequestMethod.POST)
-//    public String transferLesson(@ModelAttribute LessonModel lesson, Model m){
-//        LessonModel from = lessonsMapper.getLesson(lesson.getId());
-//
-//        //Проводим перенос
-//        LessonModel to = lessonMaster.transferLesson(from);
-//
-//        //Подготавливаем логгирование
-//        JLessonTransfer data = new JLessonTransfer();
-//        data.setReason(reason);
-//        data.setComment("");
-//        data.setLessonId(lessonId);
-//        data.setUserId(authMaster.getLoggedUserId());
-//        data.setFromDate(from.getDate());
-//        data.setToDate(to.getDate());
-//
-//        //Логгируем перенос
-//        journalMapper.insertLessonTransfer(data);
-//
-//        return new HTTPResponse(HTTPCode.SUCCESS);
-//    }
 
     //AjaxMethods
+
+    @RequestMapping(value="/do/lessons/room", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<LessonWeb> getLessonsByRoom(@RequestParam(value = "roomId") int roomId,
+                                     @RequestParam(value = "leftDate") String leftDate,
+                                     @RequestParam(value = "rightDate") String rightDate) {
+        return  scheduleMapper.getLessonsByRoom(roomId, leftDate, rightDate);
+    }
+
+
+
     @RequestMapping(value="do/lesson/{lessonId}/do", method = RequestMethod.POST)
     public
     @ResponseBody
@@ -212,5 +203,76 @@ public class LessonController {
         journalMapper.insertLessonTransfer(data);
 
         return new HTTPResponse(HTTPCode.SUCCESS);
+    }
+
+    @RequestMapping(value="/do/lesson/shift", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    boolean shiftLesson(
+        @RequestParam(value = "id") int id,
+        @RequestParam(value = "teacherId") int teacherId,
+        @RequestParam(value = "roomId") int roomId,
+        @RequestParam(value = "date") String date,
+        @RequestParam(value = "weekday") int weekday,
+        @RequestParam(value = "startTime") String startTime,
+        @RequestParam(value = "finishTime") String finishTime) {
+            EventModel emptyEvent =
+                scheduleMapper.getEmptyEvent(
+                    teacherId,
+                    roomId,
+                    weekday,
+                    startTime,
+                    finishTime,
+                    date);
+
+            return emptyEvent != null &&
+                   scheduleMaster.shiftLesson(id, emptyEvent.getId(), date);
+    }
+
+    @RequestMapping(value = "/do/lessons/conduct", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    int conductLesson(@RequestParam(value = "id") int id) {
+        LessonModel lesson = lessonsMapper.getLesson(id);
+        if(lesson != null) {
+            lessonMaster.doLesson(lesson);
+            return  lesson.getStatusId();
+        }
+
+        return 0;
+    }
+
+    @RequestMapping(value = "/do/lessons/burn", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    int burnLesson(@RequestParam(value = "id") int id) {
+        LessonModel lesson = lessonsMapper.getLesson(id);
+        if(lesson != null) {
+            lessonMaster.burnLesson(lesson);
+            return lesson.getStatusId();
+        }
+
+        return 0;
+    }
+
+    @RequestMapping(value = "/do/lessons/restore", method = RequestMethod.POST)
+    public @ResponseBody
+    int restoreLesson(@RequestParam(value = "id") int id) {
+        LessonModel lesson = lessonsMapper.getLesson(id);
+        if(lesson != null) {
+            lessonMaster.restoreLesson(lesson);
+            return lesson.getStatusId();
+        }
+
+        return 0;
+    }
+
+    @RequestMapping(value = "/do/lesson/update", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void updateLesson(@RequestParam(value = "lessonId") int lessonId,
+                      @RequestParam(value = "date") String date,
+                      @RequestParam(value = "eventId") int eventId) {
+        lessonsMapper.updateLesson(lessonId, date, eventId);
     }
 }

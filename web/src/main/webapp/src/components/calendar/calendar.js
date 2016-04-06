@@ -3,7 +3,7 @@ import CalendarHeader from './calendar-header.js';
 import {
   conductLesson,
   burnLesson,
-  updateLessonData,
+  shiftLesson,
   getRoomLessons,
   getEmptyEvents
 } from '../../actions/lesson_actions.js';
@@ -158,7 +158,7 @@ export default React.createClass({
         finishTime,
         date
       };
-      updateLessonData(
+      shiftLesson(
         data,
         response => {
           if (!response)

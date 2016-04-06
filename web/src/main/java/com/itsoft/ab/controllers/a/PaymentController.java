@@ -212,4 +212,56 @@ public class PaymentController {
 
         return "redirect:/payment/" + payment.getId();
     }
+
+    // Ajax
+
+    @RequestMapping(value = "/do/payment/commit", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void commitPayment(@RequestParam(value = "paymentId") int paymentId) {
+        paymentMaster.commitPayment(paymentId);
+    }
+
+    @RequestMapping(value = "/do/payment/restore", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void restorePayment(@RequestParam(value = "paymentId") int paymentId) {
+        paymentMaster.restorePayment(paymentId);
+    }
+
+    @RequestMapping(value = "/do/payment/delete", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void deletePayment(@RequestParam(value = "paymentId") int paymentId) {
+        paymentMapper.deletePayment(paymentId);
+    }
+
+    @RequestMapping(value = "/do/payment/insert", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void insertPayment(@RequestParam(value = "contractId") int contractId,
+                       @RequestParam(value = "date") long date,
+                       @RequestParam(value = "value") int value,
+                       @RequestParam(value = "planned") int planned,
+                       @RequestParam(value = "done") int done) {
+        PaymentModel payment = new PaymentModel();
+        payment.setContractId(contractId);
+        payment.setDate(date);
+        payment.setValue(value);
+        payment.setPlanned(planned);
+        payment.setDone(done);
+        paymentMapper.insertPayment(payment);
+    }
+
+    @RequestMapping(value = "/do/payment/update", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void updatePayment(@RequestParam(value = "paymentId") int paymentId,
+                       @RequestParam(value = "date") long date,
+                       @RequestParam(value = "value") int value) {
+        PaymentModel payment = paymentMapper.selectPayment(paymentId);
+        payment.setDate(date);
+        payment.setValue(value);
+        paymentMapper.updatePayment(payment);
+    }
 }

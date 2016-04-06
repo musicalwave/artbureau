@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -64,6 +65,12 @@ public class ContractController {
 
     @Autowired
     private DiscountsMapper discountsMapper;
+
+    @Autowired
+    private ContractsMapper contractsMapper;
+
+    @Autowired
+    private ScheduleMapper scheduleMapper;
 
     @RequestMapping(value="/contract/{contractId}", method = RequestMethod.GET)
     public String showContract(@PathVariable int contractId, Model m){
@@ -215,4 +222,119 @@ public class ContractController {
 
         throw new ApplicationException(ECode.ERROR415);
     }
+
+    // Ajax
+
+    @RequestMapping(value = "/do/contract/lessons", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<LessonModel> getContractLessons(@RequestParam(value = "contractId") int contractId) {
+        return lessonsMapper.getContractLessons(contractId);
+    }
+
+    @RequestMapping(value = "/do/contract/payments", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<PaymentModel> getContractPayments(@RequestParam(value = "contractId") int contractId) {
+        return paymentMapper.getContractPayments(contractId);
+    }
+
+    @RequestMapping(value = "/do/contract/freeze", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void freezeContract(@RequestParam(value = "contractId") int contractId,
+                        @RequestParam(value = "lockFrom") long lockFromDate,
+                        @RequestParam(value = "lockTo") long lockToDate) {
+        contractMaster.freezeContract(contractId,
+                                      new Date(lockFromDate),
+                                      new Date(lockToDate));
+    }
+
+    @RequestMapping(value = "/do/contract/unfreeze", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void unfreezeContract(@RequestParam(value = "contractId") int contractId) {
+        ContractModel contract = contractsMapper.getContractById(contractId);
+        contract.setFreezed(0);
+        contractsMapper.freezeContract(contract);
+    }
+
+    @RequestMapping(value = "/do/contract/delete", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void deleteContract(@RequestParam(value = "contractId") int contractId) {
+        //contractsMapper.deleteContract(contractId);
+        contractsMapper.updateStatus(contractId, 3);
+    }
+
+    @RequestMapping(value = "/do/contract/restore", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void restoreContract(@RequestParam(value = "contractId") int contractId) {
+        //contractsMapper.deleteContract(contractId);
+        if(contractsMapper.getCountPlannedLessons(contractId) == 0)
+            contractsMapper.updateStatus(contractId, 2); // finished
+        else
+            contractsMapper.updateStatus(contractId, 1); // active
+    }
+
+    @RequestMapping(value = "/do/contract/writeoff", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void writeoffContract(@RequestParam(value = "contractId") int contractId) {
+        contractMaster.writeoff(contractId);
+    }
+
+    @RequestMapping(value = "/do/contract/cashback", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void cashbackContract(@RequestParam(value = "contractId") int contractId) {
+        contractMaster.cashback(contractId);
+    }
+
+    @RequestMapping(value = "/do/contract/schedule/insert", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void insertContractScheduleEvent(@RequestParam("contractId") int contractId,
+                                     @RequestParam("eventId") int eventId) {
+        scheduleMapper.insertContractScheduleEvent(contractId, eventId);
+        contractMaster.replanLessons(contractsMapper.getContractById(contractId));
+    }
+
+    @RequestMapping(value = "/do/contract/schedule/update", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void updateContractScheduleEvent(@RequestParam("contractId") int contractId,
+                                     @RequestParam("contractScheduleId") int contractScheduleId,
+                                     @RequestParam("eventId") int eventId) {
+        scheduleMapper.updateContractScheduleEvent(contractScheduleId, eventId);
+        contractMaster.replanLessons(contractsMapper.getContractById(contractId));
+    }
+
+    @RequestMapping(value = "/do/contract/schedule/delete", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void deleteContractScheduleEvent(@RequestParam("contractId") int contractId,
+                                     @RequestParam("contractScheduleId") int contractScheduleId) {
+        scheduleMapper.deleteContractScheduleEvent(contractScheduleId);
+        contractMaster.replanLessons(contractsMapper.getContractById(contractId));
+    }
+
+    @RequestMapping(value = "/do/contract/option", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    ContractOptionModel getContractOption(@RequestParam(value = "id") int id) {
+        return contractsMapper.getContractOptionById(id);
+    }
+
+    @RequestMapping(value = "/do/contract/create",
+                    method = RequestMethod.POST,
+                    headers = {"Content-type=application/json"})
+    public
+    @ResponseBody
+    int createContract(@RequestBody ContractModel contract) {
+        return contractMaster.createContract(contract);
+    }
+
+
 }

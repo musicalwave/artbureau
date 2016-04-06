@@ -46,9 +46,9 @@ export function updateLesson(lessonId, date, eventId, successCallback) {
   })
 }
 
-export function updateLessonData(data, successCallback, failureCallback) {
+export function shiftLesson(data, successCallback, failureCallback) {
   $.ajax({
-    url:     '/do/lessons/update',
+    url:     '/do/lesson/shift',
     method:  'POST',
     data,
     success: successCallback,

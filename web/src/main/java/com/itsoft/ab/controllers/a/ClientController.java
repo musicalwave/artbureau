@@ -2,23 +2,14 @@ package com.itsoft.ab.controllers.a;
 
 import com.itsoft.ab.beans.*;
 import com.itsoft.ab.exceptions.ApplicationException;
-import com.itsoft.ab.model.CallModel;
-import com.itsoft.ab.model.ClientModel;
-import com.itsoft.ab.model.ContractModel;
-import com.itsoft.ab.model.PaymentModel;
-import com.itsoft.ab.persistence.CallsMapper;
-import com.itsoft.ab.persistence.ClientsMapper;
-import com.itsoft.ab.persistence.ContractsMapper;
-import com.itsoft.ab.persistence.PaymentMapper;
+import com.itsoft.ab.model.*;
+import com.itsoft.ab.persistence.*;
 import com.itsoft.ab.sys.ECode;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +37,7 @@ public class ClientController {
     private ContractsMapper contractMapper;
 
     @Autowired
-    private PaymentMaster paymentMaster;
-
-    @Autowired
     private CallsMapper callsMapper;
-
-    @Autowired
-    private CallMaster callMaster;
 
     @Autowired
     private ClientsMaster clientsMaster;
@@ -60,13 +45,24 @@ public class ClientController {
     @Autowired
     private ContractMaster contractMaster;
 
+    @Autowired
+    private ContractsMapper contractsMapper;
+
+    @Autowired
+    private EventMaster eventMaster;
+
+    @Autowired
+    private LessonsMapper lessonsMapper;
+
+    @Autowired
+    private ScheduleMapper scheduleMapper;
+
     @RequestMapping(value="/client", method = RequestMethod.GET)
     public String newClient(Model m){
         m = authMaster.setModel(m);
         m.addAttribute("client", new ClientModel());
         return "/a/client/new";
     }
-
 
     @RequestMapping(value="/client/{clientId}", method = RequestMethod.GET)
     public String showClient(@PathVariable String clientId, Model m){
@@ -185,5 +181,55 @@ public class ClientController {
         //Договора, занятия, платежи
         clientsMaster.deleteClient(clientId);
         return "redirect:/client/search";
+    }
+
+    // Ajax
+
+    @RequestMapping(value = "/do/client", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    ClientModel getClient(@RequestParam(value = "id") int id) {
+        ClientModel client = clientsMapper.getClientWithContractDataById(id);
+        client.setBalance(clientsMaster.getClientBalance(id));
+        return client;
+    }
+
+    @RequestMapping(value = "/do/client", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    ClientModel updateClient(@RequestParam(value = "id") int id,
+                             @RequestParam(value = "fname") String fname,
+                             @RequestParam(value = "lname") String lname,
+                             @RequestParam(value = "pname") String pname,
+                             @RequestParam(value = "phone1") String phone1,
+                             @RequestParam(value = "email") String email,
+                             @RequestParam(value = "bdate") String bdate) {
+        ClientModel client = clientsMapper.getClientById(id);
+        client.setFname(fname);
+        client.setLname(lname);
+        client.setPname(pname);
+        client.setPhone1(phone1);
+        client.setEmail(email);
+        client.setBdate(bdate);
+        clientsMapper.updateClient(client);
+        return getClient(id);
+    }
+
+    @RequestMapping(value = "/do/client/contracts", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<ContractModel> getClientContracts(@RequestParam(value = "clientId") int clientId) {
+        List<ContractModel> contracts = contractsMapper.getClientContracts(clientId);
+        for(ContractModel contract : contracts) {
+            contract.setAvailableLessons(contractsMapper.getCountPlannedLessons(contract.getId()));
+            contract.setLessons(lessonsMapper.getContractLessons(contract.getId()));
+            contract.setPayments(paymentMapper.getContractPayments(contract.getId()));
+            contract.setContractOptionModel(
+                    contractsMapper.getContractOptionById(contract.getContractOptionId()));
+            contract.setTeacherEvents(eventMaster.getEmptyEvents(contract.getTeacherId()));
+            contract.setSchedule(scheduleMapper.getContractSchedule(contract.getId()));
+            contract.setBalance(contractMaster.getContractBalance(contract.getId()));
+        }
+        return contracts;
     }
 }
