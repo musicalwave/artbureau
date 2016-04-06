@@ -37,6 +37,7 @@ export default React.createClass({
   componentDidUpdate: function() {
     if (this.props.editMode && this.props.needDatePicker) {
       $(this.refs.input).datepicker({
+        firstDay: 1,
         dateFormat: 'dd-mm-yy',
         onSelect: function() {
           // unfortunately, the datepicker's changes

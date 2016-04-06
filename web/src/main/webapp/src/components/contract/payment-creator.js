@@ -59,6 +59,7 @@ export default React.createClass({
     $(this.refs.statusInput).on('change', this.props.statusChanged);
 
     $(this.refs.dateInput).datepicker({
+      firstDay: 1,
       dateFormat: 'dd-mm-yy',
       onSelect: date => this.props.dateChanged(date)
     });

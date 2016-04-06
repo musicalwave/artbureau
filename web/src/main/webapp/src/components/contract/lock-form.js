@@ -79,6 +79,7 @@ export default React.createClass({
   },
   componentDidMount: function() {
     $(this.refs.lockFromInput).datepicker({
+      firstDay: 1,
       dateFormat: 'dd-mm-yy',
       onSelect: function(newValue) {
           this.lockFromChanged(newValue);
@@ -86,6 +87,7 @@ export default React.createClass({
     });
 
     $(this.refs.lockToInput).datepicker({
+      firstDay: 1,
       dateFormat: 'dd-mm-yy',
       onSelect: function(newValue) {
           this.lockToChanged(newValue);

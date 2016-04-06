@@ -140,6 +140,7 @@ export default React.createClass({
       var weekdays = this.props.teacherEvents.map(event => event.weekday);
 
       $(this.refs.dateInput).datepicker({
+        firstDay: 1,
         dateFormat: "dd-mm-yy",
         onSelect: date => this.dateChanged(date),
         beforeShowDay: date => [weekdays.indexOf(moment(date).isoWeekday()) !== -1]

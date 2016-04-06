@@ -31,6 +31,7 @@
 
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/assets/js/libs/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/plugins/jquery-ui/jquery-ui-1.10.2.custom.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/plugins/jquery-ui/datepicker-ru.js"></script>
 
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/assets/js/libs/lodash.compat.min.js"></script>
