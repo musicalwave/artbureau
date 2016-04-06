@@ -2,6 +2,9 @@ require('./css/client.css');
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Client from './components/client/client.js';
+import moment from 'moment';
+
+moment.locale('ru');
 
 function getClientId() {
   var pathParts = window.location.pathname.split('/');
