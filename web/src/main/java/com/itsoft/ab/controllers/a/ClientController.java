@@ -189,7 +189,8 @@ public class ClientController {
     public
     @ResponseBody
     ClientModel getClient(@RequestParam(value = "id") int id) {
-        ClientModel client = clientsMapper.getClientWithContractDataById(id);
+        ClientModel client = clientsMapper.getClientWithContractData(id);
+        client.setTotal(clientsMapper.getTotal(id));
         client.setBalance(clientsMaster.getClientBalance(id));
         return client;
     }
@@ -221,13 +222,16 @@ public class ClientController {
     List<ContractModel> getClientContracts(@RequestParam(value = "clientId") int clientId) {
         List<ContractModel> contracts = contractsMapper.getClientContracts(clientId);
         for(ContractModel contract : contracts) {
-            contract.setAvailableLessons(contractsMapper.getCountPlannedLessons(contract.getId()));
-            contract.setLessons(lessonsMapper.getContractLessons(contract.getId()));
+            contract.setAvailableLessons(contractsMapper.getPlannedLessonCount(contract.getId()));
+            List<LessonModel> lessons = lessonsMapper.getContractLessons(contract.getId());
+            contract.setLessons(lessons);
+            contract.setCountLessons(lessons == null ? 0 : lessons.size());
             contract.setPayments(paymentMapper.getContractPayments(contract.getId()));
             contract.setContractOptionModel(
-                    contractsMapper.getContractOptionById(contract.getContractOptionId()));
+                contractsMapper.getContractOptionById(contract.getContractOptionId()));
             contract.setTeacherEvents(eventMaster.getEmptyEvents(contract.getTeacherId()));
             contract.setSchedule(scheduleMapper.getContractSchedule(contract.getId()));
+            contract.setPrice(contractMapper.getPrice(contract.getId()));
             contract.setBalance(contractMaster.getContractBalance(contract.getId()));
         }
         return contracts;

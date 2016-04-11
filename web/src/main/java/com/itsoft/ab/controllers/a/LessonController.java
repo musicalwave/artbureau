@@ -205,6 +205,27 @@ public class LessonController {
         return new HTTPResponse(HTTPCode.SUCCESS);
     }
 
+    @RequestMapping(value="/do/lessons/insert", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void createLesson(
+        @RequestParam(value = "contractId") int contractId,
+        @RequestParam(value = "date") long date,
+        @RequestParam(value = "eventId") int eventId
+    ) {
+        LessonModel lesson = new LessonModel();
+        lesson.setContractId(contractId);
+        lesson.setDate(new Date(date));
+        lesson.setEventId(eventId);
+        lesson.setStatusId(1);
+        lessonsMapper.insertLesson(lesson);
+        ContractModel contract = contractMapper.getContractById(contractId);
+        contractMapper.updateLessonCount(
+          contract.getId(),
+          contractMapper.getLessonCount(contract.getId())
+        );
+    }
+
     @RequestMapping(value="/do/lesson/shift", method = RequestMethod.POST)
     public
     @ResponseBody

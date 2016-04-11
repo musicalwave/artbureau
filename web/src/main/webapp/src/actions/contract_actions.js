@@ -10,7 +10,6 @@ export function getContracts(
     url: '/do/client/contracts',
     data: { clientId },
     success: function(contracts) {
-      console.log(contracts);
       successCallback(contracts); 
       if(optionalCallback)
         optionalCallback();

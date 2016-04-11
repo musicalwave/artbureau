@@ -271,8 +271,7 @@ public class ContractController {
     public
     @ResponseBody
     void restoreContract(@RequestParam(value = "contractId") int contractId) {
-        //contractsMapper.deleteContract(contractId);
-        if(contractsMapper.getCountPlannedLessons(contractId) == 0)
+        if(contractsMapper.getPlannedLessonCount(contractId) == 0)
             contractsMapper.updateStatus(contractId, 2); // finished
         else
             contractsMapper.updateStatus(contractId, 1); // active

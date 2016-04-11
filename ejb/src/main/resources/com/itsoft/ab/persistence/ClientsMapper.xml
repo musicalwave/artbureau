@@ -61,7 +61,7 @@
         AND concerts.clientId = clients.id
     </select>
 
-    <select id="getClientWithContractDataById" parameterType="int" resultType="ClientModel">
+    <select id="getClientWithContractData" parameterType="int" resultType="ClientModel">
         SELECT
           c.id,
           c.fname,
@@ -72,8 +72,7 @@
           c.email,
           MIN(co.date) AS firstContractDate,
           COALESCE(SUM(IF(cs.deleted, 0, 1)), 0) AS countContracts,
-          COALESCE(SUM(IF(cs.active, 1, 0)), 0) AS countActiveContracts,
-          COALESCE(SUM(IF(cs.deleted, 0, co.price)), 0) AS total
+          COALESCE(SUM(IF(cs.active, 1, 0)), 0) AS countActiveContracts
         FROM clients c
           LEFT JOIN contracts co
             ON co.clientId = c.id
@@ -157,6 +156,31 @@
         LEFT JOIN contractsStatus cs
           ON cs.id = con.statusId
         WHERE p.planned AND NOT p.done AND con.clientId = #{id} AND NOT cs.deleted;
+    </select>
+
+    <select id="getTotal" parameterType="int" resultType="int">
+        SELECT
+          COALESCE(
+            SUM(
+              CASE con.contractType
+                WHEN 1 THEN IF(jtt.pPrice != 0, jtt.pPrice, COALESCE(pd.pPrice, 0))
+                WHEN 2 THEN IF(jtt.gPrice != 0, jtt.gPrice, COALESCE(pd.gPrice, 0))
+                WHEN 3 THEN IF(jtt.dPrice != 0, jtt.dPrice, COALESCE(pd.dPrice, 0))
+                WHEN 4 THEN IF(jtt.aPrice != 0, jtt.aPrice, COALESCE(pd.aPrice, 0))
+                ELSE 0
+              END
+              ),
+            0)
+        FROM clients c
+        LEFT JOIN contracts con
+          ON con.clientId = c.id
+        LEFT JOIN J_TEACHERS_TYPES jtt
+          ON jtt.id = con.teacherTypeId
+        LEFT JOIN prices_default pd
+          ON pd.typeId = jtt.typeId
+        LEFT JOIN lessons l
+          ON l.contractId = con.id
+        WHERE c.id = #{clientId}
     </select>
 
     <select id="getIdByObject" parameterType="ClientModel" resultType="int">

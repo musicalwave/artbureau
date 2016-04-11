@@ -17,7 +17,7 @@ public interface ClientsMapper {
     int getIdByObject(ClientModel clientModel);
     int getIdByPhone1(String phone1);
     ClientModel getClientById(int id);
-    ClientModel getClientWithContractDataById(int id);
+    ClientModel getClientWithContractData(int id);
     void insertClient(ClientModel client);
     void updateClientPart(ClientModel client);
     void updateClient(ClientModel client);
@@ -36,6 +36,8 @@ public interface ClientsMapper {
     int getWriteoffTotal(@Param("clientId") int clientId);
 
     int getCashbackTotal(@Param("clientId") int clientId);
+
+    int getTotal(@Param("clientId") int clientId);
 
     //Для платежей "на месте"
     void updateBalance(PaymentModel payment);

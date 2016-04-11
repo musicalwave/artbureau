@@ -11,8 +11,9 @@ export default React.createClass({
       optionId: 0,
       contractTypeId: 0,
       teacherTypeId: 0,
-      startDate: "",
+      startDate: '',
       scheduleEventIds: [],
+      lessonCount: 0,
       discountId: 0,
       lessonPrice: 0,
       totalPrice: 0,
@@ -38,38 +39,51 @@ export default React.createClass({
   render: function() {
     return (
       <div style={this.props.visible ? null : {display: 'none'}} 
-           className="contract-creator">
-        <i className="pull-right icon-remove icon-btn close-contract-creator-button"
+           className='contract-creator'>
+        <i className='pull-right icon-remove icon-btn close-contract-creator-button'
            onClick={this.props.close}/>
-        <table className="info-table contract-info-table">
+        <table className='info-table contract-info-table'>
           <tbody>
             <tr>
               <th>Направление:</th>
-              <td><input ref="lessonType" value={this.state.lessonTypeId}/></td>
+              <td><input ref='lessonType' value={this.state.lessonTypeId}/></td>
             </tr>
             <tr>
               <th>Вариант:</th>
-              <td><input ref="option" value={this.state.optionId}/></td>
+              <td><input ref='option' value={this.state.optionId}/></td>
             </tr>
             <tr>
               <th>Тип:</th>
-              <td><input ref="contractType" value={this.state.contractTypeId}/></td>
+              <td><input ref='contractType' value={this.state.contractTypeId}/></td>
             </tr>
             <tr>
               <th>Педагог:</th>
-              <td><input ref="teacherType" value={this.state.teacherTypeId}/></td>
+              <td><input ref='teacherType' value={this.state.teacherTypeId}/></td>
+            </tr>
+            <tr>
+              <th>Кол-во занятий:</th>
+              <td>
+              { this.lessonCountEditable() ?
+                <input 
+                  min='0' 
+                  type='number'
+                  value={this.state.lessonCount} 
+                  onChange={this.lessonCountChanged}/> :
+                this.state.lessonCount
+              }
+              </td> 
             </tr>
             <tr>
               <th>Дата начала:</th>
-              <td><input ref="startDate" value={this.state.startDate}/></td>
+              <td><input ref='startDate' value={this.state.startDate}/></td>
             </tr>
             <tr>
               <th>Расписание:</th>
-              <td><input ref="schedule" value={this.state.scheduleEventIds.join(',')}/></td>
+              <td><input ref='schedule' value={this.state.scheduleEventIds.join(',')}/></td>
             </tr>
             <tr>
               <th>Скидка:</th>
-              <td><input ref="discount" value={this.state.discountId}/></td>
+              <td><input ref='discount' value={this.state.discountId}/></td>
             </tr>
             <tr>
               <th>Стоимость одного занятия:</th>
@@ -82,12 +96,12 @@ export default React.createClass({
           </tbody>
         </table>
         <h4>Платежи:</h4>
-        <h5 className="pull-left">количество:</h5>
-        <input className="pull-left payment-counter" type="number"
-               min="0" max={this.getMaxNumOfPayments()}
+        <h5 className='pull-left'>количество:</h5>
+        <input className='pull-left payment-counter' type='number'
+               min='0' max={this.getMaxNumOfPayments()}
                value={this.state.payments.length}
                onChange={this.numOfPaymentsChanged}/>
-        <table className="info-table new-payments-table">
+        <table className='info-table new-payments-table'>
           <thead>
             <tr>
               <td>Дата</td>
@@ -99,11 +113,11 @@ export default React.createClass({
             {this.getPayments()}
           </tbody>
         </table>
-        <button className="create-contract-button btn btn-default pull-right"
+        <button className='create-contract-button btn btn-default pull-right'
                 onClick={this.createButtonClicked}>
           Создать!
         </button>
-        <div style={{clear: "right"}}/>
+        <div style={{clear: 'right'}}/>
       </div>
     );
   },
@@ -121,12 +135,11 @@ export default React.createClass({
     this.props.close();
   },
   createButtonClicked: function() {
-    var option = this.getItemById(this.state.options, this.state.optionId);
     var data = JSON.stringify({
       clientId:         this.props.clientId,
       teacherTypeId:    this.state.teacherTypeId,
       contractOptionId: this.state.optionId,
-      countLessons:     option.lessonCount,
+      countLessons:     this.state.lessonCount,
       date:             moment(this.state.startDate, 'DD-MM-YYYY').format('x'),
       price:            this.state.totalPrice,
       contractType:     this.state.contractTypeId,
@@ -290,7 +303,7 @@ export default React.createClass({
         teacherWeekdays = this.getWeekdays(teacherEvents)
         startDate       = this.getStartDate(moment(), teacherWeekdays);
         lessonPrice     = this.getLessonPrice(teacherType, contractType.id);
-        totalPrice      = this.getTotalPrice(option.lessonCount, lessonPrice, discount.id);
+        totalPrice      = this.getTotalPrice(this.state.lessonCount, lessonPrice, discount.id);
         payments = 
           this.createPayments(moment(startDate),
             this.state.payments.length,
@@ -331,7 +344,8 @@ export default React.createClass({
     this.setState({
       optionId:    option.id,
       totalPrice:  totalPrice,
-      payments:    payments
+      payments:    payments,
+      lessonCount: option.lessonCount
     });
   },
   contractTypeChanged: function(e) {
@@ -341,7 +355,7 @@ export default React.createClass({
     var lessonPrice = this.getLessonPrice(teacherType, contractType.id);
     var totalPrice =
       this.getTotalPrice(
-        option.lessonCount,
+        this.state.lessonCount,
         lessonPrice,
         this.state.discountId
     );
@@ -366,7 +380,7 @@ export default React.createClass({
 
     var totalPrice =
       this.getTotalPrice(
-        option.lessonCount,
+        this.state.lessonCount,
         lessonPrice,
         discountId);
 
@@ -394,7 +408,7 @@ export default React.createClass({
     var teacherWeekdays = [];
     var startDate       = moment();
     var lessonPrice     = this.getLessonPrice(teacherType, contractType.id);;
-    var totalPrice      = this.getTotalPrice(option.lessonCount, lessonPrice, discount.id);;
+    var totalPrice      = this.getTotalPrice(this.state.lessonCount, lessonPrice, discount.id);;
     var payments        = [];
 
     if (teacherEvents.length !== 0) {
@@ -402,7 +416,7 @@ export default React.createClass({
       startDate       = this.getStartDate(moment(), teacherWeekdays);
     }
 
-    payments            = this.createPayments(moment(startDate),
+    payments = this.createPayments(moment(startDate),
       this.state.payments.length,
       totalPrice,
       option.paymentInterval);
@@ -434,6 +448,33 @@ export default React.createClass({
       payments:  payments
     });
   },
+  lessonCountEditable() {
+    var option = this.getItemById(this.state.options, this.state.optionId);
+    return !!(option && option.arbitrary);
+  },
+  lessonCountChanged: function(e) {
+    var lessonCount = parseInt(e.target.value);
+    var option = this.getItemById(this.state.options, this.state.optionId);
+
+    var totalPrice =
+      this.getTotalPrice(
+        lessonCount,
+        this.state.lessonPrice,
+        this.state.discountId
+    );
+    var paymentsCount = totalPrice ? 1 : 0;
+    var payments = this.createPayments(
+      moment(this.state.startDate, 'DD-MM-YYYY'),
+      paymentsCount, 
+      totalPrice, 
+      option.paymentInterval
+    );
+    this.setState({
+      totalPrice,
+      payments,
+      lessonCount
+    });
+  },
   initTeacherTypeSelect: function(elem, filteredTeacherTypes) {
     filteredTeacherTypes = coalesce(filteredTeacherTypes, []);
     elem.select2({
@@ -454,31 +495,31 @@ export default React.createClass({
           text: eventToString(event)
         };
       }),
-      multiple: "multiple"
+      multiple: 'multiple'
     });
   },
   initStartDatePicker: function(elem) {
     elem.datepicker({
       firstDay: 1,
-      dateFormat: "dd-mm-yy",
+      dateFormat: 'dd-mm-yy',
       onSelect: this.startDateChanged
     });
   },
   setDatePickerWeekdays: function(elem, weekdays) {
     weekdays = coalesce(weekdays, []);
-    elem.datepicker("option", "beforeShowDay", function(date) {
+    elem.datepicker('option', 'beforeShowDay', function(date) {
       return [weekdays.indexOf(moment(date).isoWeekday()) !== -1 &&
         moment(date).isSameOrAfter(moment())];
     });
   },
   componentDidMount: function() {
     $.when(
-      $.get("/do/types/all"),
-      $.get("/do/options"),
-      $.get("/do/contractTypes"),
-      $.get("/do/discounts"),
-      $.get("/do/events/all"),
-      $.get("/do/teacherTypes")
+      $.get('/do/types/all'),
+      $.get('/do/options'),
+      $.get('/do/contractTypes'),
+      $.get('/do/discounts'),
+      $.get('/do/events/all'),
+      $.get('/do/teacherTypes')
     ).done(
       function(
         lessonTypes,
@@ -530,7 +571,8 @@ export default React.createClass({
             filteredTeacherTypes: filteredTeacherTypes,
             teacherEvents:        teacherEvents,
             teacherWeekdays:      teacherWeekdays,
-            payments:             payments
+            payments:             payments,
+            lessonCount:          option.lessonCount
           });
 
           // initialize selects
@@ -538,17 +580,17 @@ export default React.createClass({
           $(this.refs.lessonType).select2({
             data: lessonTypes[0].map(this.createSelect2Item)
           });
-          $(this.refs.lessonType).on("change", this.lessonTypeChanged);
+          $(this.refs.lessonType).on('change', this.lessonTypeChanged);
 
           $(this.refs.option).select2({
             data: options[0].map(this.createSelect2Item)
           });
-          $(this.refs.option).on("change", this.optionChanged);
+          $(this.refs.option).on('change', this.optionChanged);
 
           $(this.refs.contractType).select2({
             data: contractTypes[0].map(this.createSelect2Item)
           });
-          $(this.refs.contractType).on("change", this.contractTypeChanged);
+          $(this.refs.contractType).on('change', this.contractTypeChanged);
 
           $(this.refs.discount).select2({
             data: discounts[0].map(function(discount) {
@@ -558,13 +600,13 @@ export default React.createClass({
               }
             })
           });
-          $(this.refs.discount).on("change", this.discountChanged);
+          $(this.refs.discount).on('change', this.discountChanged);
 
           this.initTeacherTypeSelect($(this.refs.teacherType), filteredTeacherTypes);
-          $(this.refs.teacherType).on("change", this.teacherTypeChanged);
+          $(this.refs.teacherType).on('change', this.teacherTypeChanged);
 
           this.initScheduleSelect($(this.refs.schedule), teacherEvents);
-          $(this.refs.schedule).on("change", this.scheduleChanged);
+          $(this.refs.schedule).on('change', this.scheduleChanged);
 
           this.initStartDatePicker($(this.refs.startDate));
           this.setDatePickerWeekdays($(this.refs.startDate), teacherWeekdays);

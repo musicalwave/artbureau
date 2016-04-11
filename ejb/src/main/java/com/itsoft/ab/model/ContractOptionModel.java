@@ -9,6 +9,7 @@ public class ContractOptionModel extends BasicModel {
     private int maxPaymentsCount;
     private int paymentInterval;
     private int maxShifts;
+    private int arbitrary;
 
     public ContractOptionModel() {
 
@@ -62,4 +63,11 @@ public class ContractOptionModel extends BasicModel {
         this.maxShifts = maxShifts;
     }
 
+    public int getArbitrary() {
+        return arbitrary;
+    }
+
+    public void setArbitrary(int arbitrary) {
+        this.arbitrary = arbitrary;
+    }
 }

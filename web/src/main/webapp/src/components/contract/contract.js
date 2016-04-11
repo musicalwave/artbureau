@@ -6,6 +6,7 @@ import LockForm from './lock-form.js';
 import Payment from './payment.js';
 import PaymentCreator from './payment-creator.js';
 import Lesson from './lesson.js';
+import LessonCreator from './lesson-creator.js';
 import Event from './event.js';
 import EventCreator from './event-creator.js';
 import ContractItemList from './contract-item-list.js';
@@ -27,10 +28,10 @@ export default React.createClass({
       menuLeft: 0,
       lockFormVisible: false,
       paymentCreatorVisible: false,
-      newPaymentButtonVisible: true,
       newPaymentDate: this.getNewPaymentDate(),
       newPaymentValue: this.getNewPaymentValue(),
-      newPaymentStatus: 1
+      newPaymentStatus: 1,
+      lessonCreatorVisible: false
     };
   },
   reloadClientAndContracts: function() {
@@ -46,6 +47,26 @@ export default React.createClass({
         lesson={lesson}
         key={lesson.id}/>
     );
+  },
+  createLessonCreator: function() {
+    return (
+      <LessonCreator 
+        contractId={this.props.contract.id}
+        schedule={this.props.contract.schedule}
+        reloadData={this.reloadClientAndContracts}
+        hide={this.hideLessonCreator} />
+    );
+  },
+  showLessonCreator: function() {
+    if (this.props.contract.contractOptionModel.arbitrary)
+      this.setState({
+        lessonCreatorVisible: true
+      });
+  },
+  hideLessonCreator: function() {
+    this.setState({
+      lessonCreatorVisible: false
+    });
   },
   // << LESSONS
   // >> PAYMENTS
@@ -299,7 +320,10 @@ export default React.createClass({
             items={contract.lessons}
             url="/do/contract/lessons"
             title="Занятия"
-            createItemElement={this.createLessonElement}/>
+            creatorVisible={this.state.lessonCreatorVisible}
+            showCreator={this.showLessonCreator}
+            createItemElement={this.createLessonElement}
+            createItemCreator={this.createLessonCreator}/>
 
           <ContractItemList 
             contractId={contract.id}

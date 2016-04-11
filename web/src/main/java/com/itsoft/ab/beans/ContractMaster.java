@@ -223,8 +223,7 @@ public class ContractMaster {
     }
 
     private int countLessonsToPlan(ContractModel contract) {
-        int lessonCount = contractsMapper.getContractOptionById(
-                contract.getContractOptionId()).getLessonCount();
+        int lessonCount = contract.getCountLessons();
         int completedLessonCount = contractsMapper.getCompletedLessonCount(contract.getId());
         return lessonCount - completedLessonCount;
     }
@@ -341,7 +340,7 @@ public class ContractMaster {
     }
 
     public int getCountPlannedLessons(int contractId) {
-        return contractsMapper.getCountPlannedLessons(contractId);
+        return contractsMapper.getPlannedLessonCount(contractId);
     }
 
     public void updateStatus(int contractId, int contractStatus) {

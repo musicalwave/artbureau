@@ -2,47 +2,61 @@ import $ from 'jquery';
 import {logAjaxError} from '../utils/utils';
 import moment from 'moment';
 
+export function createLesson(contractId, date, eventId, successCallback) {
+  $.ajax({
+    url:     '/do/lessons/insert',
+    method:  'POST',
+    data: {
+      contractId,
+      date,
+      eventId
+    },
+    success: successCallback,
+    error:   logAjaxError.bind(null, '/do/lessons/insert')
+  });
+}
+
 export function burnLesson(id, successCallback) {
   $.ajax({
-    url:     "/do/lessons/burn",
-    method:  "POST",
+    url:     '/do/lessons/burn',
+    method:  'POST',
     data:    { id },
     success: successCallback,
-    error:   logAjaxError.bind(this, "/do/lessons/burn")
+    error:   logAjaxError.bind(null, '/do/lessons/burn')
   });
 }
 
 export function conductLesson(id, successCallback) {
   $.ajax({
-    url:     "/do/lessons/conduct",
-    method:  "POST",
+    url:     '/do/lessons/conduct',
+    method:  'POST',
     data:    { id },
     success: successCallback,
-    error:   logAjaxError.bind(this, "/do/lessons/conduct")
+    error:   logAjaxError.bind(null, '/do/lessons/conduct')
   });
 }
 
 export function restoreLesson(id, successCallback) {
   $.ajax({
-    url:     "/do/lessons/restore",
-    method:  "POST",
+    url:     '/do/lessons/restore',
+    method:  'POST',
     data:    { id },
     success: successCallback,
-    error:   logAjaxError.bind(this, "/do/lessons/restore")
+    error:   logAjaxError.bind(null, '/do/lessons/restore')
   });
 }
 
 export function updateLesson(lessonId, date, eventId, successCallback) {
   $.ajax({
-    url: "/do/lesson/update",
-    method: "POST",
+    url:        '/do/lesson/update',
+    method:     'POST',
     data: {
       lessonId,
       date,
       eventId
     },
-    success: successCallback,
-    error: logAjaxError.bind(this, "/do/lesson/update")
+    success:    successCallback,
+    error:      logAjaxError.bind(null, '/do/lesson/update')
   })
 }
 

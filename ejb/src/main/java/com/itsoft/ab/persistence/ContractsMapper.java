@@ -41,9 +41,11 @@ public interface ContractsMapper {
 
     void updateTransferById(int contractId);
 
-    int getCountPlannedLessons(int contractId);
+    int getPlannedLessonCount(int contractId);
 
     int getCompletedLessonCount(int contractId);
+
+    int getLessonCount(int contractId);
 
     void updateStatus(@Param("contractId")int contractId, @Param("contractStatus")int contractStatus);
 
@@ -70,4 +72,9 @@ public interface ContractsMapper {
     int getMoneySpentOnLessons(@Param("contractId") int contractId);
     int getWriteoffTotal(@Param("contractId") int contractId);
     int getCashbackTotal(@Param("contractId") int contractId);
+
+    int getPrice(@Param("contractId") int contractId);
+
+    void updateLessonCount(@Param("contractId") int contractId,
+                           @Param("lessonCount") int lessonCount);
 }
