@@ -112,22 +112,20 @@ public class ClientsMaster {
         checkClientId(client.getId());
 
         //Проверка наличия паспортных данных
-        if(null != client.getJdata() && !client.getJdata().equals("")){
+        if(client.getJdata() != null && !client.getJdata().equals(""))
             client.setHasJdata(1);
-        }else{
+        else
             client.setHasJdata(0);
-        }
+
         clientsMapper.updateClient(client);
 
         //Сохранение записи в журнале работы с клиентами
         JClientsModel c = new JClientsModel();
-
         c.setClientId(client.getId());
         c.setAction("edit");
         c.setClientName(client.getLname() + " " + client.getFname() + " " + client.getPname());
         c.setUserId(authMaster.getLoggedUserId());
         c.setUserName(authMaster.getLoggedUserName());
-
         j_clients_mapper.insert(c);
     }
 

@@ -57,6 +57,24 @@ public class ContractMaster {
     public ContractMaster() {
     }
 
+    public List<ContractModel> getContractsByClient(int clientId) {
+        List<ContractModel> contracts = contractsMapper.getClientContracts(clientId);
+        for(ContractModel contract : contracts) {
+            contract.setAvailableLessons(contractsMapper.getPlannedLessonCount(contract.getId()));
+            List<LessonModel> lessons = lessonsMapper.getContractLessons(contract.getId());
+            contract.setLessons(lessons);
+            contract.setCountLessons(lessons == null ? 0 : lessons.size());
+            contract.setPayments(paymentMapper.getContractPayments(contract.getId()));
+            contract.setContractOptionModel(
+                contractsMapper.getContractOptionById(contract.getContractOptionId()));
+            contract.setTeacherEvents(eventMaster.getEmptyEvents(contract.getTeacherId()));
+            contract.setSchedule(scheduleMapper.getContractSchedule(contract.getId()));
+            contract.setPrice(contractsMapper.getPrice(contract.getId()));
+            contract.setBalance(getContractBalance(contract.getId()));
+        }
+        return contracts;
+    }
+
     public ContractModel prepareContract(ContractModel contract){
 
         //Преобразование временных констант

@@ -12,10 +12,11 @@ export function getClient(id, successCallback) {
 
 export function updateClient(data, successCallback, failureCallback) {
   $.ajax({
-    url:     '/do/client',
-    method:  'POST',
-    data,
-    success: successCallback,
-    error:   failureCallback 
+    url:         '/do/client',
+    method:      'POST',
+    contentType: 'application/json',
+    data:        data,
+    success:     successCallback,
+    error:       failureCallback 
   });
 }

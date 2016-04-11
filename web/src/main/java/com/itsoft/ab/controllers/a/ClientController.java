@@ -192,45 +192,21 @@ public class ClientController {
        return clientsMaster.getClientWithDataById(id);
     }
 
-    @RequestMapping(value = "/do/client", method = RequestMethod.POST)
+    @RequestMapping(
+        value = "/do/client",
+        method = RequestMethod.POST,
+        headers = {"Content-type=application/json"})
     public
     @ResponseBody
-    ClientModel updateClient(@RequestParam(value = "id") int id,
-                             @RequestParam(value = "fname") String fname,
-                             @RequestParam(value = "lname") String lname,
-                             @RequestParam(value = "pname") String pname,
-                             @RequestParam(value = "phone1") String phone1,
-                             @RequestParam(value = "email") String email,
-                             @RequestParam(value = "bdate") String bdate) {
-        ClientModel client = clientsMapper.getClientById(id);
-        client.setFname(fname);
-        client.setLname(lname);
-        client.setPname(pname);
-        client.setPhone1(phone1);
-        client.setEmail(email);
-        client.setBdate(bdate);
-        clientsMapper.updateClient(client);
-        return getClient(id);
+    ClientModel updateClient(@RequestBody ClientModel client) {
+        clientsMaster.updateClient(client);
+        return getClient(client.getId());
     }
 
     @RequestMapping(value = "/do/client/contracts", method = RequestMethod.GET)
     public
     @ResponseBody
     List<ContractModel> getClientContracts(@RequestParam(value = "clientId") int clientId) {
-        List<ContractModel> contracts = contractsMapper.getClientContracts(clientId);
-        for(ContractModel contract : contracts) {
-            contract.setAvailableLessons(contractsMapper.getPlannedLessonCount(contract.getId()));
-            List<LessonModel> lessons = lessonsMapper.getContractLessons(contract.getId());
-            contract.setLessons(lessons);
-            contract.setCountLessons(lessons == null ? 0 : lessons.size());
-            contract.setPayments(paymentMapper.getContractPayments(contract.getId()));
-            contract.setContractOptionModel(
-                contractsMapper.getContractOptionById(contract.getContractOptionId()));
-            contract.setTeacherEvents(eventMaster.getEmptyEvents(contract.getTeacherId()));
-            contract.setSchedule(scheduleMapper.getContractSchedule(contract.getId()));
-            contract.setPrice(contractMapper.getPrice(contract.getId()));
-            contract.setBalance(contractMaster.getContractBalance(contract.getId()));
-        }
-        return contracts;
+        return contractMaster.getContractsByClient(clientId);
     }
 }

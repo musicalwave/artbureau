@@ -36,7 +36,7 @@ export default React.createClass({
     };
   },
   stateToClient: function(state) {
-    return {
+    return JSON.stringify({
       id:     this.props.id,
       fname:  this.state.fname,
       lname:  this.state.lname,
@@ -46,7 +46,7 @@ export default React.createClass({
       bdate:  this.validDate(this.state.bdate)
               ? moment(this.state.bdate, 'DD-MM-YYYY').format('YYYY-MM-DD')
               : ''
-    };
+    });
   },
   getInitialState: function() {
     return {
