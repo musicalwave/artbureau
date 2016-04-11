@@ -189,10 +189,7 @@ public class ClientController {
     public
     @ResponseBody
     ClientModel getClient(@RequestParam(value = "id") int id) {
-        ClientModel client = clientsMapper.getClientWithContractData(id);
-        client.setTotal(clientsMapper.getTotal(id));
-        client.setBalance(clientsMaster.getClientBalance(id));
-        return client;
+       return clientsMaster.getClientWithDataById(id);
     }
 
     @RequestMapping(value = "/do/client", method = RequestMethod.POST)

@@ -55,6 +55,16 @@ public class ClientsMaster {
         throw new ApplicationException(ECode.ERROR1107);
     }
 
+    public  ClientModel getClientWithDataById(int id) {
+        ClientModel client = clientsMapper.getClientById(id);
+        client.setFirstContractDate(clientsMapper.getFirstContractDate(id));
+        client.setCountContracts(clientsMapper.getContractCount(id));
+        client.setCountActiveContracts(clientsMapper.getActiveContractCount(id));
+        client.setTotal(clientsMapper.getTotal(id));
+        client.setBalance(getClientBalance(id));
+        return client;
+    }
+
     public ClientModel insertClient(ClientModel client) {
         //Проверка наличия паспортных данных
         if(null != client.getJdata() && !client.getJdata().equals("")){

@@ -26,8 +26,6 @@
 
     </resultMap>
 
-    <!--All queries here-->
-
     <sql id="selectAllFields">
         SELECT clients.id,
         clients.fname,
@@ -48,10 +46,7 @@
         clients.hasJdata
     </sql>
 
-    <select id="getAllClients" resultMap="clientsMap">
-        <include refid="selectAllFields"/>
-        FROM clients
-    </select>
+     <!-- SELECT -->
 
     <select id="getClientById" parameterType="int" resultType="ClientModel">
         <include refid="selectAllFields"/>,
@@ -61,27 +56,6 @@
         AND concerts.clientId = clients.id
     </select>
 
-    <select id="getClientWithContractData" parameterType="int" resultType="ClientModel">
-        SELECT
-          c.id,
-          c.fname,
-          c.lname,
-          c.pname,
-          c.phone1,
-          c.bdate,
-          c.email,
-          MIN(co.date) AS firstContractDate,
-          COALESCE(SUM(IF(cs.deleted, 0, 1)), 0) AS countContracts,
-          COALESCE(SUM(IF(cs.active, 1, 0)), 0) AS countActiveContracts
-        FROM clients c
-          LEFT JOIN contracts co
-            ON co.clientId = c.id
-          LEFT JOIN contractsStatus cs
-            ON cs.id = co.statusId
-        WHERE c.id = #{id}
-        GROUP BY c.id
-    </select>
-
     <select id="getClientByContract" parameterType="int" resultType="ClientModel">
         <include refid="selectAllFields"/>,
         COUNT(concerts.id) AS concerts
@@ -89,108 +63,6 @@
         WHERE contracts.id = #{id}
         AND clients.id = contracts.clientId
         AND concerts.clientId = clients.id
-    </select>
-
-    <select id="getDonePaymentsTotal" parameterType="int" resultType="int">
-        SELECT COALESCE(SUM(p.value), 0)
-        FROM contracts con
-        LEFT JOIN payments p
-          ON p.contractId = con.id
-        LEFT JOIN contractsStatus cs
-          ON cs.id = con.statusId
-        WHERE p.done
-          AND con.clientId = #{id}
-          AND NOT cs.deleted;
-    </select>
-
-    <select id="getMoneySpentOnLessons" parameterType="int" resultType="int">
-       SELECT
-         COALESCE(
-           SUM(
-             CASE c.contractType
-               WHEN 1 THEN IF(jtt.pPrice != 0, jtt.pPrice, COALESCE(pd.pPrice, 0))
-               WHEN 2 THEN IF(jtt.gPrice != 0, jtt.gPrice, COALESCE(pd.gPrice, 0))
-               WHEN 3 THEN IF(jtt.dPrice != 0, jtt.dPrice, COALESCE(pd.dPrice, 0))
-               WHEN 4 THEN IF(jtt.aPrice != 0, jtt.aPrice, COALESCE(pd.aPrice, 0))
-               ELSE 0
-             END
-           ),
-         0)
-       FROM contracts c
-       INNER JOIN J_TEACHERS_TYPES jtt
-         ON jtt.id = c.teacherTypeId
-       LEFT JOIN prices_default pd
-         ON pd.typeId = jtt.typeId
-       INNER JOIN lessons l
-         ON l.contractId = c.id
-       INNER JOIN contractsStatus cs
-         ON cs.id = c.statusId
-       WHERE c.clientId = #{clientId}
-         AND l.statusId != 1
-         AND NOT cs.deleted
-    </select>
-
-    <select id="getWriteoffTotal" parameterType="int" resultType="int">
-        SELECT COALESCE(SUM(c.writeoff), 0)
-        FROM contracts c
-        INNER JOIN contractsStatus cs
-          ON cs.id = c.statusId
-        WHERE c.clientId = #{clientId}
-          AND NOT cs.deleted
-    </select>
-
-    <select id="getCashbackTotal" parameterType="int" resultType="int">
-        SELECT COALESCE(SUM(c.cashback + c.fine), 0)
-        FROM contracts c
-        INNER JOIN contractsStatus cs
-          ON cs.id = c.statusId
-        WHERE c.clientId = #{clientId}
-          AND NOT cs.deleted
-    </select>
-
-    <select id="getPlannedPaymentsTotal" parameterType="int" resultType="int">
-        SELECT COALESCE(SUM(p.value), 0)
-        FROM contracts con
-        LEFT JOIN payments p
-          ON p.contractId = con.id
-        LEFT JOIN contractsStatus cs
-          ON cs.id = con.statusId
-        WHERE p.planned AND NOT p.done AND con.clientId = #{id} AND NOT cs.deleted;
-    </select>
-
-    <select id="getTotal" parameterType="int" resultType="int">
-        SELECT
-          COALESCE(
-            SUM(
-              CASE con.contractType
-                WHEN 1 THEN IF(jtt.pPrice != 0, jtt.pPrice, COALESCE(pd.pPrice, 0))
-                WHEN 2 THEN IF(jtt.gPrice != 0, jtt.gPrice, COALESCE(pd.gPrice, 0))
-                WHEN 3 THEN IF(jtt.dPrice != 0, jtt.dPrice, COALESCE(pd.dPrice, 0))
-                WHEN 4 THEN IF(jtt.aPrice != 0, jtt.aPrice, COALESCE(pd.aPrice, 0))
-                ELSE 0
-              END
-              ),
-            0)
-        FROM clients c
-        LEFT JOIN contracts con
-          ON con.clientId = c.id
-        LEFT JOIN J_TEACHERS_TYPES jtt
-          ON jtt.id = con.teacherTypeId
-        LEFT JOIN prices_default pd
-          ON pd.typeId = jtt.typeId
-        LEFT JOIN lessons l
-          ON l.contractId = con.id
-        WHERE c.id = #{clientId}
-    </select>
-
-    <select id="getIdByObject" parameterType="ClientModel" resultType="int">
-        SELECT id FROM clients WHERE
-        fname = #{fname} AND lname = #{lname} AND phone1 = #{phone1}
-    </select>
-
-    <select id="getIdByPhone1" parameterType="String" resultType="int">
-        SELECT id FROM clients WHERE
-        phone1 = #{phone1}
     </select>
 
     <select id="findClients" parameterType="map" resultMap="clientsMap">
@@ -282,113 +154,227 @@
         </where>
     </select>
 
+    <select id="getFirstContractDate" parameterType="int" resultType="Date">
+        SELECT MIN(date)
+        FROM contracts
+        WHERE clientId = #{clientId}
+    </select>
+
+    <select id="getContractCount" parameterType="int" resultType="int">
+        SELECT COUNT(con.id)
+        FROM contracts con
+        INNER JOIN contractsStatus cs
+          ON cs.id = con.statusId
+        WHERE con.clientId = #{clientId}
+          AND cs.deleted != 1
+    </select>
+
+    <select id="getActiveContractCount" parameterType="int" resultType="int">
+        SELECT COUNT(con.id)
+        FROM contracts con
+        INNER JOIN contractsStatus cs
+          ON cs.id = con.statusId
+        WHERE con.clientId = #{clientId}
+          AND cs.active = 1
+    </select>
+
+    <select id="getDonePaymentsTotal" parameterType="int" resultType="int">
+        SELECT COALESCE(SUM(p.value), 0)
+        FROM contracts con
+        LEFT JOIN payments p
+          ON p.contractId = con.id
+        LEFT JOIN contractsStatus cs
+          ON cs.id = con.statusId
+        WHERE p.done
+          AND con.clientId = #{id}
+          AND NOT cs.deleted;
+    </select>
+
+    <select id="getPlannedPaymentsTotal" parameterType="int" resultType="int">
+        SELECT COALESCE(SUM(p.value), 0)
+        FROM contracts con
+        LEFT JOIN payments p
+          ON p.contractId = con.id
+        LEFT JOIN contractsStatus cs
+          ON cs.id = con.statusId
+        WHERE p.planned AND NOT p.done AND con.clientId = #{id} AND NOT cs.deleted;
+    </select>
+
+    <select id="getMoneySpentOnLessons" parameterType="int" resultType="int">
+       SELECT
+         COALESCE(
+           SUM(
+             CASE c.contractType
+               WHEN 1 THEN IF(jtt.pPrice != 0, jtt.pPrice, COALESCE(pd.pPrice, 0))
+               WHEN 2 THEN IF(jtt.gPrice != 0, jtt.gPrice, COALESCE(pd.gPrice, 0))
+               WHEN 3 THEN IF(jtt.dPrice != 0, jtt.dPrice, COALESCE(pd.dPrice, 0))
+               WHEN 4 THEN IF(jtt.aPrice != 0, jtt.aPrice, COALESCE(pd.aPrice, 0))
+               ELSE 0
+             END
+           ),
+         0)
+       FROM contracts c
+       INNER JOIN J_TEACHERS_TYPES jtt
+         ON jtt.id = c.teacherTypeId
+       LEFT JOIN prices_default pd
+         ON pd.typeId = jtt.typeId
+       INNER JOIN lessons l
+         ON l.contractId = c.id
+       INNER JOIN contractsStatus cs
+         ON cs.id = c.statusId
+       WHERE c.clientId = #{clientId}
+         AND l.statusId != 1
+         AND NOT cs.deleted
+    </select>
+
+    <select id="getWriteoffTotal" parameterType="int" resultType="int">
+        SELECT COALESCE(SUM(c.writeoff), 0)
+        FROM contracts c
+        INNER JOIN contractsStatus cs
+          ON cs.id = c.statusId
+        WHERE c.clientId = #{clientId}
+          AND NOT cs.deleted
+    </select>
+
+    <select id="getCashbackTotal" parameterType="int" resultType="int">
+        SELECT COALESCE(SUM(c.cashback + c.fine), 0)
+        FROM contracts c
+        INNER JOIN contractsStatus cs
+          ON cs.id = c.statusId
+        WHERE c.clientId = #{clientId}
+          AND NOT cs.deleted
+    </select>
+
+    <select id="getTotal" parameterType="int" resultType="int">
+        SELECT
+          COALESCE(
+            SUM(
+              CASE con.contractType
+                WHEN 1 THEN IF(jtt.pPrice != 0, jtt.pPrice, COALESCE(pd.pPrice, 0))
+                WHEN 2 THEN IF(jtt.gPrice != 0, jtt.gPrice, COALESCE(pd.gPrice, 0))
+                WHEN 3 THEN IF(jtt.dPrice != 0, jtt.dPrice, COALESCE(pd.dPrice, 0))
+                WHEN 4 THEN IF(jtt.aPrice != 0, jtt.aPrice, COALESCE(pd.aPrice, 0))
+                ELSE 0
+              END
+              ),
+            0)
+        FROM clients c
+        LEFT JOIN contracts con
+          ON con.clientId = c.id
+        LEFT JOIN J_TEACHERS_TYPES jtt
+          ON jtt.id = con.teacherTypeId
+        LEFT JOIN prices_default pd
+          ON pd.typeId = jtt.typeId
+        LEFT JOIN lessons l
+          ON l.contractId = con.id
+        WHERE c.id = #{clientId}
+    </select>
+
+    <select id="getSiteUndoneClients" resultMap="clientsMap">
+        SELECT
+          clients.id,
+          clients.fname,
+          clients.lname,
+          clients.phone1,
+          clients.comment,
+          clients.email
+        FROM clients
+        WHERE clients.fromSite = 1
+          AND clients.fromSiteDone = 0
+          AND clients.statusId = 1
+    </select>
+
+    <!-- INSERT -->
 
     <insert id="insertClient" parameterType="ClientModel">
-        INSERT INTO clients (fname, lname, pname, phone1, phone2, phone1name, phone2name, jdata, hasJdata, bdate, email, comment)
-        VALUES (#{fname, javaType=String, jdbcType=VARCHAR},
-        #{lname, javaType=String, jdbcType=VARCHAR},
-        #{pname, javaType=String, jdbcType=VARCHAR},
-        #{phone1, javaType=String, jdbcType=VARCHAR},
-        #{phone2, javaType=String, jdbcType=VARCHAR},
-        #{phone1name, javaType=String, jdbcType=VARCHAR},
-        #{phone2name, javaType=String, jdbcType=VARCHAR},
-        #{jdata, javaType=String, jdbcType=VARCHAR},
-        #{hasJdata, javaType=int, jdbcType=INTEGER},
-        #{bdate, javaType=String, jdbcType=VARCHAR},
-        #{email, javaType=String, jdbcType=VARCHAR},
-        #{comment, javaType=String, jdbcType=VARCHAR});
+        INSERT INTO clients (
+          fname,
+          lname,
+          pname,
+          phone1,
+          phone2,
+          phone1name,
+          phone2name,
+          jdata,
+          hasJdata,
+          bdate,
+          email,
+          comment)
+        VALUES (
+          #{fname, javaType=String, jdbcType=VARCHAR},
+          #{lname, javaType=String, jdbcType=VARCHAR},
+          #{pname, javaType=String, jdbcType=VARCHAR},
+          #{phone1, javaType=String, jdbcType=VARCHAR},
+          #{phone2, javaType=String, jdbcType=VARCHAR},
+          #{phone1name, javaType=String, jdbcType=VARCHAR},
+          #{phone2name, javaType=String, jdbcType=VARCHAR},
+          #{jdata, javaType=String, jdbcType=VARCHAR},
+          #{hasJdata, javaType=int, jdbcType=INTEGER},
+          #{bdate, javaType=String, jdbcType=VARCHAR},
+          #{email, javaType=String, jdbcType=VARCHAR},
+          #{comment, javaType=String, jdbcType=VARCHAR}
+        );
+
         <selectKey resultType="int" keyProperty="id" order="AFTER">
             SELECT LAST_INSERT_ID();
         </selectKey>
     </insert>
 
+    <!-- UPDATE -->
+
     <update id="updateClientPart" parameterType="ClientModel">
         UPDATE clients SET
-        fname = #{fname},
-        lname = #{lname},
-        phone1 = #{phone1},
-        phone2 = #{phone2},
-        comment = #{comment}
+          fname = #{fname},
+          lname = #{lname},
+          phone1 = #{phone1},
+          phone2 = #{phone2},
+          comment = #{comment}
         WHERE id = #{id}
     </update>
 
     <update id="updateClient" parameterType="ClientModel">
         UPDATE clients SET
-        fname = #{fname},
-        lname = #{lname},
-        pname = #{pname},
-        phone1 = #{phone1},
-        phone1name = #{phone1name},
-        phone2 = #{phone2},
-        phone2name = #{phone2name},
-        comment = #{comment},
-        bdate = #{bdate},
-        email = #{email},
-        jdata = #{jdata},
-        hasJdata = #{hasJdata}
+          fname = #{fname},
+          lname = #{lname},
+          pname = #{pname},
+          phone1 = #{phone1},
+          phone1name = #{phone1name},
+          phone2 = #{phone2},
+          phone2name = #{phone2name},
+          comment = #{comment},
+          bdate = #{bdate},
+          email = #{email},
+          jdata = #{jdata},
+          hasJdata = #{hasJdata}
         WHERE id = #{id}
     </update>
 
-    <select id="getSiteClients" resultMap="clientsMap">
-        <include refid="selectAllFields"/>
-        FROM clients
-        WHERE clients.fromSite = 1
-        AND clients.statusId = 1
-    </select>
-
     <update id="updateBalance" parameterType="PaymentModel">
         UPDATE clients, contracts SET
-        clients.moneyR = clients.moneyR + #{value},
-        clients.moneyV = clients.moneyV + #{value}
-        WHERE
-        contracts.id = #{contractId}
-        AND clients.id = contracts.clientId
+          clients.moneyR = clients.moneyR + #{value},
+          clients.moneyV = clients.moneyV + #{value}
+        WHERE contracts.id = #{contractId}
+          AND clients.id = contracts.clientId
     </update>
 
     <update id="updateVBalance" parameterType="PaymentModel">
         UPDATE clients, contracts SET
-        clients.moneyV = clients.moneyV + #{value}
-        WHERE
-        contracts.id = #{contractId}
-        AND clients.id = contracts.clientId
+          clients.moneyV = clients.moneyV + #{value}
+        WHERE contracts.id = #{contractId}
+          AND clients.id = contracts.clientId
     </update>
 
     <update id="updateJdata" parameterType="ClientModel">
         UPDATE clients SET
-        clients.jdata = #{jdata},
-        clients.hasJdata = 1
-        WHERE
-        clients.id = #{id}
-    </update>
-
-    <select id="getClientJdataById" parameterType="int" resultType="ClientModel">
-        SELECT clients.id,
-        clients.fname,
-        clients.lname,
-        clients.jdata,
-        clients.hasJdata
-        FROM clients
+          clients.jdata = #{jdata},
+          clients.hasJdata = 1
         WHERE clients.id = #{id}
-    </select>
-
-    <select id="getSiteUndoneClients" resultMap="clientsMap">
-        SELECT clients.id,
-        clients.fname,
-        clients.lname,
-        clients.phone1,
-        clients.comment,
-        clients.email
-        FROM clients
-        WHERE clients.fromSite = 1
-        AND clients.fromSiteDone = 0
-        AND clients.statusId = 1
-    </select>
+    </update>
 
     <update id="deleteClient" parameterType="int">
         UPDATE clients SET
-        clients.statusId = 2
-        WHERE
-        clients.id = #{id}
+          clients.statusId = 2
+        WHERE clients.id = #{id}
     </update>
 
 </mapper>
