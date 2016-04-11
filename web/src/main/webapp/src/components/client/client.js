@@ -12,34 +12,40 @@ export default React.createClass({
     };
   },
   clientToState: function(client) {
-    var startDate = client.firstContractDate !== null
-                    ? moment(client.firstContractDate).format('DD-MM-YYYY')
-                    : '';
+    var bdate = client.bdate 
+      ? moment(client.bdate, 'YYYY-MM-DD').format('DD-MM-YYYY') 
+      : '';
+
+    var startDate = 
+      client.firstContractDate !== null
+      ? moment(client.firstContractDate).format('DD-MM-YYYY')
+      : '';
+
     return {
-      fname: client.fname,
-      pname: client.pname,
-      lname: client.lname,
-      bdate: moment(client.bdate, 'YYYY-MM-DD').format('DD-MM-YYYY'),
-      phone1: client.phone1,
-      email: client.email,
-      startDate: startDate,
-      balance: client.balance,
+      fname:                client.fname,
+      pname:                client.pname,
+      lname:                client.lname,
+      bdate:                bdate,
+      phone1:               client.phone1,
+      email:                client.email,
+      startDate:            startDate,
+      balance:              client.balance,
       activeContractsCount: client.countActiveContracts,
-      contractsCount: client.countContracts,
-      total: client.total 
+      contractsCount:       client.countContracts,
+      total:                client.total 
     };
   },
   stateToClient: function(state) {
     return {
-      id: this.props.id,
-      fname: this.state.fname,
-      lname: this.state.lname,
-      pname: this.state.pname,
+      id:     this.props.id,
+      fname:  this.state.fname,
+      lname:  this.state.lname,
+      pname:  this.state.pname,
       phone1: this.state.phone1,
-      email: this.state.email,
-      bdate: this.validDate(this.state.bdate)
-             ? moment(this.state.bdate, 'DD-MM-YYYY').format('YYYY-MM-DD')
-             : moment().format('YYYY-MM-DD')
+      email:  this.state.email,
+      bdate:  this.validDate(this.state.bdate)
+              ? moment(this.state.bdate, 'DD-MM-YYYY').format('YYYY-MM-DD')
+              : ''
     };
   },
   getInitialState: function() {
@@ -68,13 +74,13 @@ export default React.createClass({
   editHandler: function() {
     this.setState({
       savedState: {
-        fname: this.state.fname,
-        pname: this.state.pname,
-        lname: this.state.lname,
-        bdate: this.state.bdate,
-        phone1: this.state.phone1,
-        email: this.state.email,
-        editMode: false,
+        fname:      this.state.fname,
+        pname:      this.state.pname,
+        lname:      this.state.lname,
+        bdate:      this.state.bdate,
+        phone1:     this.state.phone1,
+        email:      this.state.email,
+        editMode:   false,
         savedState: {}
       },
       editMode: true
@@ -105,10 +111,11 @@ export default React.createClass({
       <div className='client'>
         <div className='client-toolbar-box'>
           <h2>{this.state.fname + ' ' + this.state.lname}</h2>            
-          <ClientToolbar editMode={this.state.editMode}
-                         editHandler={this.editHandler}
-                         saveHandler={this.saveHandler}
-                         revertHandler={this.revertHandler} />
+          <ClientToolbar 
+            editMode={this.state.editMode}
+            editHandler={this.editHandler}
+            saveHandler={this.saveHandler}
+            revertHandler={this.revertHandler} />
         </div>
 
         <table className='info-table client-info-table'>
@@ -176,9 +183,10 @@ export default React.createClass({
           </tbody>
         </table>
 
-        <ContractList reloadClient={this.reloadData} 
-                      clientId={this.props.id} 
-                      url='/do/client/contracts'/>
+        <ContractList 
+          reloadClient={this.reloadData} 
+          clientId={this.props.id} 
+          url='/do/client/contracts'/>
 
       </div>
     );
