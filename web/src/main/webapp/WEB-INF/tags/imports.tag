@@ -27,11 +27,14 @@
 
 <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
 
+<link href="${pageContext.request.contextPath}/resources/js/lib/plugins/jquery-timepicker/jquery.timepicker.css" rel="stylesheet" type="text/css" />
+
 <!--=== JavaScript ===-->
 
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/assets/js/libs/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/plugins/jquery-ui/jquery-ui-1.10.2.custom.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/plugins/jquery-ui/datepicker-ru.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/plugins/jquery-timepicker/jquery.timepicker.min.js"></script>
 
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/lib/assets/js/libs/lodash.compat.min.js"></script>

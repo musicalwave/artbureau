@@ -3,6 +3,7 @@ package com.itsoft.ab.beans;
 import com.itsoft.ab.exceptions.ApplicationException;
 import com.itsoft.ab.model.*;
 import com.itsoft.ab.persistence.*;
+import com.itsoft.ab.sys.Dates;
 import com.itsoft.ab.sys.ECode;
 import com.itsoft.ab.sys.MapMaster;
 import org.apache.commons.logging.Log;
@@ -25,9 +26,6 @@ public class ContractMaster {
     Log LOG = LogFactory.getLog(ContractMaster.class);
 
     @Autowired
-    private TeacherTypeMapper teacherTypeMapper;
-
-    @Autowired
     private LessonsMapper lessonsMapper;
 
     @Autowired
@@ -35,9 +33,6 @@ public class ContractMaster {
 
     @Autowired
     private EventsMapper eventsMapper;
-
-    @Autowired
-    private EventMaster eventMaster;
 
     @Autowired
     private ContractsMapper contractsMapper;
@@ -54,7 +49,22 @@ public class ContractMaster {
     @Autowired
     private ScheduleMapper scheduleMapper;
 
+    @Autowired
+    private ContractScheduleMaster contractScheduleMaster;
+
+    @Autowired
+    private TeacherScheduleMaster teacherScheduleMaster;
+
     public ContractMaster() {
+    }
+
+    private int countRealLessons(List<LessonModel> lessons) {
+        int realLessonsCount = 0;
+        for(LessonModel lesson: lessons)
+            if (lesson.getCancelled() != 1)
+                realLessonsCount++;
+
+        return realLessonsCount;
     }
 
     public List<ContractModel> getContractsByClient(int clientId) {
@@ -63,12 +73,13 @@ public class ContractMaster {
             contract.setAvailableLessons(contractsMapper.getPlannedLessonCount(contract.getId()));
             List<LessonModel> lessons = lessonsMapper.getContractLessons(contract.getId());
             contract.setLessons(lessons);
-            contract.setCountLessons(lessons == null ? 0 : lessons.size());
+            contract.setCountLessons(countRealLessons(lessons));
             contract.setPayments(paymentMapper.getContractPayments(contract.getId()));
             contract.setContractOptionModel(
                 contractsMapper.getContractOptionById(contract.getContractOptionId()));
-            contract.setTeacherEvents(eventMaster.getEmptyEvents(contract.getTeacherId()));
-            contract.setSchedule(scheduleMapper.getContractSchedule(contract.getId()));
+            contract.setTeacherSchedule(
+                teacherScheduleMaster.getTeacherSchedule(contract.getTeacherId()));
+            contract.setSchedule(contractScheduleMaster.getContractSchedule(contract.getId()));
             contract.setPrice(contractsMapper.getPrice(contract.getId()));
             contract.setBalance(getContractBalance(contract.getId()));
         }
@@ -126,7 +137,12 @@ public class ContractMaster {
 
     public int createContract(ContractModel contract) {
         contract = insertContract(contract);
-        updateSchedule(contract.getId(), contract.getDays().split(","));
+
+        contractScheduleMaster.insertContractSchedule(
+            contract.getId(),
+            contract.getSchedule()
+        );
+
         replanLessons(contract);
 
         for(PaymentModel payment: contract.getPayments()) {
@@ -246,14 +262,6 @@ public class ContractMaster {
         return lessonCount - completedLessonCount;
     }
 
-    // Calendar's week starts from sunday
-    // (means that DAY_OF_WEEK for sunday is 1)
-    // Need to adjust it.
-    private int getWeekday(Calendar date) {
-        // monday's number is 2
-        return (date.get(Calendar.DAY_OF_WEEK) - 2 + 7) % 7 + 1;
-    }
-
     private boolean dateWithinInterval(Calendar date, Calendar leftDate, Calendar rightDate, boolean inclusive) {
         return (date.after(leftDate) && date.before(rightDate)) ||
                (inclusive && (date.equals(leftDate) ||
@@ -276,24 +284,26 @@ public class ContractMaster {
         Calendar dateToPlanFrom,
         int lessonsToCreate,
         int statusId) {
-            List<EventModel> schedule = scheduleMapper.getContractSchedule(contract.getId());
+            List<ContractScheduleModel> schedule =
+                contractScheduleMaster.getContractSchedule(contract.getId());
             if(!schedule.isEmpty()) {
                 while (lessonsToCreate > 0) {
                     if(!isDateFrozen(contract, dateToPlanFrom)) {
-                        List<EventModel> appropriateEvents =
-                            eventMaster.filterEventsByWeekday(
+                        List<ContractScheduleModel> appropriateItems =
+                            contractScheduleMaster.filterItemsByWeekday(
                                 schedule,
-                                getWeekday(dateToPlanFrom)
+                                Dates.getCalendarWeekday(dateToPlanFrom)
                             );
-                        for (EventModel event : appropriateEvents) {
-                            if (eventsMapper.isEventFree(
-                                    contract.getId(),
-                                    dateToPlanFrom.getTime(),
-                                    event.getId())) {
+                        for (ContractScheduleModel item : appropriateItems) {
+                            if (contractScheduleMaster.isScheduleItemAvailable(
+                                    item,
+                                    dateToPlanFrom.getTime())) {
                                 LessonModel lesson = lessonMaster.createLesson(
                                     contract.getId(),
-                                    event.getId(),
                                     dateToPlanFrom.getTime(),
+                                    item.getFromTime(),
+                                    item.getToTime(),
+                                    item.getRoomId(),
                                     statusId
                                 );
                                 lessonsMapper.insertLesson(lesson);
@@ -371,6 +381,24 @@ public class ContractMaster {
 
     public void updateSchedule(int contractId, String[] eventIds) {
         scheduleMapper.updateContractSchedule(contractId, eventIds);
+    }
+
+    public void insertScheduleItem(ContractScheduleModel item) {
+        contractScheduleMaster.insertContractScheduleItem(item);
+        ContractModel contract = contractsMapper.getContractById(item.getContractId());
+        replanLessons(contract);
+    }
+
+    public void updateScheduleItem(ContractScheduleModel item) {
+        contractScheduleMaster.updateContractScheduleItem(item);
+        ContractModel contract = contractsMapper.getContractById(item.getContractId());
+        replanLessons(contract);
+    }
+
+    public void deleteScheduleItem(ContractScheduleModel item) {
+        contractScheduleMaster.deleteContractScheduleItem(item.getId());
+        ContractModel contract = contractsMapper.getContractById(item.getContractId());
+        replanLessons(contract);
     }
 
     public int getContractBalance(int contractId) {

@@ -153,10 +153,10 @@ public class LessonController {
     @RequestMapping(value="/do/lessons/room", method = RequestMethod.GET)
     public
     @ResponseBody
-    List<LessonWeb> getLessonsByRoom(@RequestParam(value = "roomId") int roomId,
-                                     @RequestParam(value = "leftDate") String leftDate,
-                                     @RequestParam(value = "rightDate") String rightDate) {
-        return  scheduleMapper.getLessonsByRoom(roomId, leftDate, rightDate);
+    List<LessonModel> getLessonsByRoom(@RequestParam(value = "roomId") int roomId,
+                                     @RequestParam(value = "fromDate") String fromDate,
+                                     @RequestParam(value = "toDate") String toDate) {
+        return  scheduleMapper.getLessonsByRoomAndInterval(roomId, fromDate, toDate);
     }
 
 
@@ -205,49 +205,38 @@ public class LessonController {
         return new HTTPResponse(HTTPCode.SUCCESS);
     }
 
-    @RequestMapping(value="/do/lessons/insert", method = RequestMethod.POST)
+    @RequestMapping(
+        value="/do/lessons/insert",
+        method = RequestMethod.POST,
+        headers = {"Content-type=application/json"})
     public
     @ResponseBody
-    void createLesson(
-        @RequestParam(value = "contractId") int contractId,
-        @RequestParam(value = "date") long date,
-        @RequestParam(value = "eventId") int eventId
-    ) {
-        LessonModel lesson = new LessonModel();
-        lesson.setContractId(contractId);
-        lesson.setDate(new Date(date));
-        lesson.setEventId(eventId);
-        lesson.setStatusId(1);
+    void createLesson(@RequestBody LessonModel lesson) {
         lessonsMapper.insertLesson(lesson);
-        ContractModel contract = contractMapper.getContractById(contractId);
+        ContractModel contract = contractMapper.getContractById(lesson.getContractId());
         contractMapper.updateLessonCount(
           contract.getId(),
           contractMapper.getLessonCount(contract.getId())
         );
     }
 
-    @RequestMapping(value="/do/lesson/shift", method = RequestMethod.POST)
+    @RequestMapping(
+        value="/do/lesson/shift",
+        method = RequestMethod.POST,
+        headers = {"Content-type=application/json"})
     public
     @ResponseBody
-    boolean shiftLesson(
-        @RequestParam(value = "id") int id,
-        @RequestParam(value = "teacherId") int teacherId,
-        @RequestParam(value = "roomId") int roomId,
-        @RequestParam(value = "date") String date,
-        @RequestParam(value = "weekday") int weekday,
-        @RequestParam(value = "startTime") String startTime,
-        @RequestParam(value = "finishTime") String finishTime) {
-            EventModel emptyEvent =
-                scheduleMapper.getEmptyEvent(
-                    teacherId,
-                    roomId,
-                    weekday,
-                    startTime,
-                    finishTime,
-                    date);
+    void shiftLesson(@RequestBody LessonModel lesson) {
+        lessonMaster.shiftLesson(lesson);
+    }
 
-            return emptyEvent != null &&
-                   scheduleMaster.shiftLesson(id, emptyEvent.getId(), date);
+    @RequestMapping(
+        value="/do/lesson/unshift",
+        method = RequestMethod.POST)
+    public
+    @ResponseBody
+    void unshiftLesson(@RequestParam(value = "id") int lessonId) {
+        lessonMaster.unshiftLesson(lessonId);
     }
 
     @RequestMapping(value = "/do/lessons/conduct", method = RequestMethod.POST)
@@ -288,12 +277,28 @@ public class LessonController {
         return 0;
     }
 
-    @RequestMapping(value = "/do/lesson/update", method = RequestMethod.POST)
+    @RequestMapping(
+        value = "/do/lesson/update",
+        method = RequestMethod.POST,
+        headers = {"Content-type=application/json"})
     public
     @ResponseBody
-    void updateLesson(@RequestParam(value = "lessonId") int lessonId,
-                      @RequestParam(value = "date") String date,
-                      @RequestParam(value = "eventId") int eventId) {
-        lessonsMapper.updateLesson(lessonId, date, eventId);
+    void updateLesson(@RequestBody LessonModel lesson) {
+        lessonsMapper.updateLesson(lesson);
+    }
+
+    @RequestMapping(
+        value = "/do/lessons/delete",
+        method = RequestMethod.POST,
+        headers = {"Content-type=application/json"})
+    public
+    @ResponseBody
+    void deleteLesson(@RequestBody LessonModel lesson) {
+        lessonsMapper.deleteLesson(lesson.getId());
+        ContractModel contract = contractMapper.getContractById(lesson.getContractId());
+        contractMapper.updateLessonCount(
+          contract.getId(),
+          contractMapper.getLessonCount(contract.getId())
+        );
     }
 }

@@ -1,42 +1,46 @@
+ require('../../css/calendar.css');
 import React from 'react';
 import CalendarHeader from './calendar-header.js';
+import EventDropDialog from './event-drop-dialog.js';
+import {ModalContainer, ModalDialog} from 'react-modal-dialog';
 import {
   conductLesson,
   burnLesson,
   shiftLesson,
+  unshiftLesson,
   getRoomLessons,
-  getEmptyEvents
+  getTeacherScheduleByRoom
 } from '../../actions/lesson_actions.js';
+import {noop} from '../../utils/utils.js';
+import moment from 'moment';
 
 export default React.createClass({
   getInitialState: function() {
     return {
-      selectedRoomId:         -1,
-      draggedEvent:           null,
-      needRefetch:            false,
-      addEmptyEventSource:    false,
-      removeEmptyEventSource: false,
-      changeRoomOnHover:      false
+      selectedRoomId:           -1,
+      draggedEvent:             null,
+      needRefetch:              false,
+      addEmptyEventSource:      false,
+      removeEmptyEventSource:   false,
+      changeRoomOnHover:        false,
+      isShowingEventDropDialog: false,
+      cancelDropEventHandler:   noop,
+      acceptDropEventHandler:   noop
     };
   },
-  lessonToCalendarEvent: function(lesson) {    
-    var date       = lesson.date;
-    var startTime  = lesson.startTime;
-    var finishTime = lesson.finishTime;
-    var start      = new Date(date + ' ' + startTime);
-    var end        = new Date(date + ' ' + finishTime);
+  lessonToEvent: function(lesson) {    
+    var lessonDate = moment(lesson.date).format('YYYY-MM-DD');
 
     return { 
-      id:               lesson.lessonId,
-      teacherId :       lesson.teacherId,
-      roomId :          lesson.roomId,
+      id:               lesson.id,
+      lesson:           lesson,
       lostOrigin :      false,
       weeksPassed:      0,
       title:            'Ученик: ' + lesson.clientName + '\n' +
                         'Препод: ' + lesson.teacherName,
-      start:            start,
-      end:              end,
-      startEditable:    true,                            
+      start:            lessonDate + 'T' + lesson.fromTime,
+      end:              lessonDate + 'T' + lesson.toTime,
+      startEditable:    !lesson.cancelled,
       durationEditable: false,
       color:            this.getEventColorByStatus(lesson.doneStatus) 
     };
@@ -48,13 +52,13 @@ export default React.createClass({
       case 3: return 'red';
     }
   },
-  emptyEventToCalendarEvent: function(postition, firstDayOfWeek) {
+  teacherScheduleItemToEvent: function(item, firstDayOfWeek) {
     var dateStr = 
       firstDayOfWeek
-      .add(postition.weekday - 1, 'days')
+      .add(item.weekday - 1, 'days')
       .format('YYYY-MM-DD');
-    var start = dateStr + 'T' + postition.startTime;
-    var end   = dateStr + 'T' + postition.finishTime;
+    var start = dateStr + 'T' + item.fromTime;
+    var end   = dateStr + 'T' + item.toTime;
 
     return { 
       start,
@@ -63,34 +67,32 @@ export default React.createClass({
       color:     'green' 
     };
   },
-  getEmptyCalendarEvents: function(start, end, timezone, callback) {
+  getTeacherScheduleEvents: function(start, end, timezone, callback) {
     $.when(
-      getEmptyEvents(
-        this.state.draggedEvent.teacherId, 
-        this.state.selectedRoomId,
-        start,
-        end
+      getTeacherScheduleByRoom(
+        this.state.draggedEvent.lesson.teacherId, 
+        this.state.selectedRoomId
       )
-    ).done(function(emptyEvents) {
-      var emptyCalendarEvents = emptyEvents.map(function(event) {
-        return this.emptyEventToCalendarEvent(event, moment(start));
-      }.bind(this));
-      callback(emptyCalendarEvents);
+    ).done(teacherSchedule => {
+      var teacherScheduleEvents = teacherSchedule.map(
+        item => this.teacherScheduleItemToEvent(item, start)
+      );
+      callback(teacherScheduleEvents);
 
       // need to hide the dragged event here, 
       // strictly after the callback gets executed
       // (the callback calls the FC's renderEvents() method, 
       //  which renders the dragged event as if it is not dragged)
       this.hideDraggedEvent();
-    }.bind(this));
+    });
   },
-  getEvents: function(start, end, timezone, callback) {
+  getLessonEvents: function(start, end, timezone, callback) {
     $.when(
       getRoomLessons(this.state.selectedRoomId, start, end)
-    ).done(function(lessons) {
-      var lessonEvents = lessons.map(this.lessonToCalendarEvent);
+    ).done(lessons => {
+      var lessonEvents = lessons.map(this.lessonToEvent);
       callback(lessonEvents);
-    }.bind(this));
+    });
   },
   hideDraggedEvent: function() {
     if (this.state.draggedEvent) {
@@ -99,11 +101,15 @@ export default React.createClass({
         .hideEvent(this.state.draggedEvent);
     }
   },
-  eventRenderer: function( event, element, view ) {
+  eventRenderer: function(event, element, view) {
     if(event.rendering !== 'background') {
-      $(element).attr('event_id', event._id);
+      $(element).attr('lesson_id', event.lesson.id);
       $(element).append(this.getEventIconsList());
       $(element).find('div.fc-content').css('top', '17px');
+      if (event.lesson.cancelled) 
+        $(element).addClass('cancelled-event');
+      if (event.lesson.temporary) 
+        $(element).addClass('temporary-event');
     }
   },
   getEventIconsList: function(event) {
@@ -138,35 +144,27 @@ export default React.createClass({
     event.end.add(real_delta, 'd')
              .add(delta._milliseconds, 'ms');
   },
-  updateLesson: function(
+  shiftLesson: function(
     event,
-    id, 
-    teacherId, 
-    roomId, 
-    weekday, 
-    startTime, 
-    finishTime, 
-    date,
+    roomId,
+    tempShift,
+    causedByClient,
     revertFunc,
     successCallback) {
-      var data = {
-        id,
-        teacherId,
-        roomId,
-        weekday,
-        startTime,
-        finishTime,
-        date
+      var lesson = {
+        id:              event.id,
+        roomId:          this.state.selectedRoomId,
+        date:            parseInt(event.start.format('x')),
+        fromTime:        event.start.format('HH:mm:ss'),
+        toTime:          event.end.format('HH:mm:ss'),
+        temporary:       event.lesson.temporary,
+        cancelled:       event.lesson.cancelled,
+        shiftedByClient: causedByClient,
+        tempShift:       tempShift
       };
       shiftLesson(
-        data,
-        response => {
-          if (!response)
-            revertFunc();
-          else
-            if (event.lostOrigin)
-              successCallback();
-        },
+        JSON.stringify(lesson),
+        successCallback,
         revertFunc
       );
   },
@@ -178,12 +176,21 @@ export default React.createClass({
     }
   },
   conductLesson: function(key, options) {        
-    var lessonId = options.$trigger.attr('event_id');
+    var lessonId = options.$trigger.attr('lesson_id');
     conductLesson(lessonId, this.updateLessonColor.bind(this, options.$trigger));
   },
   burnLesson: function(key, options) {
-    var lessonId = options.$trigger.attr('event_id');
+    var lessonId = options.$trigger.attr('leeson_id');
     burnLesson(lessonId, this.updateLessonColor.bind(this, options.$trigger));
+  },
+  unshiftLesson: function(key, options) {
+    var lessonId = options.$trigger.attr('lesson_id');
+    var callback = () => {
+      this.setState({
+        needRefetch: true
+      });
+    };
+    unshiftLesson(lessonId, callback);
   },
   eventDropper: function(event, delta, revertFunc) {
     // The event is said to have lost its origin when it is no longer in the calendar's
@@ -193,26 +200,29 @@ export default React.createClass({
     if(event.lostOrigin)
       this.mutateEvent(event, delta);
 
-    var successCallback = function() {
-      this.setState({
-        needRefetch:            true,
-        addEmptyEventSource:    false,
-        removeEmptyEventSource: false
-      });
-    }.bind(this);
-
-    this.updateLesson(
-      event,
-      event._id,
-      event.teacherId,
-      this.state.selectedRoomId,
-      event.start.isoWeekday(),
-      event.start.format('HH:mm:ss'),
-      event.end.format('HH:mm:ss'),
-      event.start.format('YYYY-MM-DD'),
-      revertFunc,
-      successCallback
-    );
+    this.setState({
+      isShowingEventDropDialog: true,
+      
+      acceptDropEventHandler: (tempShift, causedByClient) => {
+        this.shiftLesson(
+          event,
+          this.state.selectedRoomId,
+          tempShift,
+          causedByClient,
+          revertFunc,
+          () => this.setState({
+            needRefetch:            true,
+            addEmptyEventSource:    false,
+            removeEmptyEventSource: false,
+            isShowingEventDropDialog: false
+          })
+        );
+      },
+      cancelDropEventHandler: () => {
+        revertFunc();
+        this.closeEventDropDialog();
+      }
+    });
   },
   roomChanged: function(roomId) {
     this.setState({
@@ -231,6 +241,16 @@ export default React.createClass({
       })
     }  
   },
+  showEventDropDialog: function() {
+    this.setState({
+      isShowingEventDropDialog: true
+    });
+  },
+  closeEventDropDialog: function() {
+    this.setState({
+      isShowingEventDropDialog: false
+    });
+  },
   render: function() {
     return (
       <div>
@@ -238,13 +258,19 @@ export default React.createClass({
           roomChanged={this.roomChanged}
           roomHovered={this.roomHovered}
           changeRoomOnHover={this.state.changeRoomOnHover}/>
+        {this.state.isShowingEventDropDialog &&
+          <ModalContainer onClose={this.state.cancelDropEventHandler}>
+            <ModalDialog onClose={this.state.cancelDropEventHandler}>
+              <EventDropDialog onAccept={this.state.acceptDropEventHandler}/>
+            </ModalDialog>
+          </ModalContainer>}
         <div ref='calendarContent'/>
       </div>
     );
   },
   initCalendarContent: function() {
     $(this.refs.calendarContent).fullCalendar({
-      events: this.getEvents,
+      events:         this.getLessonEvents,
       defaultView:    'agendaWeek',
       header : {
         left:         'title',
@@ -260,6 +286,7 @@ export default React.createClass({
       allDaySlot:      false,
       minTime:         '10:00:00',
       maxTime:         '23:00:00',
+      slotDuration:    '00:15:00',
       slotLabelFormat: 'H:mm',
       height:          750,
 
@@ -311,17 +338,33 @@ export default React.createClass({
       items: {
         check: {
           name: 'Провести', 
-          icon: function() {
+          icon: () => {
             return 'context-menu-icon context-menu-icon-check';
           },
-          callback: this.conductLesson
+          callback: this.conductLesson,
+          disabled: (key, opt) => {
+            return opt.$trigger.hasClass('cancelled-event')
+          }
         },
         burn: {
           name: 'Сжечь', 
-          icon: function() {
+          icon: () => {
             return 'context-menu-icon context-menu-icon-burn';
           },
-          callback: this.burnLesson
+          callback: this.burnLesson,
+          disabled: (key, opt) => {
+            return opt.$trigger.hasClass('cancelled-event')
+          }
+        },
+        unshift: {
+          name: 'Отменить перенос', 
+          icon: () => {
+            return 'context-menu-icon context-menu-icon-unshift';
+          },
+          callback: this.unshiftLesson,
+          disabled: (key, opt) => {
+            return !opt.$trigger.hasClass('temporary-event')
+          }
         }
       }
     });  
@@ -337,11 +380,13 @@ export default React.createClass({
 
     if (this.state.removeEmptyEventSource) 
       $(this.refs.calendarContent).fullCalendar(
-        'removeEventSource', this.getEmptyCalendarEvents);
+        'removeEventSource', this.getTeacherScheduleEvents
+      );
 
     if (this.state.addEmptyEventSource)
       $(this.refs.calendarContent).fullCalendar(
-        'addEventSource', this.getEmptyCalendarEvents);
+        'addEventSource', this.getTeacherScheduleEvents
+      );
   }
 });
 

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsoft.ab.persistence.ContractScheduleMapper">
+
+     <!-- SELECT -->
+    <select id="getContractSchedule"
+            parameterType="int"
+            resultType="ContractScheduleModel">
+        SELECT
+          id,
+          contractId,
+          fromTime,
+          toTime,
+          roomId,
+          weekday
+        FROM contractSchedule
+        WHERE contractId = #{contractId}
+        ORDER BY weekday, fromTime
+    </select>
+
+    <select id="isScheduleItemAvailable"
+            resultType="boolean">
+        SELECT COUNT(l.id) = 0
+        FROM lessons l
+        WHERE l.fromTime = #{item.fromTime}
+          AND l.toTime = #{item.toTime}
+          AND l.roomId = #{item.roomId}
+          AND l.date = #{date}
+    </select>
+
+    <select id="findItemByLesson" parameterType="int" resultType="ContractScheduleModel">
+        SELECT cs.*
+        FROM lessons l
+        INNER JOIN contractSchedule cs
+          ON cs.contractId = l.contractId
+          AND cs.roomId = l.roomId
+          AND cs.fromTime = l.fromTime
+          AND cs.toTime = l.toTime
+          AND cs.weekday = WEEKDAY(l.date) + 1
+        WHERE l.id = #{lessonId}
+    </select>
+
+    <!-- INSERT -->
+    <insert id="insertContractScheduleItem" parameterType="ContractScheduleModel">
+        INSERT INTO contractSchedule(
+          contractId,
+          fromTime,
+          toTime,
+          roomId,
+          weekday)
+        VALUES(
+          #{item.contractId},
+          #{item.fromTime},
+          #{item.toTime},
+          #{item.roomId},
+          #{item.weekday})
+    </insert>
+
+    <insert id="insertContractSchedule" parameterType="ContractScheduleModel">
+        INSERT INTO contractSchedule(
+          contractId,
+          fromTime,
+          toTime,
+          roomId,
+          weekday)
+        VALUES
+        <foreach collection="items" item="item" separator=",">
+          (#{item.contractId},
+           #{item.fromTime},
+           #{item.toTime},
+           #{item.roomId},
+           #{item.weekday})
+        </foreach>
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="updateContractScheduleItem" parameterType="ContractScheduleModel">
+        UPDATE contractSchedule
+        SET
+          fromTime = #{item.fromTime},
+          toTime =   #{item.toTime},
+          roomId =   #{item.roomId},
+          weekday =  #{item.weekday}
+        WHERE id = #{item.id}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="deleteContractScheduleItem" parameterType="int">
+        DELETE FROM contractSchedule
+        WHERE id = #{id}
+    </delete>
+
+</mapper>

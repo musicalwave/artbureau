@@ -1,7 +1,9 @@
 import React from 'react';
 import moment from 'moment';
 import NewPayment from './new-payment.js';
-import {eventToString, coalesce} from '../../utils/utils.js';
+import ContractScheduleCreator from './contract-schedule-creator.js';
+import TeacherSchedule from './teacher-schedule.js';
+import {coalesce} from '../../utils/utils.js';
 import {createContract} from '../../actions/contract_actions.js';
 
 export default React.createClass({
@@ -12,7 +14,6 @@ export default React.createClass({
       contractTypeId: 0,
       teacherTypeId: 0,
       startDate: '',
-      scheduleEventIds: [],
       lessonCount: 0,
       discountId: 0,
       lessonPrice: 0,
@@ -23,7 +24,6 @@ export default React.createClass({
       contractTypes: [],
       teacherTypes: [],
       teacherWeekdays: [],
-      events: [],
       discounts: []
     };
   },
@@ -78,10 +78,6 @@ export default React.createClass({
               <td><input ref='startDate' value={this.state.startDate}/></td>
             </tr>
             <tr>
-              <th>Расписание:</th>
-              <td><input ref='schedule' value={this.state.scheduleEventIds.join(',')}/></td>
-            </tr>
-            <tr>
               <th>Скидка:</th>
               <td><input ref='discount' value={this.state.discountId}/></td>
             </tr>
@@ -95,6 +91,13 @@ export default React.createClass({
             </tr>
           </tbody>
         </table>
+        <TeacherSchedule 
+          schedule={this.state.teacherSchedule}
+          title='Расписание преподавателя'/>
+        <ContractScheduleCreator
+          ref='scheduleCreator'
+          title='Расписание договора' 
+          rooms={this.state.rooms}/>
         <h4>Платежи:</h4>
         <h5 className='pull-left'>количество:</h5>
         <input className='pull-left payment-counter' type='number'
@@ -144,11 +147,11 @@ export default React.createClass({
       price:            this.state.totalPrice,
       contractType:     this.state.contractTypeId,
       discount:         this.state.optionId,
-      days:             this.state.scheduleEventIds.join(','),
-      payments:         this.state.payments.map(this.preparePayment)
+      payments:         this.state.payments.map(this.preparePayment),
+      schedule:         this.refs.scheduleCreator.state.schedule
     });
     
-    createContract(data, this.reloadAndClose);        
+    createContract(data, this.reloadAndClose);
   },
   getMaxNumOfPayments: function() {
     var option = this.getItemById(this.state.options, this.state.optionId);
@@ -183,10 +186,10 @@ export default React.createClass({
   getItemById: function(items, id) {
     return items.filter(item => item.id === id)[0];
   },
-  getWeekdays: function(events) {
-    var weekdays = events.reduce(function(prevValue, event) {
-      if (prevValue.indexOf(event.weekday) === -1)
-        return prevValue.concat(event.weekday);
+  getWeekdays: function(schedule) {
+    var weekdays = schedule.reduce(function(prevValue, item) {
+      if (prevValue.indexOf(item.weekday) === -1)
+        return prevValue.concat(item.weekday);
       else
         return prevValue;
     }, []);
@@ -195,8 +198,9 @@ export default React.createClass({
   },
   getStartDate: function(fromDate, weekdays) {
     var startDate = fromDate
-    while(weekdays.indexOf(startDate.isoWeekday()) === -1)
-      startDate.add(1, 'days');
+    if (weekdays.length !== 0)
+      while(weekdays.indexOf(startDate.isoWeekday()) === -1)
+        startDate.add(1, 'days');
     return startDate;
   },
   getLessonPrice: function(teacherType, contractTypeId) {
@@ -218,12 +222,6 @@ export default React.createClass({
   },
   filterTeacherTypesByLessonType: function(teacherTypes, lessonTypeId) {
     return teacherTypes.filter(tt => tt.typeId === lessonTypeId);
-  },
-  filterEventsByTeacher: function(events, teacherId) {
-    return events.filter(event => event.teacherId === teacherId);
-  },
-  filterEventsByWeekday: function(events, weekday) {
-    return events.filter(event => event.weekday === weekday);
   },
   numOfPaymentsChanged(e) {
     var numberOfPayments = parseInt(e.target.value);
@@ -276,7 +274,7 @@ export default React.createClass({
 
     // defaults
     var teacherTypeId   = 0;
-    var teacherEvents   = [];
+    var teacherSchedule = [];
     var teacherWeekdays = [];
     var startDate       = moment();
     var contractType    = this.getItemById(this.state.contractTypes, this.state.contractTypeId);
@@ -288,19 +286,18 @@ export default React.createClass({
 
     // actual data
     var filteredTeacherTypes =
-      this.filterTeacherTypesByLessonType(this.state.teacherTypes,
-        lessonTypeId);
+      this.filterTeacherTypesByLessonType(
+        this.state.teacherTypes,
+        lessonTypeId
+    );
 
     if (filteredTeacherTypes.length !== 0) {
       var teacherType     = filteredTeacherTypes[0];
       teacherTypeId       = teacherType.id;
-      teacherEvents = 
-        this.filterEventsByTeacher(
-          this.state.events,
-          teacherType.teacherId
-      );
-      if (teacherEvents.length !== 0) {
-        teacherWeekdays = this.getWeekdays(teacherEvents)
+      teacherSchedule     = this.state.teachersSchedules.filter(
+        item => item.teacherId === teacherType.teacherId);
+      if (teacherSchedule.length !== 0) {
+        teacherWeekdays = this.getWeekdays(teacherSchedule)
         startDate       = this.getStartDate(moment(), teacherWeekdays);
         lessonPrice     = this.getLessonPrice(teacherType, contractType.id);
         totalPrice      = this.getTotalPrice(this.state.lessonCount, lessonPrice, discount.id);
@@ -320,9 +317,8 @@ export default React.createClass({
       lessonPrice:          lessonPrice,
       totalPrice:           totalPrice,
       filteredTeacherTypes: filteredTeacherTypes,
-      teacherEvents:        teacherEvents,
+      teacherSchedule:      teacherSchedule,
       teacherWeekdays:      teacherWeekdays,
-      scheduleEventIds:     [],
       payments:             payments
     });
   },
@@ -402,17 +398,16 @@ export default React.createClass({
     var option          = this.getItemById(this.state.options, this.state.optionId);
     var teacherTypeId   = parseInt(e.target.value);
     var teacherType     = this.getItemById(this.state.teacherTypes, teacherTypeId);
-    var teacherEvents   = this.filterEventsByTeacher(
-        this.state.events,
-        teacherType.teacherId);
+    var teacherSchedule = this.state.teachersSchedules.filter(
+      item => item.teacherId === teacherType.teacherId);
     var teacherWeekdays = [];
     var startDate       = moment();
     var lessonPrice     = this.getLessonPrice(teacherType, contractType.id);;
     var totalPrice      = this.getTotalPrice(this.state.lessonCount, lessonPrice, discount.id);;
     var payments        = [];
 
-    if (teacherEvents.length !== 0) {
-      teacherWeekdays = this.getWeekdays(teacherEvents)
+    if (teacherSchedule.length !== 0) {
+      teacherWeekdays = this.getWeekdays(teacherSchedule)
       startDate       = this.getStartDate(moment(), teacherWeekdays);
     }
 
@@ -423,18 +418,12 @@ export default React.createClass({
 
     this.setState({
       teacherTypeId:    teacherTypeId,
-      teacherEvents:    teacherEvents,
+      teacherSchedule:  teacherSchedule,
       teacherWeekdays:  teacherWeekdays,
       startDate:        startDate.format('DD-MM-YYYY'),
       lessonPrice:      lessonPrice,
       totalPrice:       totalPrice,
-      scheduleEventIds: [],
       payments:         payments
-    });
-  },
-  scheduleChanged: function(e) {
-    this.setState({
-      scheduleEventIds: e.target.value.split(',')
     });
   },
   startDateChanged: function(date) {
@@ -486,18 +475,6 @@ export default React.createClass({
       })
     });
   },
-  initScheduleSelect: function(elem, events) {
-    events = coalesce(events, []);
-    elem.select2({
-      data: events.map(function(event) {
-        return {
-          id: event.id,
-          text: eventToString(event)
-        };
-      }),
-      multiple: 'multiple'
-    });
-  },
   initStartDatePicker: function(elem) {
     elem.datepicker({
       firstDay: 1,
@@ -518,16 +495,18 @@ export default React.createClass({
       $.get('/do/options'),
       $.get('/do/contractTypes'),
       $.get('/do/discounts'),
-      $.get('/do/events/all'),
-      $.get('/do/teacherTypes')
+      $.get('/do/teachers/schedules'),
+      $.get('/do/teacherTypes'),
+      $.get('/do/rooms')
     ).done(
       function(
         lessonTypes,
         options,
         contractTypes,
         discounts,
-        events,
-        teacherTypes) {
+        teachersSchedules,
+        teacherTypes,
+        rooms) {
 
           // default values for selects
 
@@ -538,8 +517,8 @@ export default React.createClass({
               lessonType.id
           );
           var teacherType     = filteredTeacherTypes[0];
-          var teacherEvents   = this.filterEventsByTeacher(events[0], teacherType.teacherId);
-          var teacherWeekdays = this.getWeekdays(teacherEvents)
+          var teacherSchedule = teachersSchedules[0].filter(item => item.teacherId === teacherType.teacherId);
+          var teacherWeekdays = this.getWeekdays(teacherSchedule)
           var startDate       = this.getStartDate(moment(), teacherWeekdays);
           var contractType    = contractTypes[0][0];
           var discount        = discounts[0][0];
@@ -566,13 +545,14 @@ export default React.createClass({
             options:              options[0],
             contractTypes:        contractTypes[0],
             teacherTypes:         teacherTypes[0],
-            events:               events[0],
+            teachersSchedules:    teachersSchedules[0],
             discounts:            discounts[0],
             filteredTeacherTypes: filteredTeacherTypes,
-            teacherEvents:        teacherEvents,
+            teacherSchedule:      teacherSchedule,
             teacherWeekdays:      teacherWeekdays,
             payments:             payments,
-            lessonCount:          option.lessonCount
+            lessonCount:          option.lessonCount,
+            rooms:                rooms[0]
           });
 
           // initialize selects
@@ -605,9 +585,6 @@ export default React.createClass({
           this.initTeacherTypeSelect($(this.refs.teacherType), filteredTeacherTypes);
           $(this.refs.teacherType).on('change', this.teacherTypeChanged);
 
-          this.initScheduleSelect($(this.refs.schedule), teacherEvents);
-          $(this.refs.schedule).on('change', this.scheduleChanged);
-
           this.initStartDatePicker($(this.refs.startDate));
           this.setDatePickerWeekdays($(this.refs.startDate), teacherWeekdays);
 
@@ -616,7 +593,6 @@ export default React.createClass({
   componentDidUpdate: function() {
     // update selects' data
     this.initTeacherTypeSelect($(this.refs.teacherType), this.state.filteredTeacherTypes);
-    this.initScheduleSelect($(this.refs.schedule), this.state.teacherEvents);
     this.setDatePickerWeekdays($(this.refs.startDate), this.state.teacherWeekdays);
   }
 });

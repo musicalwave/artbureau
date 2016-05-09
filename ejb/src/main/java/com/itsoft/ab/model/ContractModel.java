@@ -63,8 +63,8 @@ public class ContractModel extends BasicModel{
 
     private List<PaymentModel> payments = new ArrayList<>();
     private List<LessonModel> lessons = new ArrayList<>();
-    private List<EventModel> teacherEvents = new ArrayList<>();
-    private List<EventModel> schedule = new ArrayList<>();
+    private List<TeacherScheduleModel> teacherSchedule = new ArrayList<>();
+    private List<ContractScheduleModel> schedule = new ArrayList<>();
     private int contractOptionId;
     private ContractOptionModel contractOptionModel;
 
@@ -431,19 +431,19 @@ public class ContractModel extends BasicModel{
         this.lessons = lessons;
     }
 
-    public List<EventModel> getTeacherEvents() {
-        return teacherEvents;
+    public List<TeacherScheduleModel> getTeacherSchedule() {
+        return teacherSchedule;
     }
 
-    public void setTeacherEvents(List<EventModel> teacherEvents) {
-        this.teacherEvents = teacherEvents;
+    public void setTeacherSchedule(List<TeacherScheduleModel> teacherSchedule) {
+        this.teacherSchedule = teacherSchedule;
     }
 
-    public List<EventModel> getSchedule() {
+    public List<ContractScheduleModel> getSchedule() {
         return schedule;
     }
 
-    public void setSchedule(List<EventModel> schedule) {
+    public void setSchedule(List<ContractScheduleModel> schedule) {
         this.schedule = schedule;
     }
 

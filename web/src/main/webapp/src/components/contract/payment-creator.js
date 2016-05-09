@@ -16,7 +16,7 @@ export default React.createClass({
   },
   render: function() {
     return(
-      <tr>
+      <tr className='contract-item'>
         <td>
           <input onChange={$.noop}
                  ref='dateInput'

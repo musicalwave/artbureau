@@ -25,37 +25,19 @@ public class ClientController {
     private Logger LOG = Logger.getLogger(ClientController.class);
 
     @Autowired
-    private ClientsMapper clientsMapper;
-
-    @Autowired
-    private PaymentMapper paymentMapper;
-
-    @Autowired
     private AuthMaster authMaster;
 
     @Autowired
-    private ContractsMapper contractMapper;
-
-    @Autowired
-    private CallsMapper callsMapper;
+    private ClientsMapper clientsMapper;
 
     @Autowired
     private ClientsMaster clientsMaster;
 
     @Autowired
+    private ContractsMapper contractMapper;
+
+    @Autowired
     private ContractMaster contractMaster;
-
-    @Autowired
-    private ContractsMapper contractsMapper;
-
-    @Autowired
-    private EventMaster eventMaster;
-
-    @Autowired
-    private LessonsMapper lessonsMapper;
-
-    @Autowired
-    private ScheduleMapper scheduleMapper;
 
     @RequestMapping(value="/client", method = RequestMethod.GET)
     public String newClient(Model m){
@@ -189,7 +171,7 @@ public class ClientController {
     public
     @ResponseBody
     ClientModel getClient(@RequestParam(value = "id") int id) {
-       return clientsMaster.getClientWithDataById(id);
+        return clientsMaster.getClientWithDataById(id);
     }
 
     @RequestMapping(

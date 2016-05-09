@@ -58,6 +58,9 @@ public class TeacherController {
     @Autowired
     private TeacherTypeMaster teacherTypeMaster;
 
+    @Autowired
+    private TeacherScheduleMaster teacherScheduleMaster;
+
 
     @RequestMapping(value="/teacher", method = RequestMethod.GET)
     public String newTeacher(Model m){
@@ -313,15 +316,29 @@ public class TeacherController {
     @ResponseBody
     List<Integer> getTeacherWorkingDays(@RequestParam(value = "teacherTypeId") int teacherTypeId) {
         TeacherTypeModel teacherTypeModel = teacherTypeMapper.getById(teacherTypeId);
-        return teacherMapper.getWorkingDays(teacherTypeModel.getTeacherId());
+        return teacherMaster.getTeacherWorkingDays(teacherTypeModel.getTeacherId());
     }
 
-    @RequestMapping(value="/do/teachers/schedule", method = RequestMethod.GET)
+    @RequestMapping(
+        value="/do/teachers/schedule",
+        method = RequestMethod.GET)
     public
     @ResponseBody
-    List<EventModel> getTeacherSchedule(@RequestParam(value = "teacherTypeId") int teacherTypeId) {
-        TeacherTypeModel teacherTypeModel = teacherTypeMapper.getById(teacherTypeId);
-        return eventMaster.getEmptyEvents(teacherTypeModel.getTeacherId());
+    List<TeacherScheduleModel> getTeacherSchedule(
+        @RequestParam(value = "teacherTypeId") int teacherTypeId) {
+            TeacherTypeModel teacherTypeModel = teacherTypeMapper.getById(teacherTypeId);
+            return teacherScheduleMaster.getTeacherSchedule(teacherTypeModel.getTeacherId());
+    }
+
+    @RequestMapping(
+        value="/do/teachers/schedule/room",
+        method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<TeacherScheduleModel> getTeacherScheduleByRoom(
+        @RequestParam(value = "teacherId") int teacherId,
+        @RequestParam(value = "roomId") int roomId) {
+            return teacherScheduleMaster.getTeacherScheduleByRoom(teacherId, roomId);
     }
 
     @RequestMapping(value="/do/teachers/price", method = RequestMethod.GET)
@@ -330,7 +347,6 @@ public class TeacherController {
     int getPrice(@RequestParam(value = "teacherTypeId") int teacherTypeId,
                  @RequestParam(value = "typeId") int typeId,
                  @RequestParam(value = "contractType") int contractType) {
-
         TeacherTypeModel teacherTypeModel = teacherTypeMapper.getById(teacherTypeId);
         return teacherTypeMaster.getPrice(teacherTypeModel.getTeacherId(), typeId, contractType);
     }

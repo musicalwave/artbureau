@@ -7,10 +7,10 @@ import Payment from './payment.js';
 import PaymentCreator from './payment-creator.js';
 import Lesson from './lesson.js';
 import LessonCreator from './lesson-creator.js';
-import Event from './event.js';
-import EventCreator from './event-creator.js';
 import ContractItemList from './contract-item-list.js';
-
+import ContractScheduleEditor from './contract-schedule-editor.js';
+import ContractLessonsEditor from './contract-lessons-editor.js';
+import TeacherSchedule from './teacher-schedule.js';
 import {
   deleteContract, 
   restoreContract,
@@ -146,72 +146,65 @@ export default React.createClass({
     );
   },
   // << PAYMENTS
-  // >> SCHEDULE
-  createEventElement: function(event) {
-    return (
-      <Event 
-        event={event}
-        key={event.contractScheduleId}
-        contractId={this.props.contract.id}
-        teacherEvents={this.props.contract.teacherEvents}
-        reloadClientAndContracts={this.reloadClientAndContracts} />
-    );
-  },
-  showNewEventCreator: function() {
-    this.setState({
-      eventCreatorVisible: true
-    });
-  },
-  hideNewEventCreator: function() {
-    this.setState({
-      eventCreatorVisible: false
-    });
-  },
-  createEventCreator: function() {
-    return (
-      <EventCreator 
-        contractId={this.props.contract.id}
-        teacherEvents={this.props.contract.teacherEvents}
-        reloadClientAndContracts={this.reloadClientAndContracts}
-        hideCreator={this.hideNewEventCreator} />
-    );
-  },
-  // << SCHEDULE
   getClassNameModifier: function() {
     if(this.props.contract.deleted)
       return "deleted";
     if(this.props.contract.freezed)
       return "freezed";
   },
-  render: function() {
-    var contract = this.props.contract;
-
-    var freezeDates = [];
-    if(contract.freezed) {
-      freezeDates.push(
+  reloadLessons: function() {
+    this.refs.lessonsEditor.reloadLessons();
+  },
+  getShiftStr: function(contract) {
+    var shiftCount = contract.countShifts;
+    var maxShifts  = contract.contractOptionModel.maxShifts;
+    return shiftCount + ' (' + (maxShifts - shiftCount) + ')';
+  },
+  getContractDate: function(contract) {
+    return moment(contract.date).format('DD-MM-YYYY');
+  },
+  getContractTitle: function(contract) {
+    return contract.teacherS +
+      " - " +
+      contract.typeS +
+      " - " +
+      this.getContractDate(contract);
+  },
+  getFreezeDates: function(contract) {
+    if (contract.freezed) 
+      return [
         <tr key="freezeDate">
           <th>Дата заморозки:</th>
           <td>{moment(contract.freezeDate).format("DD-MM-YYYY")}</td>
-        </tr>);
-
-      freezeDates.push(
+        </tr>,
         <tr key="freezeFinishDate">
           <th>Дата разморозки:</th>
           <td>{moment(contract.freezeFinishDate).format("DD-MM-YYYY")}</td>
-        </tr>);
-    }
-
-    var shiftCount = contract.countShifts;
-    var maxShifts  = contract.contractOptionModel.maxShifts;
-    var shiftStr   = shiftCount + ' (' + (maxShifts - shiftCount) + ')';
-
-    var contractDate = moment(contract.date).format('DD-MM-YYYY');
-    var contractTitle = contract.teacherS +
-                        " - " +
-                        contract.typeS +
-                        " - " +
-                        contractDate;
-
+        </tr>
+      ];
+  },
+  getWriteoff: function(contract) {
+    if (contract.writeoff !== 0) 
+      return (
+        <tr>
+          <th>Списано:</th>
+          <td>{contract.writeoff}</td>
+        </tr>
+      );
+  },
+  getCashback: function(contract) {
+    if (contract.cashback !== 0)
+      return (
+        <tr>
+          <th>Возврат:</th>
+          <td>
+            {contract.cashback + ' (' + contract.fine + ')'}
+          </td>
+        </tr>
+      );
+  },
+  render: function() {
+    var contract = this.props.contract;
     return (
       <div className="contract widget widget-closed box">
 
@@ -222,7 +215,7 @@ export default React.createClass({
           reloadData={this.reloadClientAndContracts}
           ref="lockForm"/>
 
-        <WidgetCollapser title={contractTitle}
+        <WidgetCollapser title={this.getContractTitle(contract)}
                          classNameModifier={this.getClassNameModifier()}/>
         <div className={"widget-content " + this.getClassNameModifier()}>
           <i ref="menuButton"
@@ -262,9 +255,9 @@ export default React.createClass({
               </tr>
               <tr>
                 <th>Дата заключения:</th>
-                <td>{contractDate}</td>
+                <td>{this.getContractDate(contract)}</td>
               </tr>
-              {freezeDates}
+              {this.getFreezeDates(contract)}
               <tr>
                 <th>Cумма:</th>
                 <td>{contract.price}</td>
@@ -273,27 +266,11 @@ export default React.createClass({
                 <th>Баланс:</th>
                 <td>{contract.balance}</td>
               </tr>
-              {
-                contract.writeoff !== 0 
-                ? <tr>
-                    <th>Списано:</th>
-                    <td>{contract.writeoff}</td>
-                  </tr>   
-                : null
-              }
-              {
-                contract.cashback !== 0
-                ? <tr>
-                    <th>Возврат:</th>
-                    <td>
-                      {contract.cashback + ' (' + contract.fine + ')'}
-                    </td>
-                  </tr>
-                : null
-              }
+              {this.getWriteoff(contract)}
+              {this.getCashback(contract)}
               <tr>
                 <th>Переносы:</th>
-                <td>{shiftStr}</td>
+                <td>{this.getShiftStr(contract)}</td>
               </tr>
               <tr>
                 <th>Кол-во занятий:</th>
@@ -306,24 +283,23 @@ export default React.createClass({
             </tbody>
           </table>
 
-          <ContractItemList 
-            contractId={contract.id}
-            items={contract.schedule}
-            title="Расписание"
-            creatorVisible={this.state.eventCreatorVisible}
-            showCreator={this.showNewEventCreator}
-            createItemElement={this.createEventElement}
-            createItemCreator={this.createEventCreator}/>
+          <TeacherSchedule
+            schedule={contract.teacherSchedule}
+            title='Расписание преподавателя'/>
 
-          <ContractItemList 
+          <ContractScheduleEditor
             contractId={contract.id}
-            items={contract.lessons}
-            url="/do/contract/lessons"
-            title="Занятия"
-            creatorVisible={this.state.lessonCreatorVisible}
-            showCreator={this.showLessonCreator}
-            createItemElement={this.createLessonElement}
-            createItemCreator={this.createLessonCreator}/>
+            schedule={contract.schedule}
+            title='Расписание'
+            reloadContracts={this.reloadContractList}
+            reloadLessons={this.reloadLessons}/>
+
+          <ContractLessonsEditor
+            ref='lessonsEditor'
+            contractId={contract.id}
+            title='Занятия' 
+            reloadClient={this.props.reloadClient}
+            reloadContracts={this.props.reloadContractList}/>
 
           <ContractItemList 
             contractId={contract.id}
@@ -378,7 +354,6 @@ export default React.createClass({
     // make lock form close on click outside
     $(document).click(function(e) {
       if (this.state.lockFormVisible &&
-       // click somewhere on the form
        $(e.target).closest('.lock-container').length === 0 &&
        // click on the next/prev month on the datepicker
        $(e.target).closest('.ui-datepicker-header').length === 0) {

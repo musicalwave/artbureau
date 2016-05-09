@@ -112,7 +112,7 @@ export default React.createClass({
   },
   render: function() {
     return(
-      <tr>
+      <tr className='contract-item'>
         {this.state.editMode
          ? <td>
              <input ref='dateInput'

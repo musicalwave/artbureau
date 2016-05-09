@@ -1,7 +1,9 @@
 package com.itsoft.ab.persistence;
 
+import com.itsoft.ab.model.ContractModel;
 import com.itsoft.ab.model.LessonModel;
 import com.itsoft.ab.model.LessonWeb;
+import com.itsoft.ab.model.SimpleModel;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -15,29 +17,31 @@ import java.util.List;
  */
 public interface LessonsMapper {
     List<LessonModel> getContractLessons(int contractId);
-
+    ContractModel getLessonContract(int id);
     LessonModel getLesson(int id);
+    LessonModel getOriginalLesson(int id);
     void updateStatus(LessonModel lesson);
-
     void insertLesson(LessonModel lesson);
-
-    void deleteLesson(LessonModel lesson);
-
-    List<LessonModel> getContractLessonsBetweenDates(@Param("id")int id, @Param("startdate")Date startdate, @Param("finishdate")Date finishdate);
-
-    List<LessonWeb> getLastLessons(@Param("fromDate")Date fromDate, @Param("toDate")Date toDate);
-
-    void updateLesson(@Param("lessonId") int lessonId,
-                     @Param("date") String date,
-                     @Param("eventId") int eventId);
-
-    List<LessonModel> getLessonsWithinPeriod(@Param("contractId") int contractId,
-                                             @Param("dateFrom") Date dateFrom,
-                                             @Param("dateTo") Date dateTo,
-                                             @Param("statusId") int statusId);
-
-    void deleteLessonsWithinPeriod(@Param("contractId") int contractId,
-                                   @Param("dateFrom") Date dateFrom,
-                                   @Param("dateTo") Date dateTo,
-                                   @Param("statusId") int statusId);
+    List<LessonWeb> getLastLessons(
+        @Param("fromDate") Date fromDate,
+        @Param("toDate") Date toDate);
+    void updateLesson(@Param("lesson") LessonModel lesson);
+    void updateShiftedTo(
+        @Param("lessonId") int lessonId,
+        @Param("shiftedTo") Integer shiftedTo);
+    void updateCancelled(
+        @Param("lessonId") int lessonId,
+        @Param("cancelled") int cancelled);
+    List<LessonModel> getLessonsWithinPeriod(
+        @Param("contractId") int contractId,
+        @Param("dateFrom") Date dateFrom,
+        @Param("dateTo") Date dateTo,
+        @Param("statusId") int statusId);
+    List<SimpleModel> getLessonStatuses();
+    void deleteLesson(int id);
+    void deleteLessonsWithinPeriod(
+        @Param("contractId") int contractId,
+        @Param("dateFrom") Date dateFrom,
+        @Param("dateTo") Date dateTo,
+        @Param("statusId") int statusId);
 }

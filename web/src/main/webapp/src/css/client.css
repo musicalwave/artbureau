@@ -62,7 +62,7 @@ div.contract {
 }
 
 div.contract-list {
-    width: 50%;
+    width: 60%;
     margin-top: 30px;
 }
 
@@ -209,39 +209,36 @@ i.contract-menu-btn:hover {
 
 /* CONTRACT ITEMS */
 
-div.contract-item-list {
-    width: 90%;
-    padding-top: 10px;
-}
-
-.contract-item-table {
+.contract-items, 
+.contract-items table {
     width: 100%;
-    margin-left: 20px;
-    margin-bottom: 10px;
 }
 
-.contract-item-table input,
-.new-payments-table input {
-    border: 1px solid #E6E6E6;
-    padding: 0 !important;
-    margin: -1px;
-    width: 100px;
+.contract-item td.room div.select2-container {
+    width: 250px !important;
 }
 
-.contract-item-table div.select2-container,
-.contract-info-table div.select2-container {
-    width: 220px !important;
+.contract-item td.weekday div.select2-container {
+    width: 150px !important;
 }
 
-td.action-cell {
+.contract-item td.time input.ui-timepicker-input {
+    width: 50px;
+}
+
+.contract-item td.status div.select2-container {
+    width: 130px !important;
+}
+
+.contract-item td.date input {
+  width: 80px;
+}
+
+.contract-item td.action-cell {
     border: 0 !important;
     padding-left: 10px;
     padding-top: 5px;
     text-align: right;
-}
-
-td.hidden-cell {
-    border: 0 !important;
 }
 
 .icon-remove,
@@ -261,7 +258,16 @@ td.hidden-cell {
     color: blue;
 }
 
-.add-btn {
-    margin-left: 20px;
+.warning {
+  margin-top: 10px;
+  padding: 5px;
+  background-color: #FA8258;
+  color: black;
+}
+
+/* TEACHER SCHEDULE */
+
+.teacher-schedule, .teacher-schedule table {
+  width: 100%;
 }
 

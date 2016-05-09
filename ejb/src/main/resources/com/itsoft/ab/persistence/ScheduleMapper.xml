@@ -188,31 +188,34 @@
           AND l.id IS NULL
     </select>
 
-    <select id="getLessonsByRoom" resultType="LessonWeb">
+    <select id="getLessonsByRoomAndInterval" resultType="LessonModel">
         SELECT
-               l.id as lessonId,
-               l.date,
-               e.startTime,
-               e.finishTime,
-               co.clientId,
-               concat(c.fname, ' ', c.lname) as clientName,
-               c.phone1 as clientPhone,
-               jtt.teacherId,
-               e.roomId,
-               l.statusId as doneStatus,
-               t.name as teacherName
+          l.id,
+          l.date,
+          l.fromTime,
+          l.toTime,
+          l.roomId,
+          l.statusId,
+          l.shiftedByClient,
+          l.shiftedByTeacher,
+          l.cancelled,
+          l.temporary,
+          co.clientId,
+          concat(c.fname, ' ', c.lname) as clientName,
+          c.phone1 as clientPhone,
+          jtt.teacherId,
+          t.name as teacherName
         FROM lessons l
-        INNER JOIN events e
-        ON e.id = l.eventId
         INNER JOIN contracts co
         ON co.id = l.contractId
         INNER JOIN clients c
         ON c.id = co.clientId
         INNER JOIN J_TEACHERS_TYPES jtt
-         ON jtt.id = co.teacherTypeId
+          ON jtt.id = co.teacherTypeId
         INNER JOIN teachers t
-         ON t.id = jtt.teacherId
-        WHERE e.roomId = #{roomId} AND (l.date BETWEEN #{leftDate} AND #{rightDate})
+          ON t.id = jtt.teacherId
+        WHERE l.roomId = #{roomId}
+          AND (l.date BETWEEN #{fromDate} AND #{toDate})
     </select>
 
     <select id="getEmptyEvent" resultType="EventModel">

@@ -2,11 +2,13 @@ package com.itsoft.ab.beans;
 
 import com.itsoft.ab.exceptions.ApplicationException;
 import com.itsoft.ab.model.ContractModel;
+import com.itsoft.ab.model.ContractScheduleModel;
 import com.itsoft.ab.model.LessonModel;
 import com.itsoft.ab.model.LessonWeb;
 import com.itsoft.ab.persistence.ContractsMapper;
 import com.itsoft.ab.persistence.EventsMapper;
 import com.itsoft.ab.persistence.LessonsMapper;
+import com.itsoft.ab.sys.Dates;
 import com.itsoft.ab.sys.ECode;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,9 @@ public class LessonMaster {
 
     @Autowired
     private ContractMaster contractMaster;
+
+    @Autowired
+    private ContractScheduleMaster contractScheduleMaster;
 
     //Проведение урока
     //clients.moneyR - price
@@ -104,48 +109,13 @@ public class LessonMaster {
         contractMaster.planLessons(contract);
 
         //Удаление переносимого занятия
-        lessonsMapper.deleteLesson(lesson);
+        lessonsMapper.deleteLesson(lesson.getId());
 
         lessons = lessonsMapper.getContractLessons(lesson.getContractId());
 
         contractMaster.updateTransferById(lesson.getContractId());
 
         return lessons.get(lessons.size()-1);
-    }
-
-    public void freezeContract(ContractModel c) throws ParseException {
-        Date startdate = new SimpleDateFormat("dd-MM-yyyy").parse(c.getFreezeDateS());
-        Date finishdate = new SimpleDateFormat("dd-MM-yyyy").parse(c.getFreezeFinishDateS());
-
-        List<LessonModel> lessons = lessonsMapper.getContractLessonsBetweenDates(c.getId(), startdate, finishdate);
-
-        //Получение всех занятий контракта (сортированных)
-        List<LessonModel> ls = lessonsMapper.getContractLessons(c.getId());
-
-        //Задаем начальную дату для планирования занятия после контракта
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(ls.get(ls.size()-1).getDate());
-        calendar.add(Calendar.DATE, 1);
-        Date lastlesson = calendar.getTime();
-
-        //Удаление существующих уроков
-        for(LessonModel lesson : lessons){
-            lessonsMapper.deleteLesson(lesson);
-        }
-
-        c = contractsMapper.getContractById(c.getId());
-
-        //Планирование
-        if(finishdate.after(lastlesson)){
-            c.setDate(finishdate);
-        }else{
-            c.setDate(lastlesson);
-        }
-        c.setCountLessons(lessons.size());
-
-        //Создание занятий после finishdate
-        contractMaster.planLessons(c);
-
     }
 
     public LessonModel prepareLesson(LessonModel lesson){
@@ -174,13 +144,62 @@ public class LessonMaster {
         return lessons;
     }
 
-    public LessonModel createLesson(int contractId, int eventId, Date date, int statusId) {
+    public LessonModel createLesson(
+        int contractId,
+        Date date,
+        String fromTime,
+        String toTime,
+        int roomId,
+        int statusId
+    ) {
         LessonModel lesson = new LessonModel();
         lesson.setContractId(contractId);
-        lesson.setEventId(eventId);
         lesson.setDate(date);
+        lesson.setFromTime(fromTime);
+        lesson.setToTime(toTime);
+        lesson.setRoomId(roomId);
         lesson.setStatusId(statusId);
         return lesson;
+    }
+
+    public void shiftLesson(LessonModel lesson) {
+          ContractModel contract =  lessonsMapper.getLessonContract(lesson.getId());
+          lesson.setContractId(contract.getId());
+          lesson.setStatusId(1);
+          if(lesson.getTemporary() == 1) {
+             lessonsMapper.updateLesson(lesson);
+          } else
+          if(lesson.getTempShift()) {
+              lesson.setTemporary(1);
+              int oldLessonId = lesson.getId();
+              lessonsMapper.insertLesson(lesson);
+              lessonsMapper.updateCancelled(oldLessonId, 1);
+              lessonsMapper.updateShiftedTo(oldLessonId, lesson.getId());
+          } else {
+              ContractScheduleModel scheduleItem =
+                  contractScheduleMaster.findItemByLesson(lesson.getId());
+              if(scheduleItem != null) {
+                  scheduleItem.setRoomId(lesson.getRoomId());
+                  scheduleItem.setFromTime(lesson.getFromTime());
+                  scheduleItem.setToTime(lesson.getToTime());
+                  Calendar calendar = new GregorianCalendar();
+                  calendar.setTime(lesson.getDate());
+                  scheduleItem.setWeekday(Dates.getCalendarWeekday(calendar));
+                  contractScheduleMaster.updateContractScheduleItem(scheduleItem);
+                  contractMaster.replanLessons(contract);
+              }
+          }
+    }
+
+    public void unshiftLesson(int lessonId) {
+        LessonModel lesson = lessonsMapper.getLesson(lessonId);
+        if(lesson.getTemporary() == 1) {
+            LessonModel originalLesson =
+                lessonsMapper.getOriginalLesson(lesson.getId());
+            lessonsMapper.updateCancelled(originalLesson.getId(), 0);
+            lessonsMapper.updateShiftedTo(originalLesson.getId(), null);
+            lessonsMapper.deleteLesson(lesson.getId());
+        }
     }
 
 }

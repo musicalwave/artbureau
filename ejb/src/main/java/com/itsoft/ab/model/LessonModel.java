@@ -22,15 +22,26 @@ public class LessonModel extends BasicModel{
 
     private int roomId;
     private String roomName;
-    private Time startTime;
-    private Time finishTime;
+    private String fromTime;
+    private String toTime;
     private String statusName;
 
     private int contractType;
     private int payment;
     private int task;
 
+    private int clientId;
+    private String clientName;
+    private String clientPhone;
+    private int teacherId;
+    private String teacherName;
+
     private String dateS;
+
+    private int cancelled;
+    private int temporary;
+    private Boolean tempShift;
+    private int shiftedTo;
 
     public LessonModel() {
     }
@@ -91,20 +102,20 @@ public class LessonModel extends BasicModel{
         this.roomName = roomName;
     }
 
-    public Time getStartTime() {
-        return startTime;
+    public String getFromTime() {
+        return fromTime;
     }
 
-    public void setStartTime(Time startTime) {
-        this.startTime = startTime;
+    public void setFromTime(String fromTime) {
+        this.fromTime = fromTime;
     }
 
-    public Time getFinishTime() {
-        return finishTime;
+    public String getToTime() {
+        return toTime;
     }
 
-    public void setFinishTime(Time finishTime) {
-        this.finishTime = finishTime;
+    public void setToTime(String toTime) {
+        this.toTime = toTime;
     }
 
     public int getId() {
@@ -174,5 +185,77 @@ public class LessonModel extends BasicModel{
                 ", shiftedByClient=" + shiftedByClient +
                 ", shiftedByTeacher=" + shiftedByTeacher +
                 '}';
+    }
+
+    public int getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(int clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    public String getClientPhone() {
+        return clientPhone;
+    }
+
+    public void setClientPhone(String clientPhone) {
+        this.clientPhone = clientPhone;
+    }
+
+    public int getTeacherId() {
+        return teacherId;
+    }
+
+    public void setTeacherId(int teacherId) {
+        this.teacherId = teacherId;
+    }
+
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
+
+    public int getCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(int cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    public int getTemporary() {
+        return temporary;
+    }
+
+    public void setTemporary(int temporary) {
+        this.temporary = temporary;
+    }
+
+    public Boolean getTempShift() {
+        return tempShift;
+    }
+
+    public void setTempShift(Boolean tempShift) {
+        this.tempShift = tempShift;
+    }
+
+    public int getShiftedTo() {
+        return shiftedTo;
+    }
+
+    public void setShiftedTo(int shiftedTo) {
+        this.shiftedTo = shiftedTo;
     }
 }

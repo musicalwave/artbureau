@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsoft.ab.persistence.TeacherScheduleMapper">
+
+    <!-- SELECT -->
+    <select id="getAllSchedules" resultType="TeacherScheduleModel">
+        SELECT
+          ts.id,
+          ts.teacherId,
+          ts.fromTime,
+          ts.toTime,
+          ts.roomId,
+          r.name as roomName,
+          ts.weekday
+        FROM teacherSchedule ts
+        INNER JOIN rooms r
+          ON r.id = ts.roomId
+        ORDER BY
+          ts.teacherId,
+          ts.weekday,
+          ts.fromTime
+    </select>
+
+    <select id="getTeacherSchedule"
+            parameterType="int"
+            resultType="TeacherScheduleModel">
+        SELECT
+          ts.id,
+          ts.teacherId,
+          ts.fromTime,
+          ts.toTime,
+          ts.roomId,
+          r.name as roomName,
+          ts.weekday
+        FROM teacherSchedule ts
+        INNER JOIN rooms r
+          ON r.id = ts.roomId
+        WHERE ts.teacherId = #{teacherId}
+        ORDER BY ts.weekday, ts.fromTime
+    </select>
+
+    <select id="getTeacherScheduleByRoom"
+            resultType="TeacherScheduleModel">
+       SELECT
+         ts.id,
+         ts.teacherId,
+         ts.fromTime,
+         ts.toTime,
+         ts.roomId,
+         ts.weekday
+       FROM teacherSchedule ts
+       WHERE ts.teacherId = #{teacherId}
+         AND ts.roomId = #{roomId}
+    </select>
+
+    <select id="getTeacherWorkingDays" parameterType="int" resultType="Integer">
+        SELECT DISTINCT weekday
+        FROM teacherSchedule
+        WHERE teacherId = #{teacherId}
+    </select>
+
+    <!-- INSERT -->
+    <insert id="insertTeacherScheduleItem" parameterType="TeacherScheduleModel">
+        INSERT INTO teacherSchedule(
+          fromTime,
+          toTime,
+          roomId,
+          weekday)
+        VALUES(
+          #{item.fromTime},
+          #{item.toTime},
+          #{item.roomId},
+          #{item.weekday})
+    </insert>
+
+    <insert id="insertTeacherSchedule" parameterType="TeacherScheduleModel">
+        INSERT INTO teacherSchedule(
+          fromTime,
+          toTime,
+          roomId,
+          weekday)
+        VALUES
+        <foreach collection="items" item="item" separator=",">
+            #{item.fromTime},
+            #{item.toTime},
+            #{item.roomId},
+            #{item.weekday})
+        </foreach>
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="updateTeacherScheduleItem" parameterType="TeacherScheduleModel">
+        UPDATE teacherSchedule
+        SET
+          fromTime = #{item.fromTime},
+          toTime =   #{item.toTime},
+          roomId =   #{item.roomId},
+          weekday =  #{item.weekday}
+        WHERE id = #{item.id}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="deleteTeacherScheduleItem" parameterType="int">
+        DELETE FROM teacherSchedule
+        WHERE id = #{id}
+    </delete>
+
+</mapper>

@@ -3,8 +3,10 @@ package com.itsoft.ab.beans;
 import com.itsoft.ab.exceptions.ApplicationException;
 import com.itsoft.ab.model.EventModel;
 import com.itsoft.ab.model.TeacherModel;
+import com.itsoft.ab.model.TeacherScheduleModel;
 import com.itsoft.ab.persistence.RoomMapper;
 import com.itsoft.ab.persistence.TeacherMapper;
+import com.itsoft.ab.persistence.TeacherScheduleMapper;
 import com.itsoft.ab.sys.ECode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,10 +24,10 @@ import java.util.List;
 public class TeacherMaster {
 
     @Autowired
-    private RoomMapper roomMapper;
+    private TeacherMapper teacherMapper;
 
     @Autowired
-    private TeacherMapper teacherMapper;
+    private TeacherScheduleMapper teacherScheduleMapper;
 
     public List<EventModel> checkTeacherDays(TeacherModel teacher) {
         List<EventModel> events = new ArrayList<EventModel>();
@@ -55,5 +57,13 @@ public class TeacherMaster {
         TeacherModel teacher = new TeacherModel();
         teacher.setName("---");
         return teacher;
+    }
+
+    public List<TeacherScheduleModel> getTeacherSchedule(int teacherId) {
+        return teacherScheduleMapper.getTeacherSchedule(teacherId);
+    }
+
+    public List<Integer> getTeacherWorkingDays(int teacherId) {
+        return teacherScheduleMapper.getTeacherWorkingDays(teacherId);
     }
 }

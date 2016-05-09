@@ -118,7 +118,8 @@
 
 .context-menu-icon-transfer:before,
 .context-menu-icon-burn:before,
-.context-menu-icon-check:before {
+.context-menu-icon-check:before,
+.context-menu-icon-unshift:before {
   position: absolute;
   top: 50%;
   left: 0;
@@ -139,30 +140,30 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.context-menu-icon-transfer:before {
-  content: '\e0ce';
-}
-
-.context-menu-icon-transfer.context-menu-hover:before {
-  color: #fff;
-}
-
 .context-menu-icon-burn:before {
   content: '\e068';
-}
-
-.context-menu-icon-burn.context-menu-hover:before {
-  color: #fff;
 }
 
 .context-menu-icon-check:before {
   content: '\e033';
 }
 
-.context-menu-icon-check.context-menu-hover:before {
+.context-menu-icon-unshift:before {
+  content: '\e0b3';
+}
+
+.context-menu-icon-unshift.context-menu-hover:before, 
+.context-menu-icon-transfer.context-menu-hover:before,
+.context-menu-icon-burn.context-menu-hover:before {
   color: #fff;
 }
 
+.context-menu-icon-unshift.context-menu-disabled:before, 
+.context-menu-icon-transfer.context-menu-disabled:before,
+.context-menu-icon-burn.context-menu-disabled:before {
+  color: #626262; 
+  background-color: #fff;
+}
 
 
 /* <<< MY ICONS */

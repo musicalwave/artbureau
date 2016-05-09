@@ -83,4 +83,12 @@ public class Dates {
 
         return toDate;
     }
+
+    // Calendar's week starts from sunday
+    // (means that DAY_OF_WEEK for sunday is 1)
+    // Need to adjust it.
+    public static int getCalendarWeekday(Calendar date) {
+        // monday's number is 2
+        return (date.get(Calendar.DAY_OF_WEEK) - 2 + 7) % 7 + 1;
+    }
 }

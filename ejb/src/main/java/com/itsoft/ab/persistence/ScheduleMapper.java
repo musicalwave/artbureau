@@ -1,6 +1,7 @@
 package com.itsoft.ab.persistence;
 
 import com.itsoft.ab.model.EventModel;
+import com.itsoft.ab.model.LessonModel;
 import com.itsoft.ab.model.LessonWeb;
 import org.apache.ibatis.annotations.Param;
 
@@ -36,9 +37,10 @@ public interface ScheduleMapper {
 
     List<EventModel> selectEmptyEventsByTeacher(@Param("teacherId")int teacherId);
 
-    List<LessonWeb> getLessonsByRoom(@Param("roomId") int roomId,
-                                     @Param("leftDate") String leftDate,
-                                     @Param("rightDate") String rightDate);
+    List<LessonModel> getLessonsByRoomAndInterval(
+        @Param("roomId") int roomId,
+        @Param("fromDate") String fromDate,
+        @Param("toDate") String toDate);
 
     EventModel getEmptyEvent(@Param("teacherId") int teacherId,
                              @Param("roomId") int roomId,

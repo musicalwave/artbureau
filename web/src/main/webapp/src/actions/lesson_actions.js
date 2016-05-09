@@ -2,17 +2,36 @@ import $ from 'jquery';
 import {logAjaxError} from '../utils/utils';
 import moment from 'moment';
 
-export function createLesson(contractId, date, eventId, successCallback) {
+export function insertLesson(lesson, successCallback) {
   $.ajax({
-    url:     '/do/lessons/insert',
-    method:  'POST',
-    data: {
-      contractId,
-      date,
-      eventId
-    },
-    success: successCallback,
-    error:   logAjaxError.bind(null, '/do/lessons/insert')
+    url:         '/do/lessons/insert',
+    method:      'POST',
+    contentType: 'application/json',
+    data:        lesson,
+    success:     successCallback,
+    error:       logAjaxError.bind(null, '/do/lessons/insert')
+  });
+}
+
+export function updateLesson(lesson, successCallback, failureCallback) {
+  $.ajax({
+    url:         '/do/lesson/update',
+    method:      'POST',
+    contentType: 'application/json',
+    data:        lesson,
+    success:     successCallback, 
+    error:       failureCallback
+  })
+}
+
+export function deleteLesson(lesson, successCallback) {
+  $.ajax({
+    url:         '/do/lessons/delete',
+    method:      'POST',
+    contentType: 'application/json',
+    data:        lesson,
+    success:     successCallback, 
+    error:       logAjaxError.bind(null, '/do/lessons/delete')
   });
 }
 
@@ -46,49 +65,53 @@ export function restoreLesson(id, successCallback) {
   });
 }
 
-export function updateLesson(lessonId, date, eventId, successCallback) {
-  $.ajax({
-    url:        '/do/lesson/update',
-    method:     'POST',
-    data: {
-      lessonId,
-      date,
-      eventId
-    },
-    success:    successCallback,
-    error:      logAjaxError.bind(null, '/do/lesson/update')
-  })
+export function shiftLesson(
+  lesson,
+  successCallback, 
+  failureCallback
+) {
+    $.ajax({
+      url:         '/do/lesson/shift',
+      method:      'POST',
+      contentType: 'application/json',
+      data:        lesson, 
+      success:     successCallback,
+      error:       failureCallback
+    });
 }
 
-export function shiftLesson(data, successCallback, failureCallback) {
+export function unshiftLesson(
+  id, 
+  successCallback
+) {
   $.ajax({
-    url:     '/do/lesson/shift',
+    url:     '/do/lesson/unshift',
     method:  'POST',
-    data,
+    data:    { id },
     success: successCallback,
-    error:   failureCallback
+    error:   logAjaxError.bind(null, '/do/lesson/unshift')
   });
 }
 
-export function getRoomLessons(roomId, from, to) {
+
+
+export function getRoomLessons(roomId, fromDate, toDate) {
   return $.ajax({
     url: '/do/lessons/room',
     data: {
       roomId:    roomId,
-      leftDate:  from.format('YYYY-MM-DD'),
-      rightDate: to.subtract(1, 'd').format('YYYY-MM-DD')
+      fromDate:  fromDate.format('YYYY-MM-DD'),
+      toDate:    toDate.subtract(1, 'd').format('YYYY-MM-DD')
     }
   });
 }
 
-export function getEmptyEvents(teacherId, roomId, from, to) {
+export function getTeacherScheduleByRoom(teacherId, roomId) {
   return $.ajax({
-    url: '/do/events/empty',
+    url: '/do/teachers/schedule/room',
     data: {
       teacherId,
-      roomId,
-      start:     from.format('YYYY-MM-DD'),
-      end:       to.subtract(1, 'd').format('YYYY-MM-DD')
+      roomId
     }
   });
 }

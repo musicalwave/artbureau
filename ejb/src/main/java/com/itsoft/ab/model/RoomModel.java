@@ -10,8 +10,9 @@ import com.itsoft.ab.BasicModel;
  */
 public class RoomModel extends BasicModel{
     private int id;
-    private int filialId;
     private String name;
+    private int filialId;
+    private String filialName;
 
     public RoomModel() {
     }
@@ -30,6 +31,15 @@ public class RoomModel extends BasicModel{
         this.id = id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+
+        this.name = name;
+    }
+
     public int getFilialId() {
         return filialId;
     }
@@ -38,12 +48,12 @@ public class RoomModel extends BasicModel{
         this.filialId = filialId;
     }
 
-    public String getName() {
-        return name;
+    public String getFilialName() {
+        return filialName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFilialName(String filialName) {
+        this.filialName = filialName;
     }
 
     @Override

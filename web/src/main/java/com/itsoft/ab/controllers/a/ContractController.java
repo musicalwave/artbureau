@@ -70,7 +70,7 @@ public class ContractController {
     private ContractsMapper contractsMapper;
 
     @Autowired
-    private ScheduleMapper scheduleMapper;
+    private ContractScheduleMaster contractScheduleMaster;
 
     @RequestMapping(value="/contract/{contractId}", method = RequestMethod.GET)
     public String showContract(@PathVariable int contractId, Model m){
@@ -193,21 +193,6 @@ public class ContractController {
         return "redirect:/client/" + contract.getClientId();
     }
 
-    @RequestMapping(value="/contract/freeze", method = RequestMethod.POST)
-    public String freezeContract(@ModelAttribute("contract") ContractModel c, Model m) throws ParseException {
-
-        if(c != null){
-
-            if(c.getFreezeDateS() != null && c.getFreezeFinishDateS() != null){
-                lessonMaster.freezeContract(c);
-                return "redirect:/contract/" + c.getId();
-            }
-            throw new ApplicationException(ECode.ERROR409);
-        }
-
-        throw new ApplicationException(ECode.ERROR415);
-    }
-
     @RequestMapping(value="/contract/cash", method = RequestMethod.POST)
     public String statusContract(@ModelAttribute("contract") ContractModel c, Model m) throws ParseException {
 
@@ -230,6 +215,13 @@ public class ContractController {
     @ResponseBody
     List<LessonModel> getContractLessons(@RequestParam(value = "contractId") int contractId) {
         return lessonsMapper.getContractLessons(contractId);
+    }
+
+    @RequestMapping(value = "/do/contract/schedule", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<ContractScheduleModel> getContractSchedule(@RequestParam(value = "contractId") int contractId) {
+        return contractScheduleMaster.getContractSchedule(contractId);
     }
 
     @RequestMapping(value = "/do/contract/payments", method = RequestMethod.GET)
@@ -291,32 +283,36 @@ public class ContractController {
         contractMaster.cashback(contractId);
     }
 
-    @RequestMapping(value = "/do/contract/schedule/insert", method = RequestMethod.POST)
+    @RequestMapping(
+        value = "/do/contract/schedule/insert",
+        method = RequestMethod.POST,
+        headers = {"Content-type=application/json"})
     public
     @ResponseBody
-    void insertContractScheduleEvent(@RequestParam("contractId") int contractId,
-                                     @RequestParam("eventId") int eventId) {
-        scheduleMapper.insertContractScheduleEvent(contractId, eventId);
-        contractMaster.replanLessons(contractsMapper.getContractById(contractId));
+    void insertContractScheduleItem(@RequestBody ContractScheduleModel item) {
+        contractMaster.insertScheduleItem(item);
     }
 
-    @RequestMapping(value = "/do/contract/schedule/update", method = RequestMethod.POST)
+    @RequestMapping(
+        value = "/do/contract/schedule/update",
+        method = RequestMethod.POST,
+        headers = {"Content-type=application/json"}
+    )
     public
     @ResponseBody
-    void updateContractScheduleEvent(@RequestParam("contractId") int contractId,
-                                     @RequestParam("contractScheduleId") int contractScheduleId,
-                                     @RequestParam("eventId") int eventId) {
-        scheduleMapper.updateContractScheduleEvent(contractScheduleId, eventId);
-        contractMaster.replanLessons(contractsMapper.getContractById(contractId));
+    void updateContractScheduleItem(@RequestBody ContractScheduleModel item) {
+        contractMaster.updateScheduleItem(item);
     }
 
-    @RequestMapping(value = "/do/contract/schedule/delete", method = RequestMethod.POST)
+    @RequestMapping(
+        value = "/do/contract/schedule/delete",
+        method = RequestMethod.POST,
+        headers = {"Content-type=application/json"}
+    )
     public
     @ResponseBody
-    void deleteContractScheduleEvent(@RequestParam("contractId") int contractId,
-                                     @RequestParam("contractScheduleId") int contractScheduleId) {
-        scheduleMapper.deleteContractScheduleEvent(contractScheduleId);
-        contractMaster.replanLessons(contractsMapper.getContractById(contractId));
+    void deleteContractScheduleItem(@RequestBody ContractScheduleModel item) {
+        contractMaster.deleteScheduleItem(item);
     }
 
     @RequestMapping(value = "/do/contract/option", method = RequestMethod.GET)

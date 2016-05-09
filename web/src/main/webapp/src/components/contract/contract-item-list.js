@@ -24,9 +24,9 @@ export default React.createClass({
       newItemButtonStyle = {display: "none"};
 
     return (
-      <div className="contract-item-list">
+      <div className="contract-items">
         <h4>{this.props.title}:</h4>
-        <table className="contract-item-table info-table">
+        <table className="info-table">
           <tbody>
             {itemElems}
             {creator}

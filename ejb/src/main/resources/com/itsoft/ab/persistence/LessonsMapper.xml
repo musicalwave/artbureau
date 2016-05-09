@@ -14,34 +14,49 @@
 
         <result property="roomId" column="roomId"/>
         <result property="roomName" column="roomName"/>
-        <result property="startTime" column="startTime"/>
-        <result property="finishTime" column="finishTime"/>
+        <result property="fromTime" column="fromTime"/>
+        <result property="toTime" column="toTime"/>
         <result property="statusName" column="statusName"/>
         <result property="contractType" column="contractType"/>
+        <result property="temporary" column="temporary"/>
+        <result property="shiftedTo" column="shiftedTo"/>
+        <result property="cancelled" column="cancelled"/>
     </resultMap>
 
     <!--All queries here-->
 
     <select id="getContractLessons" parameterType="int" resultMap="result">
         SELECT
-        lessons.id,
-        lessons.eventId,
-        lessons.statusId,
-        lessons.shiftedByClient,
-        lessons.shiftedByTeacher,
-        lessons.date,
-        rooms.id AS roomId,
-        rooms.name AS roomName,
-        events.startTime AS startTime,
-        events.finishTime AS finishTime,
-        lessonsStatus.name AS statusName
+          l.id,
+          l.contractId,
+          l.eventId,
+          l.statusId,
+          l.shiftedByClient,
+          l.shiftedByTeacher,
+          l.date,
+          l.fromTime,
+          l.toTime,
+          l.cancelled,
+          l.shiftedTo,
+          l.temporary,
+          r.id AS roomId,
+          r.name AS roomName,
+          ls.name AS statusName
+        FROM lessons l
+        INNER JOIN rooms r
+          ON r.id = l.roomId
+        INNER JOIN lessonsStatus ls
+          ON ls.id = l.statusId
+        WHERE l.contractId = #{id}
+        ORDER BY l.date, l.fromTime
+    </select>
 
-        FROM lessons, events, rooms, lessonsStatus
-        WHERE lessons.contractId = #{id}
-        AND events.id = lessons.eventId
-        AND rooms.id = events.roomId
-        AND lessonsStatus.id = lessons.statusId
-        ORDER BY lessons.date, events.startTime
+    <select id="getLessonContract" parameterType="int" resultType="ContractModel">
+        SELECT c.*
+        FROM lessons l
+        INNER JOIN contracts c
+          ON c.id = l.contractId
+        WHERE l.id = #{id}
     </select>
 
     <select id="getLesson" parameterType="int" resultType="LessonModel">
@@ -53,6 +68,12 @@
         AND contracts.id = lessons.contractId
     </select>
 
+    <select id="getOriginalLesson" parameterType="int" resultType="LessonModel">
+        SELECT l.*
+        FROM lessons l
+        WHERE shiftedTo = #{id}
+    </select>
+
     <update id="updateStatus" parameterType="LessonModel">
         UPDATE lessons SET
         lessons.statusId = #{statusId}
@@ -60,21 +81,46 @@
         lessons.id = #{id}
     </update>
 
-    <insert id="insertLesson" parameterType="LessonModel">
-        INSERT INTO lessons (eventId, statusId, contractId, shiftedByClient, shiftedByTeacher, date, payment, task)
+    <update id="updateCancelled">
+        UPDATE lessons
+          SET cancelled = #{cancelled}
+        WHERE id = #{lessonId}
+    </update>
+
+    <insert id="insertLesson" parameterType="LessonModel" keyProperty="id">
+        INSERT INTO lessons (
+          statusId,
+          contractId,
+          shiftedByClient,
+          shiftedByTeacher,
+          date,
+          fromTime,
+          toTime,
+          roomId,
+          payment,
+          task,
+          temporary)
         VALUES (
-        #{eventId},
-        #{statusId},
-        #{contractId},
-        #{shiftedByClient},
-        #{shiftedByTeacher},
-        #{date},
-        #{payment},
-        #{task})
+          #{statusId},
+          #{contractId},
+          #{shiftedByClient},
+          #{shiftedByTeacher},
+          #{date},
+          #{fromTime},
+          #{toTime},
+          #{roomId},
+          #{payment},
+          #{task},
+          #{temporary});
+
+          <selectKey keyProperty="id" resultType="int" order="AFTER">
+              SELECT LAST_INSERT_ID() as id;
+          </selectKey>
     </insert>
 
-    <delete id="deleteLesson" parameterType="LessonModel">
-        delete from lessons where id = #{id}
+    <delete id="deleteLesson" parameterType="int">
+        DELETE FROM lessons
+        WHERE id = #{id}
     </delete>
 
     <select id="getContractLessonsBetweenDates" parameterType="map" resultType="LessonModel">
@@ -122,11 +168,21 @@
         ORDER BY events.startTime ASC
     </select>
 
-    <update id="updateLesson">
+    <update id="updateLesson" parameterType="LessonModel">
        UPDATE lessons
-        SET date = STR_TO_DATE(#{date}, '%d-%m-%Y'),
-            eventId = #{eventId}
-       WHERE id = #{lessonId}
+       SET
+         date = #{lesson.date},
+         statusId = #{lesson.statusId},
+         fromTime = #{lesson.fromTime},
+         toTime = #{lesson.toTime},
+         roomId = #{lesson.roomId}
+       WHERE id = #{lesson.id}
+    </update>
+
+    <update id="updateShiftedTo">
+        UPDATE lessons
+        SET shiftedTo = #{shiftedTo}
+        WHERE id = #{lessonId}
     </update>
 
     <select id="getLessonsWithinPeriod" resultType="LessonModel">
@@ -143,4 +199,9 @@
           AND (date BETWEEN #{dateFrom} AND DATE_ADD(#{dateTo}, INTERVAL 1 DAY))
           AND statusId = #{statusId}
     </delete>
+
+    <select id="getLessonStatuses" resultType="SimpleModel">
+        SELECT id, name
+        FROM lessonsStatus
+    </select>
 </mapper>

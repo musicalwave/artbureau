@@ -15,8 +15,11 @@
         SELECT
           r.id,
           r.name,
-          r.filialId
+          r.filialId,
+          f.name as filialName
         FROM rooms r
+        INNER JOIN filials f
+          ON f.id = r.filialId
         WHERE r.active = 1
     </select>
 

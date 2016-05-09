@@ -32,6 +32,9 @@ public class AjaxController {
     private TeacherTypeMapper teacherTypeMapper;
 
     @Autowired
+    private TeacherScheduleMapper teacherScheduleMapper;
+
+    @Autowired
     private ContractsMapper contractsMapper;
 
     @Autowired
@@ -39,6 +42,9 @@ public class AjaxController {
 
     @Autowired
     private DiscountsMapper discountsMapper;
+
+    @Autowired
+    private LessonsMapper lessonsMapper;
 
     @RequestMapping(value = "/do/rooms", method = RequestMethod.GET)
     public
@@ -75,6 +81,13 @@ public class AjaxController {
         return teacherTypeMapper.getAllActiveByType(typeId);
     }
 
+    @RequestMapping(value = "/do/teachers/schedules", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<TeacherScheduleModel> getTeachersSchedules() {
+        return teacherScheduleMapper.getAllSchedules();
+    }
+
     @RequestMapping(value = "/do/new-contract-status", method = RequestMethod.GET)
     public
     @ResponseBody
@@ -101,5 +114,12 @@ public class AjaxController {
     @ResponseBody
     List<SimpleModel> getContractTypes() {
         return contractsMapper.selectContractTypes();
+    }
+
+    @RequestMapping(value = "/do/lessons/statuses", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<SimpleModel> getLessonStatuses() {
+        return lessonsMapper.getLessonStatuses();
     }
 }

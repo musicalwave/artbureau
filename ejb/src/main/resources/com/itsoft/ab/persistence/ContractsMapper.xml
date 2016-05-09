@@ -304,6 +304,7 @@
         FROM lessons l
         WHERE l.contractId=#{id}
         AND l.statusId = 1
+        AND l.cancelled != 1
     </select>
 
     <select id="getCompletedLessonCount" resultType="int">
